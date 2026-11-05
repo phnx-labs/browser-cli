@@ -1,0 +1,24 @@
+# bun.lock is the lockfile, so the npm dependencies update through the bun
+# ecosystem; an npm-ecosystem PR would change package.json without bun.lock and
+# fail `bun install --frozen-lockfile`.
+version: 2
+updates:
+  - package-ecosystem: bun
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    ignore:
+      # The platform binaries this package publishes; release.mjs requires them
+      # to equal package.json "version".
+      - dependency-name: "@phnx-labs/browser-cli-*"
+    groups:
+      dependencies:
+        patterns: ["*"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]

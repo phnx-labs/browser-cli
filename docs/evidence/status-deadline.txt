@@ -1,0 +1,6 @@
+browser status --json (source CLI, real local service)
+Exit: 1
+{"ok":false,"service":{"id":"browser-ipc","state":"unknown"},"error":"IPC request 'status' timed out after 3000ms"}
+
+Canonical scripts/test.sh: 196 pass, 8 skip, 0 fail.
+Independent real socket test: 1 pass, 0 fail, 3.28 seconds.

@@ -1,0 +1,68 @@
+name: test
+on:
+  pull_request:
+  push:
+    branches: [main, 'release/**']
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.1
+      # resolveFfmpeg tests exercise real resolution against a system ffmpeg; on
+      # an ffmpeg-free runner the first call falls through to the installer and
+      # times out. Provide the real binary the suite expects.
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: bun install --frozen-lockfile
+      - name: Generate CLI documentation
+        run: bash scripts/generate-cli-docs.sh --out-dir .agents/scratch/cli-docs
+      - uses: actions/upload-artifact@v7
+        with:
+          name: browser-cli-docs
+          path: .agents/scratch/cli-docs/
+          include-hidden-files: true
+          if-no-files-found: error
+      - name: Fetch the PR base for the comment budget
+        if: github.event_name == 'pull_request'
+        run: git fetch --no-tags --depth=1 origin ${{ github.event.pull_request.base.sha }}
+      - run: bash scripts/test.sh
+        env:
+          COMMENT_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.1
+      - run: bun install --frozen-lockfile
+      - run: bash scripts/build.sh --all --skip-tests
+      - uses: actions/upload-artifact@v7
+        with:
+          name: compiled-packages
+          path: dist/
+  compiled:
+    needs: package
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: compiled-packages
+          path: dist/
+      - shell: bash
+        run: |
+          target="$(node -p 'process.platform + "-" + process.arch')"
+          suffix=""
+          [ "$target" != win32-x64 ] || suffix=".exe"
+          chmod +x "dist/$target/browser$suffix"
+          node scripts/verify-compiled.mjs "dist/$target/browser$suffix"
+          npm pack --dry-run

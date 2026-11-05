@@ -1,0 +1,227 @@
+/**
+ * Local task → device index: the box that STARTS a task records where it runs, with no
+ * fleet sync. A missing name fails loud with the open tasks and never guesses.
+ */
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import { getBrowserRuntimeDir } from '../runtime/state.js';
+import { machineId } from '../runtime/machine-id.js';
+
+export interface TaskBinding {
+  device: string;
+  profile?: string;
+  url?: string;
+  sessionId?: string;
+  launchId?: string;
+  createdAt: number;
+}
+
+export type TaskIndex = Record<string, TaskBinding>;
+
+export const REJECT_DEVICE_MESSAGE =
+  '--device is only valid on `browser start`.\n' +
+  'The task is bound to a device at start; later verbs resolve it from --task.\n' +
+  'Next: browser start --task <name> --device <device>';
+
+export type TaskRoute =
+  | { kind: 'proceed'; task?: string; device: string }
+  | { kind: 'unknown'; task: string; message: string }
+  | { kind: 'ambiguous'; message: string }
+  | { kind: 'reject-device'; message: string };
+
+/**
+ * Close verbs stay local unless `--task` or a local binding routes them: forwarded cold,
+ * they could stop an unrelated hub task. Other verbs make the caller's own task there.
+ */
+const TERMINAL_BROWSER_VERBS = new Set(['done', 'stop']);
+export function isTerminalBrowserVerb(verb: string): boolean {
+  return TERMINAL_BROWSER_VERBS.has(verb);
+}
+
+export function taskIndexPath(): string {
+  return path.join(getBrowserRuntimeDir(), 'task-index.json');
+}
+
+export function readTaskIndex(): TaskIndex {
+  const file = taskIndexPath();
+  if (!fs.existsSync(file)) return {};
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(fs.readFileSync(file, 'utf8'));
+  } catch (error) {
+    throw new Error(
+      `Cannot read browser task index at ${file}: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+  if (parsed == null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new Error(`Cannot read browser task index at ${file}: document root must be a map.`);
+  }
+  return parsed as TaskIndex;
+}
+
+function writeTaskIndex(index: TaskIndex): void {
+  const file = taskIndexPath();
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  const tmp = `${file}.${process.pid}.tmp`;
+  fs.writeFileSync(tmp, `${JSON.stringify(index, null, 2)}\n`);
+  fs.renameSync(tmp, file);
+}
+
+export function getTaskBinding(name: string): TaskBinding | undefined {
+  return readTaskIndex()[name];
+}
+
+export function listTaskBindings(): Array<{ name: string } & TaskBinding> {
+  return Object.entries(readTaskIndex())
+    .map(([name, binding]) => ({ name, ...binding }))
+    .sort((a, b) => a.createdAt - b.createdAt);
+}
+
+export function bindTask(name: string, binding: TaskBinding): void {
+  if (!name) {
+    throw new Error('Cannot bind a browser task with an empty name.');
+  }
+  if (!binding.device) {
+    throw new Error(`Cannot bind browser task "${name}" without a device.`);
+  }
+  const index = readTaskIndex();
+  index[name] = { ...binding };
+  writeTaskIndex(index);
+}
+
+export function updateTaskBinding(name: string, patch: Partial<TaskBinding>): void {
+  const index = readTaskIndex();
+  const existing = index[name];
+  if (!existing) return;
+  index[name] = { ...existing, ...patch };
+  writeTaskIndex(index);
+}
+
+export function unbindTask(name: string): void {
+  const index = readTaskIndex();
+  if (!(name in index)) return;
+  delete index[name];
+  writeTaskIndex(index);
+}
+
+/** Drop every binding recorded under this profile (after `stop --profile` / gc). */
+export function unbindTasksForProfile(profile: string): void {
+  const index = readTaskIndex();
+  let changed = false;
+  for (const [name, binding] of Object.entries(index)) {
+    if (binding.profile === profile) {
+      delete index[name];
+      changed = true;
+    }
+  }
+  if (changed) writeTaskIndex(index);
+}
+
+export function tasksForCaller(sessionId?: string, launchId?: string): Array<{ name: string } & TaskBinding> {
+  return listTaskBindings().filter((entry) => {
+    if (sessionId && entry.sessionId === sessionId) return true;
+    if (launchId && entry.launchId === launchId) return true;
+    return false;
+  });
+}
+
+function formatAge(createdAt: number, now = Date.now()): string {
+  const ageMs = Math.max(0, now - createdAt);
+  if (ageMs < 60_000) return `${Math.round(ageMs / 1000)}s`;
+  return `${Math.round(ageMs / 60_000)}m`;
+}
+
+export function formatOpenTaskList(
+  entries: Array<{ name: string } & TaskBinding>,
+  now = Date.now(),
+): string {
+  if (entries.length === 0) return '  (no open tasks)';
+  return entries
+    .map((entry) => {
+      const url = entry.url && entry.url.length > 0 ? entry.url : '-';
+      return `  ${entry.name}  url=${url}  device=${entry.device}  age=${formatAge(entry.createdAt, now)}`;
+    })
+    .join('\n');
+}
+
+export function unknownTaskMessage(name: string, entries = listTaskBindings()): string {
+  return [
+    `Unknown browser task "${name}".`,
+    'Open tasks:',
+    formatOpenTaskList(entries),
+    'Next: browser start --task <name> [--device <device>]',
+  ].join('\n');
+}
+
+export function ambiguousTasksMessage(entries: Array<{ name: string } & TaskBinding>): string {
+  return [
+    'Multiple browser tasks for this session — pass --task <name>:',
+    formatOpenTaskList(entries),
+    'Next: browser status',
+  ].join('\n');
+}
+
+/**
+ * Where a page verb runs: zero matching tasks follow `opts.hub` like a bare `browser start`.
+ * `defaultBrowserHub()` is undefined on the hub and on a re-exec, so this never loops.
+ */
+export function resolveTaskRoute(opts: {
+  task?: string;
+  device?: string;
+  sessionId?: string;
+  launchId?: string;
+  self?: string;
+  hub?: string;
+}): TaskRoute {
+  if (opts.device) {
+    return { kind: 'reject-device', message: REJECT_DEVICE_MESSAGE };
+  }
+
+  const self = opts.self ?? machineId();
+
+  if (opts.task) {
+    const binding = getTaskBinding(opts.task);
+    if (!binding) {
+      return { kind: 'unknown', task: opts.task, message: unknownTaskMessage(opts.task) };
+    }
+    return { kind: 'proceed', task: opts.task, device: binding.device };
+  }
+
+  const matches = tasksForCaller(opts.sessionId, opts.launchId);
+  if (matches.length > 1) {
+    return { kind: 'ambiguous', message: ambiguousTasksMessage(matches) };
+  }
+  if (matches.length === 1) {
+    const only = matches[0]!;
+    return { kind: 'proceed', task: only.name, device: only.device };
+  }
+  return { kind: 'proceed', device: opts.hub ?? self };
+}
+
+/**
+ * The daemon sandboxes screenshot writes to the runtime dir, so the CLI honors
+ * `-o` by copying the captured file there. Same path → no copy.
+ */
+export function honorScreenshotOutput(requested: string | undefined, daemonPath: string): string {
+  if (!requested) return daemonPath;
+  const dest = path.resolve(requested);
+  if (path.resolve(daemonPath) === dest) return dest;
+  fs.mkdirSync(path.dirname(dest), { recursive: true });
+  fs.copyFileSync(daemonPath, dest);
+  return dest;
+}
+
+/**
+ * Where a start with no `--device` goes given a hub. A `--profile` declared here runs here:
+ * the hub would tunnel back to a port a pipe-launched browser never binds.
+ */
+export function startForwardTarget(opts: {
+  hub?: string;
+  profile?: string;
+  declaring: readonly string[];
+  self: string;
+}): string | undefined {
+  if (!opts.hub) return undefined;
+  if (opts.profile && opts.profile !== 'default' && opts.declaring.includes(opts.self)) return undefined;
+  return opts.hub;
+}

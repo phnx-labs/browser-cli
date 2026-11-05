@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <head>
+    <!-- Counts loads per `?p=<name>` in localStorage, which tabs on one page share;
+      `window.__loads` is this document's own count, and a fresh `window.__sentinel`
+      proves the document really reloaded. -->
+    <meta charset="utf-8" />
+    <script>
+      var name = new URLSearchParams(location.search).get('p') || 'index';
+      var key = 'loads-' + name;
+      var n = Number(localStorage.getItem(key) || '0') + 1;
+      localStorage.setItem(key, String(n));
+      document.title = name + ' loads=' + n;
+      window.__loads = n;
+      window.__sentinel = undefined; // reset on every document load
+    </script>
+  </head>
+  <body>
+    <h1 id="page"></h1>
+    <script>
+      document.getElementById('page').textContent = document.title;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,53 @@
+{
+  "name": "@phnx-labs/browser-cli",
+  "version": "0.1.40",
+  "description": "Drive real browsers over CDP, WebDriver BiDi and native Arc",
+  "type": "module",
+  "bin": {
+    "browser": "bin/browser.cjs"
+  },
+  "files": [
+    "bin/browser.cjs",
+    "bin/install.cjs",
+    "skills/",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phnx-labs/browser-cli.git"
+  },
+  "license": "Apache-2.0",
+  "scripts": {
+    "postinstall": "node bin/install.cjs",
+    "build": "bash scripts/build.sh",
+    "test": "bash scripts/test.sh"
+  },
+  "optionalDependencies": {
+    "@phnx-labs/browser-cli-darwin-arm64": "0.1.40",
+    "@phnx-labs/browser-cli-darwin-x64": "0.1.40",
+    "@phnx-labs/browser-cli-linux-arm64": "0.1.40",
+    "@phnx-labs/browser-cli-linux-x64": "0.1.40",
+    "@phnx-labs/browser-cli-win32-x64": "0.1.40"
+  },
+  "devDependencies": {
+    "@inquirer/prompts": "8.7.4",
+    "@phnx-labs/cli-docs": "0.1.1",
+    "@phnx-labs/tui": "file:vendor/phnx-labs-tui-0.1.0.tgz",
+    "@types/bun": "1.4.4",
+    "@types/node": "26.6.5",
+    "@types/proper-lockfile": "4.1.4",
+    "@types/ws": "8.18.2",
+    "bun": "1.4.4",
+    "chalk": "6.0.1",
+    "commander": "15.0.0",
+    "proper-lockfile": "4.1.2",
+    "typescript": "7.0.2",
+    "ws": "8.22.0",
+    "yaml": "2.9.1"
+  }
+}

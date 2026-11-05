@@ -1,0 +1,3751 @@
+{
+  "schemaVersion": 1,
+  "command": "browser",
+  "description": "Drive real browsers with their profiles and cookies from the command line. Agents use a persistent task to navigate pages, inspect elements, interact with forms, capture screenshots and network traffic, then close the task. A local IPC service manages browser processes and tabs, using Chrome DevTools Protocol, Firefox WebDriver BiDi or native Arc control; tasks can also run on another machine over SSH.",
+  "groups": 42,
+  "commands": 65,
+  "root": {
+    "name": "browser",
+    "path": "",
+    "aliases": [],
+    "description": "Drive real browsers over CDP, WebDriver BiDi and native Arc",
+    "args": [],
+    "options": [
+      {
+        "flags": "-v, --version",
+        "description": "output the version number",
+        "short": "-v",
+        "long": "--version",
+        "required": false,
+        "optional": false,
+        "variadic": false,
+        "negate": false
+      },
+      {
+        "flags": "-h, --help",
+        "description": "display help for command",
+        "short": "-h",
+        "long": "--help",
+        "required": false,
+        "optional": false,
+        "variadic": false,
+        "negate": false
+      }
+    ],
+    "subcommands": []
+  },
+  "tree": [
+    {
+      "name": "click",
+      "path": "click",
+      "aliases": [],
+      "description": "Click an element by ref, by its visible name with --text, or raw coordinates with --at X,Y",
+      "args": [
+        {
+          "name": "ref",
+          "required": false,
+          "variadic": false,
+          "description": ""
+        }
+      ],
+      "options": [
+        {
+          "flags": "--task <name>",
+          "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+          "long": "--task",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--device <name>",
+          "description": "Not valid here — bind the device at `browser start --device`",
+          "long": "--device",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-t, --tab <tabId>",
+          "description": "Tab ID (defaults to current)",
+          "short": "-t",
+          "long": "--tab",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--at <x,y>",
+          "description": "Click viewport coordinates (e.g. --at 320,540), bypassing ref resolution",
+          "long": "--at",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--text <name>",
+          "description": "Click the element with this accessible name (exact, else containing it; first in page order), no `browser refs` needed: --text \"Checkout\"",
+          "long": "--text",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--role <role>",
+          "description": "With --text: only elements of this role (button, link, checkbox, …)",
+          "long": "--role",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--snapshot",
+          "description": "After the action settles, also print the page url, title and interactive refs (what `browser refs` would print next) — one round trip instead of two",
+          "long": "--snapshot",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--no-wait",
+          "description": "Return as the action lands instead of once the page has settled (a load and the requests that draw it, a router render, or nothing happening). Firefox and Arc always return as the action lands",
+          "long": "--no-wait",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": true
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "console",
+      "path": "console",
+      "aliases": [],
+      "description": "Read console logs from a tab",
+      "args": [],
+      "options": [
+        {
+          "flags": "--task <name>",
+          "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+          "long": "--task",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--device <name>",
+          "description": "Not valid here — bind the device at `browser start --device`",
+          "long": "--device",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-t, --tab <tabId>",
+          "description": "Tab ID (defaults to current)",
+          "short": "-t",
+          "long": "--tab",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-l, --level <level>",
+          "description": "Filter by level (log, info, warn, error)",
+          "short": "-l",
+          "long": "--level",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--clear",
+          "description": "Clear logs after reading",
+          "long": "--clear",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "devices",
+      "path": "devices",
+      "aliases": [],
+      "description": "List available device presets",
+      "args": [],
+      "options": [
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "dialog",
+      "path": "dialog",
+      "aliases": [],
+      "description": "Answer the confirm() or prompt() the page is showing: `browser dialog accept` or `browser dialog dismiss`",
+      "args": [
+        {
+          "name": "answer",
+          "required": true,
+          "variadic": false,
+          "description": ""
+        }
+      ],
+      "options": [
+        {
+          "flags": "--task <name>",
+          "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+          "long": "--task",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--device <name>",
+          "description": "Not valid here — bind the device at `browser start --device`",
+          "long": "--device",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--text <reply>",
+          "description": "With accept: the text to answer a prompt() with",
+          "long": "--text",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "done",
+      "path": "done",
+      "aliases": [],
+      "description": "Complete a task and close its tabs (resolves from caller identity when --task is omitted)",
+      "args": [],
+      "options": [
+        {
+          "flags": "--task <name>",
+          "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+          "long": "--task",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--device <name>",
+          "description": "Not valid here — bind the device at `browser start --device`",
+          "long": "--device",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "download",
+      "path": "download",
+      "aliases": [],
+      "description": "Set the download directory for a task (defaults to the profile's downloads dir)",
+      "args": [],
+      "options": [
+        {
+          "flags": "--task <name>",
+          "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+          "long": "--task",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--device <name>",
+          "description": "Not valid here — bind the device at `browser start --device`",
+          "long": "--device",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-t, --tab <tabId>",
+          "description": "Tab ID (defaults to current)",
+          "short": "-t",
+          "long": "--tab",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-p, --path <dir>",
+          "description": "Download directory path (default: the profile's downloads dir)",
+          "short": "-p",
+          "long": "--path",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "errors",
+      "path": "errors",
+      "aliases": [],
+      "description": "Read page errors from a tab",
+      "args": [],
+      "options": [
+        {
+          "flags": "--task <name>",
+          "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+          "long": "--task",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--device <name>",
+          "description": "Not valid here — bind the device at `browser start --device`",
+          "long": "--device",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-t, --tab <tabId>",
+          "description": "Tab ID (defaults to current)",
+          "short": "-t",
+          "long": "--tab",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--clear",
+          "description": "Clear errors after reading",
+          "long": "--clear",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "evaluate",
+      "path": "evaluate",
+      "aliases": [
+        "eval"
+      ],
+      "description": "Evaluate JavaScript in current tab",
+      "args": [
+        {
+          "name": "expression",
+          "required": false,
+          "variadic": false,
+          "description": ""
+        }
+      ],
+      "options": [
+        {
+          "flags": "--task <name>",
+          "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+          "long": "--task",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--device <name>",
+          "description": "Not valid here — bind the device at `browser start --device`",
+          "long": "--device",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-t, --tab <tabId>",
+          "description": "Tab ID (defaults to current)",
+          "short": "-t",
+          "long": "--tab",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-e, --expression <js>",
+          "description": "JavaScript expression to evaluate (or pass it positionally)",
+          "short": "-e",
+          "long": "--expression",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-f, --file <path>",
+          "description": "Path to a .js file whose contents will be evaluated (`-` reads stdin)",
+          "short": "-f",
+          "long": "--file",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "help",
+      "path": "help",
+      "aliases": [],
+      "description": "Show help for a command; --json prints every command, argument and option as JSON",
+      "args": [
+        {
+          "name": "command",
+          "required": false,
+          "variadic": true,
+          "description": ""
+        }
+      ],
+      "options": [
+        {
+          "flags": "--json",
+          "description": "Print the command tree as JSON (the whole CLI, or the named command)",
+          "long": "--json",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "examples": "# Options for one command\nbrowser start --help\nbrowser help start\n\n# The whole command tree as JSON\nbrowser help --json\n\n# One command as JSON\nbrowser help profiles create --json",
+      "subcommands": []
+    },
+    {
+      "name": "history",
+      "path": "history",
+      "aliases": [],
+      "description": "Show recent browser task history",
+      "args": [],
+      "options": [
+        {
+          "flags": "-l, --limit <n>",
+          "description": "Number of entries (default 10)",
+          "short": "-l",
+          "long": "--limit",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false,
+          "defaultValue": 10
+        },
+        {
+          "flags": "--json",
+          "description": "Output machine-readable JSON",
+          "long": "--json",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "hover",
+      "path": "hover",
+      "aliases": [],
+      "description": "Hover over an element by ref",
+      "args": [
+        {
+          "name": "ref",
+          "required": true,
+          "variadic": false,
+          "description": ""
+        }
+      ],
+      "options": [
+        {
+          "flags": "--task <name>",
+          "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+          "long": "--task",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--device <name>",
+          "description": "Not valid here — bind the device at `browser start --device`",
+          "long": "--device",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-t, --tab <tabId>",
+          "description": "Tab ID (defaults to current)",
+          "short": "-t",
+          "long": "--tab",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "navigate",
+      "path": "navigate",
+      "aliases": [
+        "goto"
+      ],
+      "description": "Navigate current tab to URL (creates a task and tab when none exist)",
+      "args": [
+        {
+          "name": "url",
+          "required": false,
+          "variadic": false,
+          "description": ""
+        }
+      ],
+      "options": [
+        {
+          "flags": "--task <name>",
+          "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+          "long": "--task",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--device <name>",
+          "description": "Not valid here — bind the device at `browser start --device`",
+          "long": "--device",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-u, --url <url>",
+          "description": "URL to navigate to (or pass it positionally)",
+          "short": "-u",
+          "long": "--url",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-p, --profile <name>",
+          "description": "Browser profile (optional if task is unique)",
+          "short": "-p",
+          "long": "--profile",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--snapshot",
+          "description": "After the action settles, also print the page url, title and interactive refs (what `browser refs` would print next) — one round trip instead of two",
+          "long": "--snapshot",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--no-wait",
+          "description": "Return as the action lands instead of once the page has settled (a load and the requests that draw it, a router render, or nothing happening). Firefox and Arc always return as the action lands",
+          "long": "--no-wait",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": true
+        },
+        {
+          "flags": "--json",
+          "description": "Output machine-readable JSON",
+          "long": "--json",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "pdf",
+      "path": "pdf",
+      "aliases": [],
+      "description": "Export the current tab as PDF via CDP Page.printToPDF — auto-saved under sessions/<task>/ when [output] is omitted",
+      "args": [
+        {
+          "name": "output",
+          "required": false,
+          "variadic": false,
+          "description": ""
+        }
+      ],
+      "options": [
+        {
+          "flags": "--task <name>",
+          "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+          "long": "--task",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--device <name>",
+          "description": "Not valid here — bind the device at `browser start --device`",
+          "long": "--device",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-t, --tab <tabId>",
+          "description": "Tab ID (defaults to current)",
+          "short": "-t",
+          "long": "--tab",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "press",
+      "path": "press",
+      "aliases": [],
+      "description": "Press a key (Enter, Tab, Escape, etc)",
+      "args": [
+        {
+          "name": "key",
+          "required": true,
+          "variadic": false,
+          "description": ""
+        }
+      ],
+      "options": [
+        {
+          "flags": "--task <name>",
+          "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+          "long": "--task",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--device <name>",
+          "description": "Not valid here — bind the device at `browser start --device`",
+          "long": "--device",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-t, --tab <tabId>",
+          "description": "Tab ID (defaults to current)",
+          "short": "-t",
+          "long": "--tab",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--snapshot",
+          "description": "After the action settles, also print the page url, title and interactive refs (what `browser refs` would print next) — one round trip instead of two",
+          "long": "--snapshot",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--no-wait",
+          "description": "Return as the action lands instead of once the page has settled (a load and the requests that draw it, a router render, or nothing happening). Firefox and Arc always return as the action lands",
+          "long": "--no-wait",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": true
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "profiles",
+      "path": "profiles",
+      "aliases": [],
+      "description": "Manage browser profiles",
+      "args": [],
+      "options": [
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "examples": "# WHERE is the devices whose own file declares the name\nbrowser profiles list\n\n# Create one on this device\nbrowser profiles add work --browser chrome\nbrowser profiles create work --browser chrome\n\n# Claim leftover central profiles on the machine that hosts the browser\nbrowser profiles claim\nbrowser profiles claim comet-local\n\n# Clean up dead ones this device declares: check first, then apply\nbrowser profiles prune --dry-run\nbrowser profiles prune\n\n# Make one the machine's default for a bare `browser start`\nbrowser use work\n\n# Which profiles are signed in to which service, and as whom\nbrowser profiles logins\nbrowser profiles logins --json   # [{\"profile\",\"service\",\"account\"} | {\"profile\",\"service\":null,\"account\":null,\"unread\"}]",
+      "notes": "A device declares its own browsers in its own `browser/profiles/<machine>.yaml`.\nA name declared by exactly one device is identity-bearing; a name declared\nby several is fungible. Leftover central `browser:` entries are claimed\nwith `browser profiles claim` on the machine that hosts the browser.\n\nIn `list`, the `*` marker means \"this machine's configured default\"\n(`browser start` with no --profile). A profile a setup wizard pins\nis named `auto-chrome`; `default` is only an ALIAS for whichever profile\nthis machine is configured to use, resolved the same way by every command.\n\n`prune` only considers profiles this device declares. It never removes a\nprofile that is in use, the configured default, or the `auto-chrome`\nprofile a setup wizard created.\n\nOn a Mac with Arc, every Arc Space is listed as a profile (arc-home,\narc-work, ...) discovered read-only from Arc's own metadata — a Space\nalready carries its Arc profile's logins, so it IS the browser profile.\nAgents attach to the running Arc through Apple Events and never launch or\nrelaunch it; their tabs open in an Arc window of their own. Comet's own profiles are listed the same way (comet-work, ...),\npinned to Comet's real user-data dir, so agents and you share one Comet\nwindow per profile: agents attach when it is running with remote debugging,\nlaunch it on your store when it is not running, and fail loud with the\nrelaunch command when it runs without a port. The daemon publishes every\ndiscovered profile into this device's declaration, so other fleet boxes list\nit with WHERE=<this device> and route to it. Point agents at Comet when a workflow needs\ndownloads, network capture, or trusted input:\n  browser profiles create agents-comet --browser comet --attach-only\nA CDP `--attach-only` profile attaches to a browser you\nalready started with remote debugging and fails loud with the relaunch\ncommand otherwise, pinned to a durable --user-data-dir so the sign-in\nsurvives quit+relaunch. A foreign browser squatting the canonical port is\nrejected, not driven — `browser profiles doctor <name>` flags it.",
+      "subcommands": [
+        {
+          "name": "claim",
+          "path": "profiles claim",
+          "aliases": [],
+          "description": "Move leftover central browser: profiles into this device's declaration file. Only profiles this machine can host are claimed; the rest stay central. Run on the machine that actually has the browser.",
+          "args": [
+            {
+              "name": "name",
+              "required": false,
+              "variadic": false,
+              "description": ""
+            }
+          ],
+          "options": [
+            {
+              "flags": "--json",
+              "description": "Output machine-readable JSON",
+              "long": "--json",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-h, --help",
+              "description": "display help for command",
+              "short": "-h",
+              "long": "--help",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            }
+          ],
+          "subcommands": []
+        },
+        {
+          "name": "create",
+          "path": "profiles create",
+          "aliases": [
+            "add"
+          ],
+          "description": "Create a new browser profile on this device",
+          "args": [
+            {
+              "name": "name",
+              "required": true,
+              "variadic": false,
+              "description": ""
+            }
+          ],
+          "options": [
+            {
+              "flags": "-b, --browser <type>",
+              "description": "Browser type: chrome, comet, chromium, brave, edge, arc, custom",
+              "short": "-b",
+              "long": "--browser",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-e, --endpoint <url>",
+              "description": "CDP endpoint URL (repeatable; auto-assigned if omitted)",
+              "short": "-e",
+              "long": "--endpoint",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false,
+              "defaultValue": []
+            },
+            {
+              "flags": "-s, --secrets <bundle>",
+              "description": "Secrets bundle to inject",
+              "short": "-s",
+              "long": "--secrets",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-d, --description <text>",
+              "description": "Profile description",
+              "short": "-d",
+              "long": "--description",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--headless",
+              "description": "Run in headless mode",
+              "long": "--headless",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--window <WxH>",
+              "description": "Window size in CSS pixels (default: 1512x982, MacBook Pro 14\")",
+              "long": "--window",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--position <X,Y>",
+              "description": "Window position on screen, e.g. 80,80",
+              "long": "--position",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--binary <path>",
+              "description": "Absolute path to the browser/app binary (required with --browser custom)",
+              "long": "--binary",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--electron",
+              "description": "Treat this profile as an Electron desktop app: never call Target.createTarget; bind to the visible window using --target-filter or the skip-invisible heuristic",
+              "long": "--electron",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--target-filter <expr>",
+              "description": "Pick the existing CDP page target to drive (Electron apps, and Arc — which reuses an open tab / Space rather than creating one). Format: url:<substring> or title:<substring>",
+              "long": "--target-filter",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--attach-only",
+              "description": "Never spawn a rival window: attach to a browser you already started with remote debugging, else fail loud with a relaunch hint (PHNX-3967). The model for a canonical signed-in Comet; Arc is always attach-only. Pairs with a durable --user-data-dir.",
+              "long": "--attach-only",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--user-data-dir <path>",
+              "description": "Absolute durable --user-data-dir for this profile's browser. Default for attach-only: ~/.agents/browser/logins/<name>/chrome-data (outside cache, so a one-time sign-in survives relaunch).",
+              "long": "--user-data-dir",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-h, --help",
+              "description": "display help for command",
+              "short": "-h",
+              "long": "--help",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            }
+          ],
+          "subcommands": []
+        },
+        {
+          "name": "doctor",
+          "path": "profiles doctor",
+          "aliases": [],
+          "description": "Diagnose a browser profile: where it is declared, binary, port, user-data-dir, onboarding state",
+          "args": [
+            {
+              "name": "name",
+              "required": true,
+              "variadic": false,
+              "description": ""
+            }
+          ],
+          "options": [
+            {
+              "flags": "-h, --help",
+              "description": "display help for command",
+              "short": "-h",
+              "long": "--help",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            }
+          ],
+          "subcommands": []
+        },
+        {
+          "name": "edit",
+          "path": "profiles edit",
+          "aliases": [],
+          "description": "Edit an existing profile in place (stays in the store it already lives in)",
+          "args": [
+            {
+              "name": "name",
+              "required": true,
+              "variadic": false,
+              "description": ""
+            }
+          ],
+          "options": [
+            {
+              "flags": "-b, --browser <type>",
+              "description": "Not editable — see the error for the delete-and-recreate path",
+              "short": "-b",
+              "long": "--browser",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-d, --description <text>",
+              "description": "Profile description (pass '' to clear)",
+              "short": "-d",
+              "long": "--description",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-e, --endpoint <url>",
+              "description": "Replace the endpoint list (repeatable)",
+              "short": "-e",
+              "long": "--endpoint",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false,
+              "defaultValue": []
+            },
+            {
+              "flags": "-s, --secrets <bundle>",
+              "description": "Secrets bundle to inject",
+              "short": "-s",
+              "long": "--secrets",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--headless",
+              "description": "Run in headless mode",
+              "long": "--headless",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--no-headless",
+              "description": "Run headed",
+              "long": "--no-headless",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": true
+            },
+            {
+              "flags": "--window <WxH>",
+              "description": "Window size in CSS pixels",
+              "long": "--window",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--position <X,Y>",
+              "description": "Window position on screen, e.g. 80,80",
+              "long": "--position",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--binary <path>",
+              "description": "Absolute path to the browser/app binary",
+              "long": "--binary",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--electron",
+              "description": "Treat this profile as an Electron desktop app",
+              "long": "--electron",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--no-electron",
+              "description": "Stop treating it as an Electron app",
+              "long": "--no-electron",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": true
+            },
+            {
+              "flags": "--target-filter <expr>",
+              "description": "url:<substring> or title:<substring>; consulted on Electron and Arc profiles (pass '' to clear)",
+              "long": "--target-filter",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--attach-only",
+              "description": "Make this profile attach-only (never spawn a rival window) — PHNX-3967",
+              "long": "--attach-only",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--launch",
+              "description": "Undo attach-only: let agents launch the browser when nothing is serving CDP on the port",
+              "long": "--launch",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--user-data-dir <path>",
+              "description": "Absolute durable --user-data-dir (pass '' to clear back to the default durable dir)",
+              "long": "--user-data-dir",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--json",
+              "description": "Output machine-readable JSON",
+              "long": "--json",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-h, --help",
+              "description": "display help for command",
+              "short": "-h",
+              "long": "--help",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            }
+          ],
+          "subcommands": []
+        },
+        {
+          "name": "list",
+          "path": "profiles list",
+          "aliases": [
+            "ls"
+          ],
+          "description": "List all browser profiles and the devices declaring each one (WHERE)",
+          "args": [],
+          "options": [
+            {
+              "flags": "--json",
+              "description": "Output machine-readable JSON (includes devices + kind)",
+              "long": "--json",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-h, --help",
+              "description": "display help for command",
+              "short": "-h",
+              "long": "--help",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            }
+          ],
+          "subcommands": []
+        },
+        {
+          "name": "logins",
+          "path": "profiles logins",
+          "aliases": [],
+          "description": "Show which login-gated services each profile has a live session for, the account signed in, and whether login creds are available in the profile's secrets bundle (reads cookie/username presence only, never decrypts).",
+          "args": [],
+          "options": [
+            {
+              "flags": "--json",
+              "description": "Output a flat JSON array: one {profile, service, account} row per detected login, plus one {profile, service: null, account: null, unread} row per profile whose cookie store cannot be read here",
+              "long": "--json",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-h, --help",
+              "description": "display help for command",
+              "short": "-h",
+              "long": "--help",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            }
+          ],
+          "subcommands": []
+        },
+        {
+          "name": "prune",
+          "path": "profiles prune",
+          "aliases": [],
+          "description": "Remove dead profiles this device declares: browser not installed here, or never started",
+          "args": [],
+          "options": [
+            {
+              "flags": "-n, --dry-run",
+              "description": "Print what would be removed and exit without changing anything",
+              "short": "-n",
+              "long": "--dry-run",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--json",
+              "description": "Output machine-readable JSON",
+              "long": "--json",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-h, --help",
+              "description": "display help for command",
+              "short": "-h",
+              "long": "--help",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            }
+          ],
+          "subcommands": []
+        },
+        {
+          "name": "remove",
+          "path": "profiles remove",
+          "aliases": [
+            "delete"
+          ],
+          "description": "Remove the profile alias and cached runtime dirs (never deletes native Arc data)",
+          "args": [
+            {
+              "name": "name",
+              "required": true,
+              "variadic": false,
+              "description": ""
+            }
+          ],
+          "options": [
+            {
+              "flags": "--keep-cache",
+              "description": "Leave ~/.agents/browser/cache/<name>* dirs in place (don't wipe chrome-data)",
+              "long": "--keep-cache",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-h, --help",
+              "description": "display help for command",
+              "short": "-h",
+              "long": "--help",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            }
+          ],
+          "subcommands": []
+        },
+        {
+          "name": "rename",
+          "path": "profiles rename",
+          "aliases": [],
+          "description": "Rename a profile, moving its browser data with it (logins survive)",
+          "args": [
+            {
+              "name": "from",
+              "required": true,
+              "variadic": false,
+              "description": ""
+            },
+            {
+              "name": "to",
+              "required": true,
+              "variadic": false,
+              "description": ""
+            }
+          ],
+          "options": [
+            {
+              "flags": "--json",
+              "description": "Output machine-readable JSON",
+              "long": "--json",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-h, --help",
+              "description": "display help for command",
+              "short": "-h",
+              "long": "--help",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            }
+          ],
+          "subcommands": []
+        },
+        {
+          "name": "seed",
+          "path": "profiles seed",
+          "aliases": [],
+          "description": "Create a machine-local profile for each installed browser (named <browser>-local), so you can pick or use one instead of hand-crafting each. Idempotent — existing profiles are left untouched.",
+          "args": [],
+          "options": [
+            {
+              "flags": "-h, --help",
+              "description": "display help for command",
+              "short": "-h",
+              "long": "--help",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            }
+          ],
+          "subcommands": []
+        },
+        {
+          "name": "use",
+          "path": "profiles use",
+          "aliases": [],
+          "description": "Pick the profile `browser start` uses when no --profile is passed. No name opens a picker on a TTY or prints the current default headlessly.",
+          "args": [
+            {
+              "name": "name",
+              "required": false,
+              "variadic": false,
+              "description": ""
+            }
+          ],
+          "options": [
+            {
+              "flags": "--unset",
+              "description": "Clear the configured default (leaves this machine with no default until you pick one)",
+              "long": "--unset",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-h, --help",
+              "description": "display help for command",
+              "short": "-h",
+              "long": "--help",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            }
+          ],
+          "subcommands": []
+        },
+        {
+          "name": "view",
+          "path": "profiles view",
+          "aliases": [
+            "show"
+          ],
+          "description": "View one profile",
+          "args": [
+            {
+              "name": "name",
+              "required": true,
+              "variadic": false,
+              "description": ""
+            }
+          ],
+          "options": [
+            {
+              "flags": "--json",
+              "description": "Output machine-readable JSON",
+              "long": "--json",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-h, --help",
+              "description": "display help for command",
+              "short": "-h",
+              "long": "--help",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            }
+          ],
+          "subcommands": []
+        }
+      ]
+    },
+    {
+      "name": "prune",
+      "path": "prune",
+      "aliases": [
+        "gc"
+      ],
+      "description": "Close tabs for abandoned tasks — owning agent session exited, or idle past the window — and mark them done. The same reaper the daemon already runs every 5 minutes; use this to run it now.",
+      "args": [],
+      "options": [
+        {
+          "flags": "--dry-run",
+          "description": "List what would be closed without closing anything",
+          "long": "--dry-run",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--idle-minutes <n>",
+          "description": "Override the idle window in minutes (default: this device's browser.task-idle-minutes, or 30). 0 disables idle-only closing for this run; session-dead tasks are still closed.",
+          "long": "--idle-minutes",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--json",
+          "description": "Output machine-readable JSON",
+          "long": "--json",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "ps",
+      "path": "ps",
+      "aliases": [],
+      "description": "List every browser/electron/tunnel process the service has tracked (alive or stale) — works without the daemon",
+      "args": [],
+      "options": [
+        {
+          "flags": "--json",
+          "description": "Output machine-readable JSON",
+          "long": "--json",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "record",
+      "path": "record",
+      "aliases": [],
+      "description": "Record a video of the page",
+      "args": [],
+      "options": [
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": [
+        {
+          "name": "start",
+          "path": "record start",
+          "aliases": [],
+          "description": "Start recording — auto-saved under sessions/<task>/recordings/. Bounded by --fps, --duration, --max-mb.",
+          "args": [],
+          "options": [
+            {
+              "flags": "--task <name>",
+              "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+              "long": "--task",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--device <name>",
+              "description": "Not valid here — bind the device at `browser start --device`",
+              "long": "--device",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-t, --tab <tabId>",
+              "description": "Tab ID (defaults to current)",
+              "short": "-t",
+              "long": "--tab",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--fps <n>",
+              "description": "Frames per second (1–30, default 5)",
+              "long": "--fps",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--duration <sec>",
+              "description": "Hard duration cap in seconds (default 60)",
+              "long": "--duration",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--max-mb <mb>",
+              "description": "Stop when output exceeds this many MB (default 25)",
+              "long": "--max-mb",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-h, --help",
+              "description": "display help for command",
+              "short": "-h",
+              "long": "--help",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            }
+          ],
+          "subcommands": []
+        },
+        {
+          "name": "stop",
+          "path": "record stop",
+          "aliases": [],
+          "description": "Stop an in-progress recording",
+          "args": [],
+          "options": [
+            {
+              "flags": "--task <name>",
+              "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+              "long": "--task",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--device <name>",
+              "description": "Not valid here — bind the device at `browser start --device`",
+              "long": "--device",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-h, --help",
+              "description": "display help for command",
+              "short": "-h",
+              "long": "--help",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            }
+          ],
+          "subcommands": []
+        }
+      ]
+    },
+    {
+      "name": "refs",
+      "path": "refs",
+      "aliases": [],
+      "description": "Get DOM refs for interactive elements",
+      "args": [],
+      "options": [
+        {
+          "flags": "--task <name>",
+          "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+          "long": "--task",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--device <name>",
+          "description": "Not valid here — bind the device at `browser start --device`",
+          "long": "--device",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-t, --tab <tabId>",
+          "description": "Tab ID (defaults to current)",
+          "short": "-t",
+          "long": "--tab",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--all",
+          "description": "Include non-interactive elements",
+          "long": "--all",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-l, --limit <n>",
+          "description": "Max elements (default 500)",
+          "short": "-l",
+          "long": "--limit",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false,
+          "defaultValue": 500
+        },
+        {
+          "flags": "--json",
+          "description": "Output machine-readable JSON",
+          "long": "--json",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "remote-control",
+      "path": "remote-control",
+      "aliases": [],
+      "description": "Allow or deny other machines driving THIS machine's browser (`browser start --device <this-device>` or `agents ssh <this-device> browser …`). `on`/`off` to set (device-local, never synced); no argument prints the current value. Default off.",
+      "args": [
+        {
+          "name": "state",
+          "required": false,
+          "variadic": false,
+          "description": ""
+        }
+      ],
+      "options": [
+        {
+          "flags": "--json",
+          "description": "Output as JSON",
+          "long": "--json",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "requests",
+      "path": "requests",
+      "aliases": [],
+      "description": "Read captured network requests. --format har emits a HAR 1.2 JSON document.",
+      "args": [],
+      "options": [
+        {
+          "flags": "--task <name>",
+          "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+          "long": "--task",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--device <name>",
+          "description": "Not valid here — bind the device at `browser start --device`",
+          "long": "--device",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-t, --tab <tabId>",
+          "description": "Tab ID (defaults to current)",
+          "short": "-t",
+          "long": "--tab",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-f, --filter <text>",
+          "description": "Filter URLs containing text",
+          "short": "-f",
+          "long": "--filter",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--clear",
+          "description": "Clear requests after reading",
+          "long": "--clear",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--format <format>",
+          "description": "Output format: table (default) or har",
+          "long": "--format",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false,
+          "defaultValue": "table"
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "responsebody",
+      "path": "responsebody",
+      "aliases": [],
+      "description": "Wait for and read a response body by URL pattern",
+      "args": [
+        {
+          "name": "url-pattern",
+          "required": true,
+          "variadic": false,
+          "description": ""
+        }
+      ],
+      "options": [
+        {
+          "flags": "--task <name>",
+          "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+          "long": "--task",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--device <name>",
+          "description": "Not valid here — bind the device at `browser start --device`",
+          "long": "--device",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-t, --tab <tabId>",
+          "description": "Tab ID (defaults to current)",
+          "short": "-t",
+          "long": "--tab",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--timeout <ms>",
+          "description": "Timeout in milliseconds",
+          "long": "--timeout",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--max-chars <n>",
+          "description": "Max characters to return",
+          "long": "--max-chars",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "screenshot",
+      "path": "screenshot",
+      "aliases": [],
+      "description": "Take a screenshot — auto-saved per task; --output only needed when you want a specific path",
+      "args": [],
+      "options": [
+        {
+          "flags": "--task <name>",
+          "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+          "long": "--task",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--device <name>",
+          "description": "Not valid here — bind the device at `browser start --device`",
+          "long": "--device",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-t, --tab <tabId>",
+          "description": "Tab ID (defaults to current)",
+          "short": "-t",
+          "long": "--tab",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-o, --output <path>",
+          "description": "Specific output path (otherwise auto-saved under sessions/<task>/)",
+          "short": "-o",
+          "long": "--output",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-q, --quality <mode>",
+          "description": "compressed (JPEG, capped at ~100 KB — default) or raw (PNG, pixel-faithful)",
+          "short": "-q",
+          "long": "--quality",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false,
+          "defaultValue": "compressed"
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "scroll",
+      "path": "scroll",
+      "aliases": [],
+      "description": "Scroll the page by pixel amount (negatives scroll up/left)",
+      "args": [],
+      "options": [
+        {
+          "flags": "--task <name>",
+          "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+          "long": "--task",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--device <name>",
+          "description": "Not valid here — bind the device at `browser start --device`",
+          "long": "--device",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-t, --tab <tabId>",
+          "description": "Tab ID (defaults to current)",
+          "short": "-t",
+          "long": "--tab",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--dx <n>",
+          "description": "Horizontal pixels (negative = left)",
+          "long": "--dx",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false,
+          "defaultValue": 0
+        },
+        {
+          "flags": "--dy <n>",
+          "description": "Vertical pixels (negative = up)",
+          "long": "--dy",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false,
+          "defaultValue": 0
+        },
+        {
+          "flags": "-x, --at-x <x>",
+          "description": "X coordinate to dispatch scroll from (default 0)",
+          "short": "-x",
+          "long": "--at-x",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-y, --at-y <y>",
+          "description": "Y coordinate to dispatch scroll from (default 0)",
+          "short": "-y",
+          "long": "--at-y",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "select",
+      "path": "select",
+      "aliases": [],
+      "description": "Choose an option of a <select>, named by its ref or its label, by the option's label or value: `browser select 7 \"11-12\"`, `browser select \"Sort\" \"Price (low to high)\"`",
+      "args": [
+        {
+          "name": "target",
+          "required": true,
+          "variadic": false,
+          "description": ""
+        },
+        {
+          "name": "option",
+          "required": true,
+          "variadic": false,
+          "description": ""
+        }
+      ],
+      "options": [
+        {
+          "flags": "--task <name>",
+          "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+          "long": "--task",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--device <name>",
+          "description": "Not valid here — bind the device at `browser start --device`",
+          "long": "--device",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-t, --tab <tabId>",
+          "description": "Tab ID (defaults to current)",
+          "short": "-t",
+          "long": "--tab",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--snapshot",
+          "description": "After the action settles, also print the page url, title and interactive refs (what `browser refs` would print next) — one round trip instead of two",
+          "long": "--snapshot",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--no-wait",
+          "description": "Return as the action lands instead of once the page has settled (a load and the requests that draw it, a router render, or nothing happening). Firefox and Arc always return as the action lands",
+          "long": "--no-wait",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": true
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "sessions",
+      "path": "sessions",
+      "aliases": [],
+      "description": "Browse a profile's captured screenshots, PDFs, recordings, and downloads, grouped by task",
+      "args": [],
+      "options": [
+        {
+          "flags": "--profile <name>",
+          "description": "Only this profile (default: all profiles with captures)",
+          "long": "--profile",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--open [selector]",
+          "description": "Open a capture in the OS default app: 'latest' or a filename",
+          "long": "--open",
+          "required": false,
+          "optional": true,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--json",
+          "description": "Emit machine-readable JSON",
+          "long": "--json",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--tasks",
+          "description": "Include durable task summaries, including tasks without captures",
+          "long": "--tasks",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--search <text>",
+          "description": "Search task names, profiles, conversation references and capture names",
+          "long": "--search",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--since <when>",
+          "description": "Only rows active since (2h, 7d, 4w, 1mo, 1y, or an ISO date)",
+          "long": "--since",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--until <when>",
+          "description": "Only rows active at or before (relative or ISO date)",
+          "long": "--until",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--limit <n>",
+          "description": "Cap the flat/--no-interactive listing at this many rows (default 50; --json is unbounded unless given)",
+          "long": "--limit",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--no-interactive",
+          "description": "Print the flat listing instead of opening the interactive task browser",
+          "long": "--no-interactive",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": true
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "examples": "browser sessions\nbrowser sessions --since 7d\nbrowser sessions --tasks --since 1mo --until 7d --json\nbrowser sessions --no-interactive --limit 20\nbrowser sessions --open latest",
+      "notes": "Type to search; arrows move; Enter browses captures; Escape goes back.\n--since/--until keep rows by last activity (task rows) or capture time (profile listing); an invalid value exits 2.\nLegacy history is adopted on first task listing; migrate safely repeats adoption.",
+      "subcommands": [
+        {
+          "name": "migrate",
+          "path": "sessions migrate",
+          "aliases": [],
+          "description": "Import existing Agents browser history without modifying the source; safe to repeat",
+          "args": [],
+          "options": [
+            {
+              "flags": "--from <path>",
+              "description": "Legacy sessions.db path",
+              "long": "--from",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--json",
+              "description": "Emit imported row count as JSON",
+              "long": "--json",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-h, --help",
+              "description": "display help for command",
+              "short": "-h",
+              "long": "--help",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            }
+          ],
+          "examples": "browser sessions migrate --json\nbrowser sessions migrate --from /path/to/sessions.db",
+          "subcommands": []
+        }
+      ]
+    },
+    {
+      "name": "set",
+      "path": "set",
+      "aliases": [],
+      "description": "Set browser emulation options",
+      "args": [],
+      "options": [
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": [
+        {
+          "name": "device",
+          "path": "set device",
+          "aliases": [],
+          "description": "Emulate a device (iPhone 14, iPad, MacBook Pro)",
+          "args": [
+            {
+              "name": "device-name",
+              "required": true,
+              "variadic": false,
+              "description": ""
+            }
+          ],
+          "options": [
+            {
+              "flags": "--task <name>",
+              "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+              "long": "--task",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--device <name>",
+              "description": "Not valid here — bind the device at `browser start --device`",
+              "long": "--device",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-t, --tab <tabId>",
+              "description": "Tab ID (defaults to current)",
+              "short": "-t",
+              "long": "--tab",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-h, --help",
+              "description": "display help for command",
+              "short": "-h",
+              "long": "--help",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            }
+          ],
+          "subcommands": []
+        },
+        {
+          "name": "viewport",
+          "path": "set viewport",
+          "aliases": [],
+          "description": "Set viewport size",
+          "args": [
+            {
+              "name": "width",
+              "required": true,
+              "variadic": false,
+              "description": ""
+            },
+            {
+              "name": "height",
+              "required": true,
+              "variadic": false,
+              "description": ""
+            }
+          ],
+          "options": [
+            {
+              "flags": "--task <name>",
+              "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+              "long": "--task",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--device <name>",
+              "description": "Not valid here — bind the device at `browser start --device`",
+              "long": "--device",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-t, --tab <tabId>",
+              "description": "Tab ID (defaults to current)",
+              "short": "-t",
+              "long": "--tab",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-m, --mobile",
+              "description": "Enable mobile emulation",
+              "short": "-m",
+              "long": "--mobile",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-s, --scale <factor>",
+              "description": "Device scale factor",
+              "short": "-s",
+              "long": "--scale",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-h, --help",
+              "description": "display help for command",
+              "short": "-h",
+              "long": "--help",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            }
+          ],
+          "subcommands": []
+        }
+      ]
+    },
+    {
+      "name": "show",
+      "path": "show",
+      "aliases": [],
+      "description": "Open a URL or file for a human to read in browser.viewer (default: browser.profile), on the browser.device hub when one is set; reloads and focuses a tab already showing it; fails unless the viewer confirms it opened. Binds no task",
+      "args": [
+        {
+          "name": "url",
+          "required": true,
+          "variadic": false,
+          "description": ""
+        }
+      ],
+      "options": [
+        {
+          "flags": "-p, --profile <name>",
+          "description": "Show it in this profile instead of browser.viewer",
+          "short": "-p",
+          "long": "--profile",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--os-browser",
+          "description": "Use the OS default handler instead of the configured viewer",
+          "long": "--os-browser",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--fresh",
+          "description": "Always open a new tab, even when one already shows this page (default: navigate and focus that tab)",
+          "long": "--fresh",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--json",
+          "description": "Output machine-readable JSON",
+          "long": "--json",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "skills",
+      "path": "skills",
+      "aliases": [],
+      "description": "The browser skill installed with this CLI: where it is, what it contains, and its documents",
+      "args": [],
+      "options": [
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "examples": "# Where the skill is (link agents here; it updates with the CLI)\nbrowser skills path\n\n# SKILL.md and every reference document\nbrowser skills list\n\n# Read one: the skill, Arc notes, or a site guide\nbrowser skills get\nbrowser skills get arc\nbrowser skills get slack",
+      "notes": "The skill follows the Agent Skills layout: skills/browser/SKILL.md, with\nreferences/ (arc.md, sites/<site>.md) and scripts/. browser start --url prints\nthe matching site guide automatically.",
+      "subcommands": [
+        {
+          "name": "get",
+          "path": "skills get",
+          "aliases": [],
+          "description": "Print a skill document: SKILL.md by default, or a reference such as arc or slack",
+          "args": [
+            {
+              "name": "name",
+              "required": false,
+              "variadic": false,
+              "description": ""
+            }
+          ],
+          "options": [
+            {
+              "flags": "-h, --help",
+              "description": "display help for command",
+              "short": "-h",
+              "long": "--help",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            }
+          ],
+          "subcommands": []
+        },
+        {
+          "name": "list",
+          "path": "skills list",
+          "aliases": [],
+          "description": "List SKILL.md and its reference documents",
+          "args": [],
+          "options": [
+            {
+              "flags": "--json",
+              "description": "Output machine-readable JSON",
+              "long": "--json",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-h, --help",
+              "description": "display help for command",
+              "short": "-h",
+              "long": "--help",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            }
+          ],
+          "subcommands": []
+        },
+        {
+          "name": "path",
+          "path": "skills path",
+          "aliases": [],
+          "description": "Print the installed skills/browser directory",
+          "args": [],
+          "options": [
+            {
+              "flags": "-h, --help",
+              "description": "display help for command",
+              "short": "-h",
+              "long": "--help",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            }
+          ],
+          "subcommands": []
+        }
+      ]
+    },
+    {
+      "name": "start",
+      "path": "start",
+      "aliases": [],
+      "description": "Start a browser task. Pass --profile <name>; omit to use your configured default (set it with `browser use <name>`). Page verbs (navigate/screenshot/…) create a task implicitly when none exists — start is for --profile/--url/--record/--title.",
+      "args": [],
+      "options": [
+        {
+          "flags": "-p, --profile <name>",
+          "description": "Browser profile to use (omit to use this machine's configured default; set it with `browser use <name>`)",
+          "short": "-p",
+          "long": "--profile",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--task <name>",
+          "description": "Task name (auto-generated short id if omitted)",
+          "long": "--task",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--title <label>",
+          "description": "Human label shown in `browser status` (defaults to first navigated host)",
+          "long": "--title",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-e, --endpoint <name>",
+          "description": "Endpoint preset (defaults to the profile's default)",
+          "short": "-e",
+          "long": "--endpoint",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-u, --url <url>",
+          "description": "Open URL in first tab",
+          "short": "-u",
+          "long": "--url",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--device <name>",
+          "description": "Device that hosts this task (defaults to the browser.device hub when set; use `local` to force this machine). Later verbs resolve it from --task; not valid on page verbs",
+          "long": "--device",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--fresh",
+          "description": "Always open a new tab, skipping the reclaim of a tab an abandoned task is holding on that URL",
+          "long": "--fresh",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--no-skills",
+          "description": "Do not print the site guide for --url (from the browser skill: `browser skills list`)",
+          "long": "--no-skills",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": true
+        },
+        {
+          "flags": "--record",
+          "description": "Start recording right after the tab opens (shorthand for `browser record start` as a follow-up)",
+          "long": "--record",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--fps <n>",
+          "description": "Recording frames per second (with --record; 1–30, default 5)",
+          "long": "--fps",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--duration <sec>",
+          "description": "Recording duration cap in seconds (with --record; default 60)",
+          "long": "--duration",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--max-mb <mb>",
+          "description": "Recording size cap in MB (with --record; default 25)",
+          "long": "--max-mb",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--snapshot",
+          "description": "Once --url has loaded, also print its url, title and interactive refs after the task name, so the first action needs no `browser refs`",
+          "long": "--snapshot",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--json",
+          "description": "Output machine-readable JSON (task handle + tabId + reused/message)",
+          "long": "--json",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "status",
+      "path": "status",
+      "aliases": [],
+      "description": "Show browser service state and running browser tasks",
+      "args": [],
+      "options": [
+        {
+          "flags": "-p, --profile <name>",
+          "description": "Filter by profile",
+          "short": "-p",
+          "long": "--profile",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--json",
+          "description": "Output machine-readable JSON",
+          "long": "--json",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "stop",
+      "path": "stop",
+      "aliases": [],
+      "description": "Stop a browser task and close its tabs; with --profile, detach the whole profile; with --service, stop the browser IPC service",
+      "args": [],
+      "options": [
+        {
+          "flags": "--task <name>",
+          "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+          "long": "--task",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--device <name>",
+          "description": "Not valid here — bind the device at `browser start --device`",
+          "long": "--device",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-p, --profile <name>",
+          "description": "Detach the whole profile (incl. composite \"name@endpoint\") instead of stopping a single task",
+          "short": "-p",
+          "long": "--profile",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--service",
+          "description": "Stop the browser IPC service and clear a stale/wedged socket",
+          "long": "--service",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "stream",
+      "path": "stream",
+      "aliases": [],
+      "description": "Keep one process and daemon IPC socket open; read NDJSON requests from stdin and write NDJSON responses",
+      "args": [],
+      "options": [
+        {
+          "flags": "--task <name>",
+          "description": "Default task for requests that omit `task` (defaults to $AGENTS_BROWSER_TASK)",
+          "long": "--task",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--device <name>",
+          "description": "Not valid here — bind the device at `browser start --device`",
+          "long": "--device",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "examples": "# Batch two warm actions through one process and one browser-service connection\nprintf '%s\\n' \\\n  '{\"action\":\"screenshot\",\"path\":\"/tmp/page.jpg\"}' \\\n  '{\"action\":\"click\",\"atX\":320,\"atY\":540}' \\\n  | browser stream --task \"$AGENTS_BROWSER_TASK\"\n\n# Keep the command open and send one JSON object per line from a long-lived shell\nbrowser stream --task \"$AGENTS_BROWSER_TASK\"",
+      "notes": "stdout is protocol-only: one compact JSON response for each non-empty input line.\nMalformed JSON returns an error response without closing the stream.\nThe first start response becomes the default task for later lines in the same stream.",
+      "subcommands": []
+    },
+    {
+      "name": "tab",
+      "path": "tab",
+      "aliases": [],
+      "description": "Manage tabs",
+      "args": [],
+      "options": [
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": [
+        {
+          "name": "add",
+          "path": "tab add",
+          "aliases": [],
+          "description": "Open URL in new tab (becomes current)",
+          "args": [],
+          "options": [
+            {
+              "flags": "--task <name>",
+              "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+              "long": "--task",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--device <name>",
+              "description": "Not valid here — bind the device at `browser start --device`",
+              "long": "--device",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--url <url>",
+              "description": "URL to open in the new tab",
+              "long": "--url",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-p, --profile <name>",
+              "description": "Browser profile",
+              "short": "-p",
+              "long": "--profile",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--json",
+              "description": "Output machine-readable JSON",
+              "long": "--json",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-h, --help",
+              "description": "display help for command",
+              "short": "-h",
+              "long": "--help",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            }
+          ],
+          "subcommands": []
+        },
+        {
+          "name": "close",
+          "path": "tab close",
+          "aliases": [],
+          "description": "Close tab(s) — omit tabId to close all",
+          "args": [
+            {
+              "name": "tabId",
+              "required": false,
+              "variadic": false,
+              "description": ""
+            }
+          ],
+          "options": [
+            {
+              "flags": "--task <name>",
+              "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+              "long": "--task",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--device <name>",
+              "description": "Not valid here — bind the device at `browser start --device`",
+              "long": "--device",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-h, --help",
+              "description": "display help for command",
+              "short": "-h",
+              "long": "--help",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            }
+          ],
+          "subcommands": []
+        },
+        {
+          "name": "focus",
+          "path": "tab focus",
+          "aliases": [],
+          "description": "Switch to tab (by ID, prefix, or URL substring)",
+          "args": [
+            {
+              "name": "tabId",
+              "required": true,
+              "variadic": false,
+              "description": ""
+            }
+          ],
+          "options": [
+            {
+              "flags": "--task <name>",
+              "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+              "long": "--task",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "--device <name>",
+              "description": "Not valid here — bind the device at `browser start --device`",
+              "long": "--device",
+              "required": true,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            },
+            {
+              "flags": "-h, --help",
+              "description": "display help for command",
+              "short": "-h",
+              "long": "--help",
+              "required": false,
+              "optional": false,
+              "variadic": false,
+              "negate": false
+            }
+          ],
+          "subcommands": []
+        }
+      ]
+    },
+    {
+      "name": "tabs",
+      "path": "tabs",
+      "aliases": [],
+      "description": "List tabs open for the current task; --all shows every tab open in the profile browser, yours included",
+      "args": [],
+      "options": [
+        {
+          "flags": "--task <name>",
+          "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+          "long": "--task",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--device <name>",
+          "description": "Not valid here — bind the device at `browser start --device`",
+          "long": "--device",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--all",
+          "description": "Every tab open in the profile browser, not only this task's: OWNER names the owning task, or \"you\" for a tab no task owns",
+          "long": "--all",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--json",
+          "description": "Output machine-readable JSON",
+          "long": "--json",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "tasks",
+      "path": "tasks",
+      "aliases": [],
+      "description": "List all browser tasks",
+      "args": [],
+      "options": [
+        {
+          "flags": "-p, --profile <name>",
+          "description": "Filter by profile",
+          "short": "-p",
+          "long": "--profile",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--json",
+          "description": "Output machine-readable JSON",
+          "long": "--json",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "text",
+      "path": "text",
+      "aliases": [],
+      "description": "Print the tab's title and URL, then the text a reader sees on the page and, in Chromium-family browsers, inside its iframes",
+      "args": [],
+      "options": [
+        {
+          "flags": "--task <name>",
+          "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+          "long": "--task",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--device <name>",
+          "description": "Not valid here — bind the device at `browser start --device`",
+          "long": "--device",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-t, --tab <tabId>",
+          "description": "Tab ID (defaults to current)",
+          "short": "-t",
+          "long": "--tab",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--css <selector>",
+          "description": "The text of each element the CSS selector matches in the top document (not iframes), blocks separated by --, instead of the whole page",
+          "long": "--css",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--attr <name>",
+          "description": "With --css, each match's attribute instead of its text (href and src come back absolute)",
+          "long": "--attr",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--grep <pattern>",
+          "description": "Only the lines that match (a case-insensitive regular expression), after the title line",
+          "long": "--grep",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--context <n>",
+          "description": "Lines kept around each --grep match (default 2)",
+          "long": "--context",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "type",
+      "path": "type",
+      "aliases": [],
+      "description": "Type text into an element named by its ref or its label: `browser type 3 hello`, `browser type \"Email\" ada@example.com`, or `--text \"hello world\"`",
+      "args": [
+        {
+          "name": "target",
+          "required": true,
+          "variadic": false,
+          "description": ""
+        },
+        {
+          "name": "text",
+          "required": false,
+          "variadic": false,
+          "description": ""
+        }
+      ],
+      "options": [
+        {
+          "flags": "--task <name>",
+          "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+          "long": "--task",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--device <name>",
+          "description": "Not valid here — bind the device at `browser start --device`",
+          "long": "--device",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-t, --tab <tabId>",
+          "description": "Tab ID (defaults to current)",
+          "short": "-t",
+          "long": "--tab",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--text <text>",
+          "description": "Text to type (use quotes for spaces/special chars)",
+          "long": "--text",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--secret <ref>",
+          "description": "Resolve <bundle>/<KEY> from the `secrets` CLI and type the value. The secret is resolved in-process and never printed to stdout or the transcript. Alternative to --text.",
+          "long": "--secret",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--clear",
+          "description": "Clear editor content before typing",
+          "long": "--clear",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--snapshot",
+          "description": "After the action settles, also print the page url, title and interactive refs (what `browser refs` would print next) — one round trip instead of two",
+          "long": "--snapshot",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--no-wait",
+          "description": "Return as the action lands instead of once the page has settled (a load and the requests that draw it, a router render, or nothing happening). Firefox and Arc always return as the action lands",
+          "long": "--no-wait",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": true
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "upload",
+      "path": "upload",
+      "aliases": [],
+      "description": "Upload file(s) — supports hidden file inputs, drag-drop targets, and OS chooser interception",
+      "args": [],
+      "options": [
+        {
+          "flags": "--task <name>",
+          "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+          "long": "--task",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--device <name>",
+          "description": "Not valid here — bind the device at `browser start --device`",
+          "long": "--device",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-t, --tab <tabId>",
+          "description": "Tab ID (defaults to current)",
+          "short": "-t",
+          "long": "--tab",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-r, --ref <n>",
+          "description": "Ref of the upload target element (file input or drop zone)",
+          "short": "-r",
+          "long": "--ref",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--trigger <n>",
+          "description": "Ref of a button that opens the OS file chooser (Pattern C)",
+          "long": "--trigger",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-f, --file <path...>",
+          "description": "Absolute path(s) to file(s) to upload (repeatable)",
+          "short": "-f",
+          "long": "--file",
+          "required": true,
+          "optional": false,
+          "variadic": true,
+          "negate": false
+        },
+        {
+          "flags": "--drop",
+          "description": "Force drag-drop pattern even if ref is an <input type=file>",
+          "long": "--drop",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--input",
+          "description": "Force file-input pattern (DOM.setFileInputFiles)",
+          "long": "--input",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--timeout <ms>",
+          "description": "Timeout for chooser interception (Pattern C)",
+          "long": "--timeout",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "use",
+      "path": "use",
+      "aliases": [],
+      "description": "Pick the profile `browser start` uses when no --profile is passed. No name opens a picker on a TTY or prints the current default headlessly.",
+      "args": [
+        {
+          "name": "name",
+          "required": false,
+          "variadic": false,
+          "description": ""
+        }
+      ],
+      "options": [
+        {
+          "flags": "--unset",
+          "description": "Clear the configured default (leaves this machine with no default until you pick one)",
+          "long": "--unset",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "wait",
+      "path": "wait",
+      "aliases": [],
+      "description": "Wait for a condition",
+      "args": [],
+      "options": [
+        {
+          "flags": "--task <name>",
+          "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+          "long": "--task",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--device <name>",
+          "description": "Not valid here — bind the device at `browser start --device`",
+          "long": "--device",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-t, --tab <tabId>",
+          "description": "Tab ID (defaults to current)",
+          "short": "-t",
+          "long": "--tab",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--time <ms>",
+          "description": "Wait for milliseconds",
+          "long": "--time",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--selector <css>",
+          "description": "Wait for CSS selector to appear",
+          "long": "--selector",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--url <pattern>",
+          "description": "Wait for URL to match pattern",
+          "long": "--url",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--fn <js>",
+          "description": "Wait for JS expression to return truthy",
+          "long": "--fn",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--state <state>",
+          "description": "Wait for load state (domcontentloaded, load, networkidle)",
+          "long": "--state",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--timeout <ms>",
+          "description": "Timeout in milliseconds",
+          "long": "--timeout",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "waitdownload",
+      "path": "waitdownload",
+      "aliases": [],
+      "description": "Wait for a download to complete",
+      "args": [],
+      "options": [
+        {
+          "flags": "--task <name>",
+          "description": "Task name (defaults to $AGENTS_BROWSER_TASK, else the caller's live task)",
+          "long": "--task",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--device <name>",
+          "description": "Not valid here — bind the device at `browser start --device`",
+          "long": "--device",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--timeout <ms>",
+          "description": "Timeout in milliseconds",
+          "long": "--timeout",
+          "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    }
+  ]
+}

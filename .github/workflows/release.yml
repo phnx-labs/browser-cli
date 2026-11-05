@@ -1,0 +1,30 @@
+name: release
+# Pushing release/x.y.z (or release/x.y.z-pre.n) publishes that version, which must match
+# package.json, from the compiled-packages artifact of main's successful test.yml run for the
+# commit: nothing is rebuilt or retested. npm trusts this file and the npm-publish environment
+# (OIDC), so no npm token is stored. `bash scripts/release.sh --confirm` pushes the branch.
+on:
+  push:
+    branches: ['release/[0-9]*']
+permissions:
+  actions: read
+  contents: write
+  id-token: write
+concurrency:
+  group: release
+jobs:
+  publish:
+    environment: npm-publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+      - run: bash scripts/release.sh --confirm
+        env:
+          GH_TOKEN: ${{ github.token }}

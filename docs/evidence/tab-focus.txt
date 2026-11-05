@@ -1,0 +1,27 @@
+Browser tab focus: observed real Chromium regression
+
+bun test v1.3.14 (d1632b29)
+
+src/browser/tab-focus.live.test.ts:
+(pass) tab focus activates the real Chromium tab and preserves selection on failure [2832.06ms]
+
+ 1 pass
+ 0 fail
+ 3 expect() calls
+Ran 1 test across 1 file. [2.91s]
+
+Real protocol assertions: selected tab visible; sibling hidden; closed-target activation fails without changing selection.
+
+Full suite: 196 passed, 9 optional live tests skipped, 0 failed.
+TypeScript: passed.
+
+Independent Chromium 1169 run after target-destruction synchronization:
+bun test v1.3.14 (d1632b29)
+
+src/browser/tab-focus.live.test.ts:
+(pass) tab focus activates the real Chromium tab and preserves selection on failure [1331.61ms]
+
+ 1 pass
+ 0 fail
+ 3 expect() calls
+Ran 1 test across 1 file. [1437.00ms]

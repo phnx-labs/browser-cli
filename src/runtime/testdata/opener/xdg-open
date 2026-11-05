@@ -1,0 +1,8 @@
+#!/bin/sh
+# On exit 0 it leaves a "browser" holding its stderr, as a real handler does.
+if [ "${SHOW_OPENER_EXIT:-0}" = 0 ]; then
+  sleep 8 &
+  exit 0
+fi
+echo "xdg-open: no method available for opening '$1'" >&2
+exit "$SHOW_OPENER_EXIT"

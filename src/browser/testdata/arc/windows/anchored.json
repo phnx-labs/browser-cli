@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "sidebarViewPreferences": {
+    "sidebarWidth": 228,
+    "sidebarMode": "anchored"
+  },
+  "windows": [
+    {
+      "id": "W-agent",
+      "sidebarMode": "anchored",
+      "sidebarWidth": 246
+    },
+    {
+      "id": "W-hidden",
+      "sidebarMode": "hidden",
+      "sidebarWidth": 246
+    }
+  ]
+}

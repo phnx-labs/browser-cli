@@ -1,0 +1,20 @@
+{
+  "name": "browser-cli",
+  "description": "The browser skill for browser-cli: let Claude Code drive the browsers you are already signed into.",
+  "owner": {
+    "name": "Phoenix Labs",
+    "email": "contact@phoenix.so",
+    "url": "https://github.com/phnx-labs"
+  },
+  "plugins": [
+    {
+      "name": "browser",
+      "source": "./skills/browser",
+      "description": "Teaches Claude Code the browser CLI (npm install -g @phnx-labs/browser-cli): open signed-in sites, navigate, click, type, read pages and take screenshots.",
+      "homepage": "https://github.com/phnx-labs/browser-cli",
+      "repository": "https://github.com/phnx-labs/browser-cli",
+      "keywords": ["browser", "cdp", "automation", "skill"],
+      "category": "development"
+    }
+  ]
+}

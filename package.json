@@ -1,6 +1,6 @@
 {
   "name": "@phnx-labs/browser-cli",
-  "version": "0.1.40",
+  "version": "0.2.0",
   "description": "Drive real browsers over CDP, WebDriver BiDi and native Arc",
   "type": "module",
   "bin": {
@@ -28,11 +28,11 @@
     "test": "bash scripts/test.sh"
   },
   "optionalDependencies": {
-    "@phnx-labs/browser-cli-darwin-arm64": "0.1.40",
-    "@phnx-labs/browser-cli-darwin-x64": "0.1.40",
-    "@phnx-labs/browser-cli-linux-arm64": "0.1.40",
-    "@phnx-labs/browser-cli-linux-x64": "0.1.40",
-    "@phnx-labs/browser-cli-win32-x64": "0.1.40"
+    "@phnx-labs/browser-cli-darwin-arm64": "0.2.0",
+    "@phnx-labs/browser-cli-darwin-x64": "0.2.0",
+    "@phnx-labs/browser-cli-linux-arm64": "0.2.0",
+    "@phnx-labs/browser-cli-linux-x64": "0.2.0",
+    "@phnx-labs/browser-cli-win32-x64": "0.2.0"
   },
   "devDependencies": {
     "@inquirer/prompts": "8.7.4",

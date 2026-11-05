@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.0 (unreleased)
+## 0.2.0
 
 - browser-cli is licensed under the Apache License 2.0, replacing FSL-1.1-Apache-2.0.
 - The release build no longer obfuscates the bundle: each platform binary is compiled straight from the published source. The binaries are still compiled per platform, with no source maps or TypeScript sources in the npm packages.

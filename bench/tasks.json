@@ -1,0 +1,77 @@
+{
+  "suffix": "Use only the browser tool you were given. Leave the final page open; do not close its tab. End with the answer in your final message.",
+  "isolationSuffix": "Other agents are using this same browser at the same time. Work only in tabs you opened yourself.",
+  "tasks": [
+    {
+      "id": "books",
+      "host": "books.toscrape.com",
+      "prompt": "On https://books.toscrape.com, find the cheapest book rated five stars in the Mystery category, looking across every page of that category. Give its title and price.",
+      "marks": [
+        "books.toscrape.com",
+        "Books to Scrape"
+      ]
+    },
+    {
+      "id": "pizza",
+      "host": "httpbin.org",
+      "prompt": "Open https://httpbin.org/forms/post and order a pizza: customer name Ada Lovelace, telephone 555-0100, email ada@example.com, size Large, toppings Bacon and Extra Cheese, preferred delivery time 19:45, delivery instructions \"Ring twice\". Submit the order.",
+      "marks": [
+        "httpbin.org"
+      ]
+    },
+    {
+      "id": "bun",
+      "host": "github.com",
+      "prompt": "On GitHub, open the latest release of oven-sh/bun. Give its tag, how many assets the release has, and the file size of bun-linux-x64.zip as GitHub shows it.",
+      "marks": [
+        "github.com"
+      ]
+    },
+    {
+      "id": "saucedemo",
+      "host": "saucedemo.com",
+      "prompt": "On https://www.saucedemo.com log in as standard_user with password secret_sauce, sort the products by price from low to high, add the Sauce Labs Backpack and the Sauce Labs Bike Light to the cart, and check out as Ada Lovelace, postal code 10001, until the order is complete.",
+      "marks": [
+        "saucedemo.com",
+        "Swag Labs"
+      ]
+    },
+    {
+      "id": "laptops",
+      "host": "webscraper.io",
+      "prompt": "On https://webscraper.io/test-sites/e-commerce/static/computers/laptops, look through every page of laptops and find the most expensive one. Give its name and price.",
+      "marks": [
+        "webscraper.io"
+      ]
+    },
+    {
+      "id": "demoblaze",
+      "host": "demoblaze.com",
+      "prompt": "On https://www.demoblaze.com add a Samsung galaxy s6 and a Nokia lumia 1520 to the cart, then place the order as Ada Lovelace, country UK, city London, card 4111111111111111, month 11, year 2026. Give the order's Id and Amount from the confirmation, and leave the confirmation showing.",
+      "marks": [
+        "demoblaze.com"
+      ]
+    },
+    {
+      "id": "instagram",
+      "host": "instagram.com",
+      "prompt": "Open the public Instagram profile https://www.instagram.com/nasa/ and give the account's name and its follower count as the page shows it.",
+      "marks": [
+        "instagram.com"
+      ]
+    },
+    {
+      "id": "wikipedia",
+      "host": "wikipedia.org",
+      "prompt": "Using Wikipedia, find which country won the 2022 FIFA World Cup, then the population of that country's capital city as its Wikipedia article gives it. Give the country, the capital and the population.",
+      "marks": [
+        "wikipedia.org"
+      ]
+    }
+  ],
+  "isolation": [
+    "books",
+    "pizza",
+    "saucedemo"
+  ]
+}

@@ -352,7 +352,8 @@ function save(outDir: string, file: string, record: object, failure: string | nu
   if (failure) console.log(`  not counted: ${failure}`);
 }
 
-const scrub = (text: string) => text.split(RUNS).join('<run>');
+const LOCAL_PATHS: [string, string][] = [[RUNS, '<run>'], [REPO, '<checkout>'], [process.env.HOME ?? '', '~']];
+const scrub = (text: string) => LOCAL_PATHS.reduce((t, [path, name]) => (path ? t.split(path).join(name) : t), text);
 
 function stripOutputs(r: AgentResult) {
   const { toolOutputs, ...rest } = r;

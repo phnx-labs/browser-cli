@@ -101,14 +101,14 @@ describe('connectLocal — TCP probe fallback for #43', () => {
   });
 });
 
-describe('connectLocal — Arc attaches to a running instance, never launches a duplicate (PHNX-2399)', () => {
+describe('connectLocal — Arc attaches to a running instance, never launches a duplicate', () => {
   const key = 'my-arc@endpoint-0' as ConnectionKey;
 
   it('fails loud with the relaunch instruction when the Arc port serves no CDP endpoint', async () => {
     // Nothing is listening on this port. For a Chromium-family browser this is
     // the "fine to launch fresh" case — but Arc is single-instance and cannot be
     // spawned as an isolated debug instance, so it must fail loud rather than
-    // spawn the stray window PHNX-2399 exists to end.
+    // spawn the stray window this code exists to prevent.
     const port = await freePort();
     const profile: BrowserProfile = {
       name: 'my-arc',
@@ -156,7 +156,7 @@ describe('arcAttachRequiredError', () => {
   });
 });
 
-describe('connectLocal — an attach-only Comet never spawns a second instance (PHNX-3967)', () => {
+describe('connectLocal — an attach-only Comet never spawns a second instance', () => {
   const key = 'agents-comet@endpoint-0' as ConnectionKey;
 
   it('fails loud with the durable-dir relaunch when nothing serves CDP on the port', async () => {
@@ -234,7 +234,7 @@ describe('connectLocal — an attach-only Comet never spawns a second instance (
   });
 });
 
-describe('attachOnlyRequiredError (PHNX-3967)', () => {
+describe('attachOnlyRequiredError', () => {
   it('routes an arc profile to the Arc-specific message', () => {
     const msg = attachOnlyRequiredError({ name: 'work', browser: 'arc' }, 9222).message;
     expect(msg).toContain('open -a Arc --args --remote-debugging-port=9222');
@@ -252,7 +252,7 @@ describe('attachOnlyRequiredError (PHNX-3967)', () => {
   });
 });
 
-describe('foreignInstanceError — port-squat rejection (PHNX-3967)', () => {
+describe('foreignInstanceError — port-squat rejection', () => {
   it('names both dirs, the pid, and the ownership-rejection prefix so the driver re-throws it', () => {
     const err = foreignInstanceError(
       { name: 'agents-comet', browser: 'comet', userDataDir: '/data/comet' },
@@ -267,7 +267,7 @@ describe('foreignInstanceError — port-squat rejection (PHNX-3967)', () => {
   });
 });
 
-describe('connectLocal — a store-pinned Comet never doubles a browser that already holds its store (PHNX-4042 review)', () => {
+describe('connectLocal — a store-pinned Comet never doubles a browser that already holds its store', () => {
   const key = 'comet-work@endpoint-0' as ConnectionKey;
 
   // A discovered Comet profile: pinned to the owner's store, no launch policy,
@@ -361,7 +361,7 @@ describe('connectLocal — a store-pinned Comet never doubles a browser that alr
   );
 });
 
-describe('storeInUseError (PHNX-4042)', () => {
+describe('storeInUseError', () => {
   it('names the profile, the pid, the store, and the relaunch with the profile directory', () => {
     const message = storeInUseError(
       { name: 'comet-personal', browser: 'comet', userDataDir: '/Users/o/Library/Application Support/Comet', profileDirectory: 'Profile 1' },

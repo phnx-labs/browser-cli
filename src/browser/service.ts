@@ -489,7 +489,7 @@ export interface StartResult {
   key: ConnectionKey;
   /** Device the daemon connected to. */
   device: string;
-  /** A same-name start that matched an existing task and reused it (PHNX-2399). */
+  /** A same-name start that matched an existing task and reused it. */
   reused?: boolean;
   /** Record actual page creation/refresh; adopted tabs and no-op reuse are neither. */
   firstOpen?: PageOpenResult;
@@ -698,7 +698,7 @@ export class BrowserService {
     if (opts.taskName) {
       const existing = this.findTaskByHandle(opts.taskName);
       if (existing) {
-        // Same-name start RETRY (PHNX-2399): reuse the existing task rather than
+        // Same-name start RETRY: reuse the existing task rather than
         // erroring — but only when it is genuinely the same task. A different
         // profile, endpoint, or caller identity is a real conflict and must NOT
         // silently acquire someone else's task.
@@ -792,7 +792,7 @@ export class BrowserService {
       // Identity is forwarded from the caller (see resolveTaskIdentity): WHO
       // (owner), WHICH run (launchId), and WHICH agent session (sessionId).
       // Resolving daemon-side would attribute every task to the shared daemon's
-      // actor (the RUSH-2020 bug).
+      // actor.
       ...resolveTaskIdentity(
         { actor: opts.actor, launchId: opts.launchId, sessionId: opts.sessionId },
         () => resolveActor().id,
@@ -1099,7 +1099,7 @@ export class BrowserService {
         conn.tasks.delete(mapKey);
         await this.saveTaskState(key, conn.tasks);
 
-        // The daemon log is read by humans: bare profile name (RUSH-2709).
+        // The daemon log is read by humans: bare profile name.
         const bareProfile = conn.profile ?? parseConnectionKey(key).profile;
         emit('browser.close', { profile: bareProfile, task: task.name });
 
@@ -1210,17 +1210,17 @@ export class BrowserService {
   ): Promise<{ tabId: string; url: string; created: boolean; refreshed: boolean; message?: string; snapshot?: PageSnapshot }> {
     this.maybeUpdateLabelFromUrl(conn, task, url);
 
-    // Native Arc backend (PHNX-2399): route through the native driver instead of CDP.
+    // Native Arc backend: route through the native driver instead of CDP.
     if (conn.backend === 'arc-native') {
       return this.navigateArcNative(conn, task, url);
     }
-    // Firefox BiDi backend (PHNX-4043).
+    // Firefox BiDi backend.
     if (conn.backend === 'bidi') {
       return this.navigateFirefox(conn, task, url);
     }
     requireCdp(conn, 'navigate');
 
-    // Same-task reopen (PHNX-2399): the URL is already live in a tab this task
+    // Same-task reopen: the URL is already live in a tab this task
     // owns → reload THAT tab in place and keep its id, before the create/reuse
     // paths below. Chrome and Arc alike; Electron drives one window and never
     // has a second owned tab to match, so this is a no-op there.
@@ -1339,7 +1339,7 @@ export class BrowserService {
       throw new Error('Electron apps do not support opening additional tabs');
     }
 
-    // Same-task reopen (PHNX-2399): reopening a URL already live in one of this
+    // Same-task reopen: reopening a URL already live in one of this
     // task's own tabs refreshes THAT tab rather than opening a duplicate. The
     // no-match case below stays `tab add`'s intentional create-a-new-tab
     // semantics — distinct from `navigate`, which reuses the current tab.
@@ -1675,11 +1675,11 @@ export class BrowserService {
     const { conn, task } = await this.findTask(taskId);
     const shortId = tabHint ? await this.resolveTabHint(conn, task, tabHint) : this.resolveCurrentTab(task);
 
-    // Native Arc backend (PHNX-2399): synchronous JS only, isolated world.
+    // Native Arc backend: synchronous JS only, isolated world.
     if (conn.backend === 'arc-native') {
       return this.evaluateArcNative(conn, task, shortId, expression);
     }
-    // Firefox BiDi backend (PHNX-4043): async-capable, isolated realm.
+    // Firefox BiDi backend: async-capable, isolated realm.
     if (conn.backend === 'bidi') {
       return this.evaluateFirefox(conn, task, shortId, expression);
     }
@@ -1742,7 +1742,7 @@ export class BrowserService {
       return this.screenshotArcNative(conn, task, runtimeKey, tabHint, outputPath, quality);
     }
 
-    // Firefox BiDi backend (PHNX-4043): captureScreenshot on the context.
+    // Firefox BiDi backend: captureScreenshot on the context.
     if (conn.backend === 'bidi') {
       return this.screenshotFirefox(conn, task, runtimeKey, tabHint, outputPath, quality);
     }
@@ -1998,7 +1998,7 @@ export class BrowserService {
     }, frameIntervalMs);
     // Register BEFORE startScreencast. Chrome may emit its first frame before
     // the command response; missing that frame also misses its ack and stalls
-    // the entire stream with ffmpeg's stdin still empty (PHNX-2600).
+    // the entire stream with ffmpeg's stdin still empty.
     conn.cdp.on('Page.screencastFrame', frameHandler);
 
     try {
@@ -2016,7 +2016,7 @@ export class BrowserService {
           // A static/low-paint page may produce no new compositor frame after
           // startScreencast. Ask Chrome to send its stored last frame so the
           // first ack can bootstrap the stream instead of leaving ffmpeg stdin
-          // empty forever (confirmed live against Chrome 151 / PHNX-2600).
+          // empty forever (confirmed live against Chrome 151).
           sendLastFrame: true,
         },
         sessionId
@@ -2208,7 +2208,7 @@ export class BrowserService {
       this.saveTaskStateSoon(task.profile, conn.tasks);
       return result;
     }
-    // Firefox BiDi (PHNX-4043): the same DOM-derived accessibility listing Arc
+    // Firefox BiDi: the same DOM-derived accessibility listing Arc
     // uses, evaluated over BiDi. selector-based refs, no CDP accessibility tree.
     if (conn.backend === 'bidi') {
       const result = parseArcRefsResult(
@@ -3915,7 +3915,7 @@ export class BrowserService {
       };
     }
 
-    // Firefox BiDi backend (PHNX-4043): `firefox-bidi://127.0.0.1:<port>` connects
+    // Firefox BiDi backend: `firefox-bidi://127.0.0.1:<port>` connects
     // over a WebDriver BiDi WebSocket. The driver attaches to a Firefox already
     // serving the port, else launches one headless bound to the pinned profile
     // directory, else fails loud (Firefox is single-instance per profile).
@@ -3951,7 +3951,7 @@ export class BrowserService {
       };
     }
 
-    // Native Arc backend (PHNX-2399): `arc-native:` protocol connects through
+    // Native Arc backend: `arc-native:` protocol connects through
     // Apple Events instead of CDP. No debugging port, no browser launch.
     if (url.protocol === 'arc-native:') {
       if (process.platform !== 'darwin') {
@@ -4377,7 +4377,7 @@ export class BrowserService {
       // Accept bare profile names against composite connection keys.
       // One rule: an exact runtime key, else every key belonging to that bare
       // profile. Callers pass whichever they hold — the composite is theirs to
-      // ignore (RUSH-2709).
+      // ignore.
       const keys = [...this.connections.keys()].filter(
         (k) => k === profileRef || keyBelongsToProfile(k, profileRef),
       );
@@ -4463,7 +4463,7 @@ export class BrowserService {
       return null;
     }
 
-    // Native Arc endpoints (PHNX-2399): reconnect via the native driver if Arc
+    // Native Arc endpoints: reconnect via the native driver if Arc
     // is still running. No port, no CDP — just verify Arc is alive and restore
     // the task state.
     if (resolved.target.startsWith('arc-native:')) {
@@ -5167,7 +5167,7 @@ export class BrowserService {
         });
       } else {
         const loaded = task as unknown as Task;
-        // Tasks persisted before RUSH-2622 carry no lastActionAt. Normalize on
+        // Tasks persisted by older versions carry no lastActionAt. Normalize on
         // read so every in-memory task has one: its own createdAt is the last
         // moment we can prove the task did anything.
         if (typeof loaded.lastActionAt !== 'number') {
@@ -5204,13 +5204,13 @@ export class BrowserService {
       id: task.id,
       name: task.name,
       // `task.profile` is the runtime key; history is a user-facing table, so
-      // it carries the bare name (RUSH-2709).
+      // it carries the bare name.
       profile: parseConnectionKey(task.profile).profile,
       createdAt: task.createdAt,
       endedAt: Date.now(),
       domains,
       tabCount: Object.keys(task.tabs).length,
-      ...(task.owner ? { owner: task.owner } : {}), // carry who launched it (RUSH-2020)
+      ...(task.owner ? { owner: task.owner } : {}), // carry who launched it
     });
 
     // Keep only last 50 entries
@@ -5258,7 +5258,7 @@ export class BrowserService {
   }
 
   // ---------------------------------------------------------------------------
-  // Native Arc backend helpers (PHNX-2399)
+  // Native Arc backend helpers
   // ---------------------------------------------------------------------------
 
   private arcAgentWindowPath(): string {
@@ -5616,7 +5616,7 @@ export class BrowserService {
   }
 
   // ---------------------------------------------------------------------------
-  // Firefox WebDriver BiDi backend helpers (PHNX-4043)
+  // Firefox WebDriver BiDi backend helpers
   // ---------------------------------------------------------------------------
 
   /** The BiDi browsing-context id a task owns for `shortId`. */

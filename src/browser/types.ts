@@ -132,7 +132,7 @@ export interface BrowserProfile {
   /** Durable user-data directory used for ownership verification; resolve defaults through
    * resolveProfileDataDir. */
   userDataDir?: string;
-  /** Chromium profile directory inside `userDataDir` for a discovered native profile (PHNX-4042). */
+  /** Chromium profile directory inside `userDataDir` for a discovered native profile. */
   profileDirectory?: string;
   chrome?: ChromeOptions;
   secrets?: string;
@@ -164,7 +164,7 @@ export interface ChromeOptions {
   headless?: boolean;
   args?: string[];
   viewport?: { width: number; height: number; x?: number; y?: number };
-  /** The browser's own user-data dir; set only for a discovered native profile (PHNX-4042). */
+  /** The browser's own user-data dir; set only for a discovered native profile. */
   userDataDir?: string;
   /** Chromium profile directory inside `userDataDir` (`Default`, `Profile 1`, ...). */
   profileDirectory?: string;
@@ -270,7 +270,7 @@ export interface HistoricalTask {
   endedAt: number;
   domains: string[];
   tabCount: number;
-  /** Actor id who launched the task (RUSH-2020); absent for pre-RUSH-2020 history. */
+  /** Actor id who launched the task; absent for older history. */
   owner?: string;
 }
 

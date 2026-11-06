@@ -123,7 +123,7 @@ export async function reapAbandonedTasks(
     if (opts.dryRun) {
       // Report the BARE profile, exactly as the real run does below — `profile`
       // here is the runtime key from `listTasks()`, and printing the two shapes
-      // in one column made `gc --dry-run` and `gc` disagree (RUSH-2709).
+      // in one column made `gc --dry-run` and `gc` disagree.
       closed.push({ task: task.name, profile: parseConnectionKey(profile).profile, reason });
       continue;
     }

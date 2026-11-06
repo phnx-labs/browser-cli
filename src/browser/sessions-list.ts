@@ -187,7 +187,7 @@ export function resolveArtifact(groups: ProfileArtifacts[], selector: string): s
 
 
 
-// ─── Task-first grouping (RUSH-2407) ───────────────────────────────────────
+// ─── Task-first grouping ───────────────────────────────────────
 
 /** The identity fields this module cares about for one task. */
 export interface TaskIdentity {

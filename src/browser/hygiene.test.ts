@@ -46,7 +46,7 @@ const NO_LIVE_IDENTITIES: ReapDeps = {
   sessionLiveOnProcessTable: async () => false,
 };
 
-describe('reapAbandonedTasks — idleMs: null disables idle reaping only (RUSH-2622)', () => {
+describe('reapAbandonedTasks — idleMs: null disables idle reaping only', () => {
   it('leaves an hour-idle task alone under idleMs: null, but still reaps a session-dead one', async () => {
     const now = Date.now();
     const idleOnly = makeTask('idle-only', { lastActionAt: now - 60 * 60_000 });

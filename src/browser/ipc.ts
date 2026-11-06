@@ -347,7 +347,7 @@ export class BrowserIPCConnection {
     }
 
     return new Promise<IPCResponse>((resolve, reject) => {
-      // Same wedged-daemon watchdog as sendOverNewSocket (PHNX-3411): a
+      // Same wedged-daemon watchdog as sendOverNewSocket: a
       // request that has waited a full probe window without a reply asks a
       // second connection whether the daemon answers at all, and fails loud
       // when it does not instead of hanging the stream forever.
@@ -622,7 +622,7 @@ export class BrowserIPCServer {
       // The implicit create already opened request.url on this tab. Carry the
       // ACTUAL page result so the navigate/tab-add handler reports that first
       // open honestly (created/refreshed as it happened) instead of executing
-      // the URL a second time (PHNX-2399).
+      // the URL a second time.
       if (resolved.created && resolved.firstOpen) {
         request.firstOpen = resolved.firstOpen;
       }
@@ -822,7 +822,7 @@ export class BrowserIPCServer {
         }
         // The implicit create already opened this URL on this tab. Report the
         // ACTUAL first-open result (adopt → created:false, fresh → created:true)
-        // instead of re-navigating it or assuming a create (PHNX-2399).
+        // instead of re-navigating it or assuming a create.
         const firstOpen = request.firstOpen;
         if (firstOpen) {
           return {
@@ -904,7 +904,7 @@ export class BrowserIPCServer {
         const tabs = await this.service.tabList(request.task);
         // Carry `current` through — it is the one field a caller needs to show
         // which tab URL-less verbs act on, and dropping it here left `agents
-        // browser tabs` unable to mark the selection (PHNX-2399).
+        // browser tabs` unable to mark the selection.
         return { ok: true, tabs: tabs.map(t => ({ id: t.id, url: t.url, title: t.title, current: t.current, task: request.task! })) };
       }
 

@@ -51,13 +51,14 @@ async function registry(name) {
     }
   }
 }
-// npm answers "Your package is being processed" and has taken 19 minutes to show a
-// 43 MB platform package (win32-x64 0.1.30); 0.1.34 took 2 to 4. The 35-minute job outlasts this.
+// npm has taken 19 minutes to show a 43 MB package (win32-x64 0.1.30; the 35-minute job outlasts it),
+// and a tarball can 404 after its version shows (0.2.0's launcher), so an install waits for both.
 async function waitForRegistry(name) {
   const deadline = Date.now() + 25 * 60_000;
+  const tarball = 'https://registry.npmjs.org/' + name + '/-/' + name.split('/').pop() + '-' + pkg.version + '.tgz';
   for (let attempt = 0; Date.now() < deadline; attempt++) {
     const integrity = await registry(name);
-    if (integrity) return integrity;
+    if (integrity && (await fetch(tarball, { method: 'HEAD' }).catch(() => null))?.ok) return integrity;
     if (attempt === 0) console.log('Waiting for npm to process ' + name);
     await delay(2000);
   }

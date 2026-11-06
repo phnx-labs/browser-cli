@@ -690,7 +690,7 @@ function registerProfilesCommands(browser: Command): void {
       }
 
       // Rendering lives in lib/browser/profiles.ts so the column widths and the
-      // default-marking rules are unit-tested rather than eyeballed (RUSH-2710).
+      // default-marking rules are unit-tested rather than eyeballed.
       for (const line of formatProfilesTable(allProfiles, configuredDefault)) console.log(line);
     });
 
@@ -844,7 +844,7 @@ function registerProfilesCommands(browser: Command): void {
     )
     .option(
       '--attach-only',
-      'Never spawn a rival window: attach to a browser you already started with remote debugging, else fail loud with a relaunch hint (PHNX-3967). The model for a canonical signed-in Comet; Arc is always attach-only. Pairs with a durable --user-data-dir.'
+      'Never spawn a rival window: attach to a browser you already started with remote debugging, else fail loud with a relaunch hint. The model for a canonical signed-in Comet; Arc is always attach-only. Pairs with a durable --user-data-dir.'
     )
     .option(
       '--user-data-dir <path>',
@@ -947,7 +947,7 @@ function registerProfilesCommands(browser: Command): void {
       );
       // Attach-only profiles never launch a browser — tell the user the one-time
       // relaunch that makes their canonical instance attachable, pinned to the
-      // durable data dir so the sign-in persists (PHNX-3967).
+      // durable data dir so the sign-in persists.
       if (isAttachOnlyProfile(profile) && profile.browser !== 'arc' && port !== undefined) {
         const app = profile.browser === 'comet' ? 'Comet' : profile.browser;
         console.log(
@@ -983,7 +983,7 @@ function registerProfilesCommands(browser: Command): void {
     .option('--electron', 'Treat this profile as an Electron desktop app')
     .option('--no-electron', 'Stop treating it as an Electron app')
     .option('--target-filter <expr>', "url:<substring> or title:<substring>; consulted on Electron and Arc profiles (pass '' to clear)")
-    .option('--attach-only', 'Make this profile attach-only (never spawn a rival window) — PHNX-3967')
+    .option('--attach-only', 'Make this profile attach-only (never spawn a rival window)')
     .option('--launch', 'Undo attach-only: let agents launch the browser when nothing is serving CDP on the port')
     .option('--user-data-dir <path>', "Absolute durable --user-data-dir (pass '' to clear back to the default durable dir)")
     .option('--json', 'Output machine-readable JSON')
@@ -1529,7 +1529,7 @@ function registerProfilesCommands(browser: Command): void {
               // Attach-only, an occupant is serving CDP, but its --user-data-dir
               // couldn't be read — ownership is UNVERIFIED. Surface it rather than
               // report a silent green, matching the runtime guard which refuses to
-              // attach to an unverifiable instance (PHNX-3967).
+              // attach to an unverifiable instance.
               checks.push({
                 label: 'port',
                 ok: false,
@@ -2417,7 +2417,7 @@ function registerTaskCommands(browser: Command): void {
         console.error(`task ${response.task}`);
       }
       // Honest human output: a same-task reopen reloaded the SAME tab rather than
-      // navigating a fresh one (PHNX-2399). Any picked-device / reopen note rides
+      // navigating a fresh one. Any picked-device / reopen note rides
       // stderr so stdout stays the one-line result.
       if (response.message) console.error(response.message);
       const verb = response.refreshed ? 'Refreshed' : 'Navigated';
@@ -2465,7 +2465,7 @@ function registerTaskCommands(browser: Command): void {
       }
 
       // A reopen of a URL already in an owned tab refreshes that tab in place
-      // rather than opening a duplicate (PHNX-2399).
+      // rather than opening a duplicate.
       if (response.refreshed) {
         if (response.message) console.error(response.message);
         console.log(`Refreshed tab ${response.tabId}: ${opts.url}`);
@@ -2600,7 +2600,7 @@ function registerTaskCommands(browser: Command): void {
         process.exit(1);
       }
 
-      // RUSH-3086: the daemon sandboxes writes to the runtime dir and silently
+      // The daemon sandboxes writes to the runtime dir and silently
       // ignores `-o` outside it. Honor the requested path here.
       const savedPath = response.path
         ? honorScreenshotOutput(opts.output, response.path)
@@ -2926,7 +2926,7 @@ function registerTaskCommands(browser: Command): void {
           const pidLabel = profile.pid ? `pid ${profile.pid}` : 'attached';
           // `profile.name` is the BARE profile; the endpoint is its own field,
           // so the row reads `comet-local (endpoint: endpoint-0, port …)`
-          // instead of the raw `comet-local@endpoint-0` key (RUSH-2709).
+          // instead of the raw `comet-local@endpoint-0` key.
           const endpointLabel = profile.endpoint ? `endpoint: ${profile.endpoint}, ` : '';
           console.log(`\n${profile.name} (${endpointLabel}${portLabel}, ${pidLabel})`);
           // A profile whose live state could not be read is still listed, and

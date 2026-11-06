@@ -5,7 +5,7 @@
 import { describe, it, expect } from 'bun:test';
 import { connectionKey, parseConnectionKey, keyBelongsToProfile, asConnectionKey } from './types.js';
 
-describe('connectionKey / parseConnectionKey — the ONE derivation rule (RUSH-2709)', () => {
+describe('connectionKey / parseConnectionKey — the ONE derivation rule', () => {
   it('derives and splits a runtime key', () => {
     expect(connectionKey('comet-local', 'endpoint-0')).toBe('comet-local@endpoint-0');
     expect(parseConnectionKey('comet-local@endpoint-0')).toEqual({

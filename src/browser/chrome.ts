@@ -289,7 +289,7 @@ export async function launchBrowser(
 ): Promise<LaunchResult> {
   const browserPath = findBrowserPath(browserType, customBinary);
 
-  // A profile discovered from the browser's OWN store (PHNX-4042) launches on
+  // A profile discovered from the browser's OWN store launches on
   // that store — the owner's real user-data dir and profile directory — so the
   // window agents open is the window the owner uses. Its Preferences are the
   // owner's and are never rewritten. Anything else runs under a managed dir.

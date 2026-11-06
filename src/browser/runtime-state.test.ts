@@ -452,7 +452,7 @@ describe('isProcessAlive', () => {
   });
 });
 
-describe('fork runtime cleanup (RUSH-1528)', () => {
+describe('fork runtime cleanup', () => {
   it('clearProfileRuntime on a fork name removes stale fork entries from snapshots', () => {
     const base = uniq('fork-parent');
     const fork2 = `${base}.2`;

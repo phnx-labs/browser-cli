@@ -133,7 +133,7 @@ const OWNERSHIP_REJECTION_PREFIX = 'Attach-only ownership check failed';
  */
 function verifyEndpointOwnership(profile: BrowserProfile, port: number): void {
   // Attach-only profiles and profiles pinned to the owner's own store
-  // (PHNX-4042) both name the exact user-data dir a running instance must have.
+  // both name the exact user-data dir a running instance must have.
   if (!isAttachOnlyProfile(profile) && !profile.userDataDir) return;
   // Arc is the user's single running instance under its own default data dir; it
   // has no managed durable dir to compare against and no /tmp-squat vector.
@@ -193,7 +193,7 @@ export async function connectLocal(
   try {
     const { wsUrl, browser } = await discoverBrowserWsUrl(port, 'localhost', profile.name);
     verifyBrowserIdentity(browser, profile.browser, port);
-    // Ownership beyond browser FAMILY (PHNX-3967): a foreign /tmp Comet answers
+    // Ownership beyond browser FAMILY: a foreign /tmp Comet answers
     // CDP on the canonical port and passes verifyBrowserIdentity, so before we
     // adopt the endpoint confirm its --user-data-dir is this profile's durable
     // dir. Rejects the port-squatter loudly instead of driving it.
@@ -248,7 +248,7 @@ export async function connectLocal(
 
     // A store-pinned profile launches on the owner's store only while nothing
     // holds it; a browser already open there without a port must be relaunched
-    // by the owner, never doubled (PHNX-4042).
+    // by the owner, never doubled.
     if (profile.userDataDir) {
       const holder = storeOccupant(profile.userDataDir);
       if (holder) throw storeInUseError(profile, port, holder.pid);
@@ -259,7 +259,7 @@ export async function connectLocal(
       ...profile.chrome,
       viewport: profile.viewport,
       // A discovered native profile launches the owner's browser on its own
-      // store: one window for the owner and agents, logins intact (PHNX-4042).
+      // store: one window for the owner and agents, logins intact.
       ...(profile.userDataDir
         ? { userDataDir: profile.userDataDir, profileDirectory: profile.profileDirectory }
         : {}),

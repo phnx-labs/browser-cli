@@ -147,7 +147,7 @@ function configToProfile(
     chrome: config.chrome,
     secrets: config.secrets,
     viewport: config.viewport,
-    // Only the identity: a declaration saved before PHNX-4042's profile rows still carries spaceId/spaceTitle.
+    // Only the identity: a declaration saved before profile rows existed still carries spaceId/spaceTitle.
     arc: config.arc && { profileId: config.arc.profileId, profileName: config.arc.profileName },
     firefox: config.firefox,
     devices,
@@ -227,7 +227,7 @@ export function discoverNativeProfiles(): DiscoveredProfiles {
       });
     }
   }
-  // Firefox (PHNX-4043): one profiles.ini entry is one `firefox-<slug>` profile,
+  // Firefox: one profiles.ini entry is one `firefox-<slug>` profile,
   // pinned to that directory and a stable WebDriver BiDi port. Firefox dropped
   // CDP in 129, so these use a `firefox-bidi:` endpoint, not `cdp://`.
   const firefox = discoverFirefoxProfiles();

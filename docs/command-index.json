@@ -1030,7 +1030,7 @@
             },
             {
               "flags": "--attach-only",
-              "description": "Never spawn a rival window: attach to a browser you already started with remote debugging, else fail loud with a relaunch hint (PHNX-3967). The model for a canonical signed-in Comet; Arc is always attach-only. Pairs with a durable --user-data-dir.",
+              "description": "Never spawn a rival window: attach to a browser you already started with remote debugging, else fail loud with a relaunch hint. The model for a canonical signed-in Comet; Arc is always attach-only. Pairs with a durable --user-data-dir.",
               "long": "--attach-only",
               "required": false,
               "optional": false,
@@ -1215,7 +1215,7 @@
             },
             {
               "flags": "--attach-only",
-              "description": "Make this profile attach-only (never spawn a rival window) — PHNX-3967",
+              "description": "Make this profile attach-only (never spawn a rival window)",
               "long": "--attach-only",
               "required": false,
               "optional": false,

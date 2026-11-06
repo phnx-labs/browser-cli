@@ -143,12 +143,12 @@ describe('groupIntoRows', () => {
 
 describe('matchesBrowserSessionRow', () => {
   const linkedRow = groupIntoRows(
-    [{ profile: 'work', artifacts: taskArtifacts('rush-2407-task', [1000]) }],
-    new Map([['work', new Map<string, TaskIdentity>([['rush-2407-task', { owner: 'codex@laptop', launchId: 'l1' }]])]]),
+    [{ profile: 'work', artifacts: taskArtifacts('linked-task', [1000]) }],
+    new Map([['work', new Map<string, TaskIdentity>([['linked-task', { owner: 'codex@laptop', launchId: 'l1' }]])]]),
   )[0];
 
   it('matches on task name', () => {
-    expect(matchesBrowserSessionRow(linkedRow, 'rush-2407')).toBe(true);
+    expect(matchesBrowserSessionRow(linkedRow, 'linked-task')).toBe(true);
     expect(matchesBrowserSessionRow(linkedRow, 'no-such-task')).toBe(false);
   });
 
@@ -185,7 +185,7 @@ describe('loadTaskIdentities + buildBrowserSessionRows (real files)', () => {
   const extraDirs: string[] = [];
 
   beforeEach(() => {
-    profile = `tst-rush2407-${crypto.randomBytes(6).toString('hex')}`;
+    profile = `tst-linked-${crypto.randomBytes(6).toString('hex')}`;
     root = getProfileRuntimeDir(profile);
     previousHistory = process.env.AGENTS_HISTORY_DIR;
     process.env.AGENTS_HISTORY_DIR = path.join(root, 'test-history');
@@ -242,7 +242,7 @@ describe('loadTaskIdentities + buildBrowserSessionRows (real files)', () => {
     expect(rows[0].owner).toBe('user@laptop');
   });
 
-  it('surfaces tasks stored under the composite `<profile>@<device>` dir when queried by the bare profile name (PHNX-3317)', () => {
+  it('surfaces tasks stored under the composite `<profile>@<device>` dir when queried by the bare profile name', () => {
     // The daemon stores tasks in the composite dir, so the bare name must resolve to it.
     const compositeDir = getProfileRuntimeDir(`${profile}@laptop`);
     extraDirs.push(compositeDir);

@@ -10,7 +10,7 @@ export interface BrowserIPCStreamOptions {
   task?: string;
   actor: string;
   launchId?: string;
-  /** Calling agent session, forwarded onto `start` requests (RUSH-2549). */
+  /** Calling agent session, forwarded onto `start` requests. */
   sessionId?: string;
   autoStartDaemon?: boolean;
 }

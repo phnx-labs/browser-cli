@@ -148,7 +148,7 @@ describe('matchesBrowserSessionRow', () => {
   )[0];
 
   it('matches on task name', () => {
-    expect(matchesBrowserSessionRow(linkedRow, 'linked-task')).toBe(true);
+    expect(matchesBrowserSessionRow(linkedRow, 'linked')).toBe(true);
     expect(matchesBrowserSessionRow(linkedRow, 'no-such-task')).toBe(false);
   });
 

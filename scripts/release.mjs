@@ -58,7 +58,7 @@ async function waitForRegistry(name) {
   const tarball = 'https://registry.npmjs.org/' + name + '/-/' + name.split('/').pop() + '-' + pkg.version + '.tgz';
   for (let attempt = 0; Date.now() < deadline; attempt++) {
     const integrity = await registry(name);
-    if (integrity && (await fetch(tarball, { method: 'HEAD' }).catch(() => null))?.ok) return integrity;
+    if (integrity && (await fetch(tarball, { method: 'HEAD', signal: AbortSignal.timeout(30_000) }).catch(() => null))?.ok) return integrity;
     if (attempt === 0) console.log('Waiting for npm to process ' + name);
     await delay(2000);
   }

@@ -17,6 +17,8 @@
   "engines": {
     "node": ">=22.5.0"
   },
+  "homepage": "https://phoenix.so/browser-cli",
+  "bugs": "https://github.com/phnx-labs/browser-cli/issues",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/phnx-labs/browser-cli.git"

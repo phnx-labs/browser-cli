@@ -3,7 +3,7 @@ dist/
 .agents/worktrees/
 .agents/scratch/
 *.tgz
-# The vendored @phnx-labs/tui tarball (PHNX-4227) until it is on the registry.
+# The vendored @phnx-labs/tui tarball until it is on the registry.
 !vendor/*.tgz
 
 .*.bun-build

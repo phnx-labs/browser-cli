@@ -37,7 +37,7 @@
 - Task history saves again on machines whose `history.db` predates the `native` column; every save there failed with `table tasks has no column named native`.
 - A browser profile that only another machine declares, such as `--profile comet-local` on a box where only `laptop` declares it, now runs on that machine exactly as `--device laptop` would, so the laptop's `browser remote-control` setting decides whether it may be driven. This machine's service used to open an SSH tunnel straight to the laptop's debugging port, which skipped that check. `browser start` and a page verb's first `--profile` forward and print `Using <profile> on <device>`; anything else that reaches the service with such a profile is refused with the `browser start --profile <name> --device <device>` command to run.
 - A stale browser daemon now prints one restart hint: `daemon is <version>, CLI is <version>: run browser stop --service`. The standalone CLI no longer requests a self-update that always declines.
-- `browser logs` is removed, with the `logDir` and `logHost` profile keys it read. It tailed the JSONL logs of the retired Rush desktop app (`rush-app-*.jsonl`, `rush-cli-*.jsonl`) and had nothing to read anywhere else. `browser console`, `errors` and `requests` are the page's own logs.
+- `browser logs` is removed, with the `logDir` and `logHost` profile keys it read. It tailed the JSONL logs of a retired app and had nothing to read anywhere else. `browser console`, `errors` and `requests` are the page's own logs.
 - A browser that exits while `browser start` launches it is reported in its own words: the error names its exit code and the first five lines it wrote to stderr, such as Chromium's `No usable sandbox!` in a container under Docker's default seccomp profile. It used to surface only as `read ECONNRESET` or `CDP connection closed`.
 
 ## 0.1.34
@@ -139,23 +139,23 @@
 
 ## 0.1.18
 
-- `browser remote-control` help, its on/off confirmations and the refusal on a gated machine name the two real cross-machine paths, `browser start --device <device>` and `agents ssh <device> browser …`, instead of a `browser --device` that page verbs reject (PHNX-4227).
+- `browser remote-control` help, its on/off confirmations and the refusal on a gated machine name the two real cross-machine paths, `browser start --device <device>` and `agents ssh <device> browser …`, instead of a `browser --device` that page verbs reject.
 
 ## 0.1.17
 
-- The browser skill ships with the package at `skills/browser/` in the standard Agent Skills layout: `SKILL.md`, `references/arc.md`, `references/sites/<site>.md` (higgsfield, linkedin, perplexity, slack) and `scripts/slack/`. `browser skills path|list|get` reads the installed copy, and `npx skills add phnx-labs/browser-cli` installs it into agents (PHNX-4283).
+- The browser skill ships with the package at `skills/browser/` in the standard Agent Skills layout: `SKILL.md`, `references/arc.md`, `references/sites/<site>.md` (higgsfield, linkedin, perplexity, slack) and `scripts/slack/`. `browser skills path|list|get` reads the installed copy, and `npx skills add phnx-labs/browser-cli` installs it into agents.
 - `browser help [command...] --json` prints the command tree with every argument, option, example and note, in the shape of `docs/command-index.json`. `browser help <command>` prints that command's help.
 - `browser start --url` reads site guides from the installed skill instead of `~/.agents/skills/browser/domain-skills/` in each DotAgents layer, prints them under `--- site guide: <name> ---`, and reports `siteGuide` in `--json`. A missing skill prints a warning instead of silently showing no guide. A guide named after a bare TLD no longer matches every host.
 - The `type` example in `browser --help` used a `--ref` flag that does not exist; it now shows `browser type 3 --text "hello"`.
-- `--device` dispatch, streamed verbs and the screenshot copy now connect with the whole target an inherited context names: its user and its `sshArgs` (identity file, port, `HostName`, known-hosts) reach `ssh` and `scp` instead of being dropped, so a context-only device no longer falls through to a bare-alias connection (PHNX-4227). `screenshot -o <path>` on a remote task no longer forwards `-o`, so the hub saves under its own capture directory and the file is copied to the local path. A forwarded verb drops `--device` using the verb's own option arity, so a value such as `--text --device=x` and every word after `--` reach the remote unchanged, and an attached `-pPORT`/`-lUSER` in `sshArgs` reaches `scp` as `-PPORT`/`-oUser=USER`.
-- Read and write the config keys agents-cli stores (`browserRemoteControl`, `defaultBrowserProfile`, `browserViewer`, `browserTaskIdleMinutes` in the device `config:`, and the central `defaultBrowserDevice` hub) instead of dotted names agents-cli never writes (PHNX-4227). Remote control turned on, a default profile picked or a hub set with `agents` now take effect in `browser`. The dotted spellings 0.1.16 and earlier wrote are still read, and setting a value replaces its dotted twin. Remote control stays off when the two spellings disagree.
+- `--device` dispatch, streamed verbs and the screenshot copy now connect with the whole target an inherited context names: its user and its `sshArgs` (identity file, port, `HostName`, known-hosts) reach `ssh` and `scp` instead of being dropped, so a context-only device no longer falls through to a bare-alias connection. `screenshot -o <path>` on a remote task no longer forwards `-o`, so the hub saves under its own capture directory and the file is copied to the local path. A forwarded verb drops `--device` using the verb's own option arity, so a value such as `--text --device=x` and every word after `--` reach the remote unchanged, and an attached `-pPORT`/`-lUSER` in `sshArgs` reaches `scp` as `-PPORT`/`-oUser=USER`.
+- Read and write the config keys agents-cli stores (`browserRemoteControl`, `defaultBrowserProfile`, `browserViewer`, `browserTaskIdleMinutes` in the device `config:`, and the central `defaultBrowserDevice` hub) instead of dotted names agents-cli never writes. Remote control turned on, a default profile picked or a hub set with `agents` now take effect in `browser`. The dotted spellings 0.1.16 and earlier wrote are still read, and setting a value replaces its dotted twin. Remote control stays off when the two spellings disagree.
 - Add `scripts/generate-cli-docs.sh` with `--check` and `--out-dir`, downloadable command references in PR/release-branch CI, and a freshness check that also covers releases with tests/build skipped.
 
 ## 0.1.16
 
 - The picker, the printed `browser sessions` listing, the format helpers and the
   stdout writers now come from the shared `@phnx-labs/tui` package, the same code
-  `sessions` and `computer` use (PHNX-4227). The picker keeps its controls and
+  `sessions` and `computer` use. The picker keeps its controls and
   still lists every row. Typing a filter now closes the preview, as in
   `sessions`; clear the filter and press space to reopen it.
 - Relative ages read `just now` under a minute, `3 min ago`, `2 hours ago`,
@@ -337,7 +337,7 @@
   (reachability probe, responsiveness probe, a version request, then the
   request). It now sends the request first and only starts the service when
   the connect is refused; the daemon stamps its version on every reply so
-  version skew is still noticed, and the wedged-daemon check (PHNX-3411) runs
+  version skew is still noticed, and the wedged-daemon check runs
   only once a request has waited a full probe window without a reply.
 - `navigate`, `click`, `type` and `press` take `--snapshot`: after the action
   settles they also print the page url, title and the interactive ref listing a

@@ -32,7 +32,7 @@ browser profiles create work --browser chrome   # once: the browser to drive (ch
 browser use work                                # the default for a bare `browser start`
 ```
 
-On a machine with no display, add `--headless` to `profiles create`.
+npm needs Node 22.5 or newer to install it; `browser` itself is a compiled binary. On a machine with no display, add `--headless` to `profiles create`.
 
 In Claude Code, the skill also installs as a plugin:
 
@@ -72,7 +72,7 @@ and summarize the top 5 stories.
   of freezing the tab, a `confirm()` comes back as a question for `browser
   dialog`, router navigations are listed once the new page is drawn, date and
   time inputs take "19:45", and off-screen elements are scrolled into view.
-- **Cheap turns.** The shipped skill is about 7 KB and command output is
+- **Cheap turns.** The shipped skill is about 8 KB and command output is
   short, so each agent turn carries less context.
 - **Agents share a browser safely.** Each task owns its tabs, so several agents can work in one signed-in browser at once; see [Several agents, one browser](#several-agents-one-browser).
 - **Remote browsers.** `start --device <machine>` binds a task to a browser on
@@ -166,7 +166,8 @@ Read from each tool's source at a pinned commit and its docs on 2026-10-19 ([how
   work --browser chrome`) when it should not see your personal accounts.
 - **Nothing leaves your machine.** browser-cli sends no telemetry. It talks to
   your browser's local DevTools port, Firefox's BiDi port or Arc's Apple Events,
-  and to the machines you name over your own SSH config.
+  and to the machines you name over your own SSH config. The one exception: the
+  first recording on a machine without ffmpeg installs it (see [SECURITY.md](SECURITY.md)).
 - **What ships.** npm installs one compiled binary per platform, published from
   this repository's release workflow through npm trusted publishing (OIDC), so
   no npm token exists to leak.

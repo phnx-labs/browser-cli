@@ -11,6 +11,8 @@ Each agent's task owns its tabs. Chrome, Arc, Brave, Edge, Comet or Firefox, on 
 
 [Install](#install) · [Benchmark](#benchmark) · [How it compares](#how-it-compares) · [Driving a page](#driving-a-page) · [Remote browsers](#remote-browsers) · [Command reference](docs/command-index.md)
 
+[phoenix.so/browser-cli](https://phoenix.so/browser-cli?ref=github) · [Why we open-sourced it](https://phoenix.so/blog/browser-cli?ref=github)
+
 </div>
 
 <picture>

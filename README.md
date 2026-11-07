@@ -2,8 +2,8 @@
 
 # browser-cli
 
-**Several coding agents in one signed-in browser, without crossed tabs.**<br>
-Each agent's task owns its tabs. Chrome, Arc, Brave, Edge, Comet or Firefox, on this machine or another one over SSH.
+**Run three coding agents in your own signed-in browser at once. None of them can see another's tabs.**<br>
+Chrome, Arc, Brave, Edge, Comet or Firefox, on this machine or another one over SSH.
 
 [![npm](https://img.shields.io/npm/v/@phnx-labs/browser-cli?style=flat-square&color=C9A962&labelColor=0d1117)](https://www.npmjs.com/package/@phnx-labs/browser-cli)
 [![CI](https://img.shields.io/github/actions/workflow/status/phnx-labs/browser-cli/test.yml?branch=main&style=flat-square&label=tests&labelColor=0d1117)](https://github.com/phnx-labs/browser-cli/actions/workflows/test.yml)

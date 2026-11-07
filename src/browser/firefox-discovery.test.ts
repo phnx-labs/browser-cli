@@ -145,4 +145,25 @@ describe('firefoxProfileRoots', () => {
       else process.env.AGENTS_FIREFOX_DIRS = prev;
     }
   });
+
+  it.skipIf(process.platform !== 'linux')('reads a fresh tarball install under $XDG_CONFIG_HOME/mozilla/firefox', () => {
+    const prev = { dirs: process.env.AGENTS_FIREFOX_DIRS, xdg: process.env.XDG_CONFIG_HOME };
+    delete process.env.AGENTS_FIREFOX_DIRS;
+    const xdg = fs.mkdtempSync(path.join(os.tmpdir(), 'ff-xdg-'));
+    process.env.XDG_CONFIG_HOME = xdg;
+    try {
+      const root = path.join(xdg, 'mozilla', 'firefox');
+      expect(firefoxProfileRoots()).toContain(root);
+      fs.mkdirSync(path.join(root, 'abcd.default'), { recursive: true });
+      fs.writeFileSync(path.join(root, 'profiles.ini'), '[Profile0]\nName=default\nIsRelative=1\nPath=abcd.default\n');
+      const found = discoverFirefoxProfilesAt([root]);
+      expect(found.ok).toBe(true);
+    } finally {
+      fs.rmSync(xdg, { recursive: true, force: true });
+      for (const [key, value] of [['AGENTS_FIREFOX_DIRS', prev.dirs], ['XDG_CONFIG_HOME', prev.xdg]] as const) {
+        if (value === undefined) delete process.env[key];
+        else process.env[key] = value;
+      }
+    }
+  });
 });

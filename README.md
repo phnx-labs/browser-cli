@@ -18,7 +18,8 @@ Each agent's task owns its tabs. Chrome, Arc, Brave, Edge, Comet or Firefox, on 
 `browser` is one command an agent calls from its shell to drive the Chrome, Arc, Brave, Edge, Comet or Firefox profile you already use, on this machine or on another one over SSH. Every `browser start` opens a task that owns its tabs, so Claude Code, Codex and Cursor can work in the same signed-in browser at once without reading, typing into or closing each other's pages.
 
 <p align="center">
-  <img src="docs/assets/demo.gif" alt="browser start --snapshot lists a page's elements, click --text Mystery acts by name and prints the next page, then screenshot and done" width="820">
+  <img src="docs/assets/three-agents.gif" alt="Three Claude Code agents work at once in one Brave window, each in its own tab: one finds the cheapest mystery book, one fills a pizza order form, one checks out two items. Each pane shows the agent's current browser command, then its answer." width="100%">
+  <br><sub>A real run on 2026-10-19, shown at 2×: three Claude Code agents, one browser, each in the tab its task owns.</sub>
 </p>
 
 ## Install
@@ -122,6 +123,11 @@ Tab "f9060fe5" not found
 ```
 
 We ran three Claude Code agents at once in one browser, each told to "work only in tabs you opened yourself", two trials per tool on 2026-10-19 ([method](docs/benchmarks.md#several-agents-one-browser), [harness to rerun it](bench/)):
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/crossed-tabs-dark.svg">
+  <img src="docs/assets/crossed-tabs-light.svg" alt="Agent runs whose output showed another agent's tab, out of 6: browser-cli 0, browser-harness 4, Browser Use 4, agent-browser 4, Browserbase browse 5" width="100%">
+</picture>
 
 | Tool | Tasks solved | Agent runs whose output showed another agent's tab | Time for all three |
 | --- | --- | --- | --- |

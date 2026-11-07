@@ -1,0 +1,47 @@
+{
+  "kind": "suite",
+  "tool": "agent-browser",
+  "toolVersion": "0.41.2",
+  "task": "bun",
+  "trial": 2,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "expected bun-v1.4.4, 38 or 40 assets, 51.8 MB; tag true, count true, size true",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-07T18:24:55.782Z",
+  "seconds": 32.98164857299999,
+  "turns": 14,
+  "costUsd": 0.0777305,
+  "tokens": {
+    "input": 26,
+    "cacheCreation": 10175,
+    "cacheRead": 227285,
+    "output": 1425,
+    "total": 238911
+  },
+  "answer": "The latest release of oven-sh/bun is tagged `bun-v1.4.4` (the page title reads \"Bun v1.4.4\"). The release shows 40 assets, and GitHub lists `bun-linux-x64.zip` at 49.4 MB. The release page is still open in the browser tab.",
+  "claudeVersion": "2.1.301",
+  "error": null,
+  "permissionDenials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01RkwbhjMs9PSz12MMUxSY5s",
+      "tool_input": {
+        "command": "S=$(agent-browser session id --scope worktree --prefix task); agent-browser --session $S open https://github.com/oven-sh/bun/releases/latest; agent-browser --session $S get url; agent-browser --session $S snapshot | grep -iE \"Assets|bun-linux-x64.zip|MB|heading\" | head -30"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01P4vEThpVzVcjeLD8Y4i4p5",
+      "tool_input": {
+        "command": "cd /tmp; S=\"--session task-9797365235a4\"; agent-browser $S scrollintoview @e27; sleep 3; agent-browser $S snapshot | grep -n -B1 -A4 \"linux-x64.zip\""
+      }
+    }
+  ],
+  "toolCalls": 12,
+  "openTabs": [
+    "https://github.com/oven-sh/bun/releases/tag/bun-v1.4.4"
+  ]
+}

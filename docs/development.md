@@ -41,9 +41,9 @@ bash scripts/release.sh            # print the release plan (dry run)
 bash scripts/release.sh --confirm  # wait for main CI, push release/<version>, wait for the workflow, check a registry install
 ```
 
-`.github/workflows/release.yml` runs on that push. npm trusts that workflow in
-the `npm-publish` environment (trusted publishing over OIDC), so no npm token is
-stored anywhere, and the environment deploys only from `release/*` branches. The
+`.github/workflows/release.yml` runs on that push in the `npm-publish`
+environment, which deploys only from `release/*` branches and holds the
+`NPM_TOKEN` that `setup-node` writes into the job's `.npmrc`. The
 workflow builds and tests nothing: it downloads the `compiled-packages` artifact of
 main's successful `test.yml` run for the release commit, refuses when that run or
 artifact is missing or the download's sha256 differs from the digest GitHub
@@ -53,9 +53,8 @@ the launcher, then pushes the version tag and installs the published version
 from the registry. The script waits for main CI before pushing the branch, then
 installs and checks the release on your machine too. Fetching and packing take
 about 22 seconds on a runner; most of a release is npm processing each package
-after it accepts it, 1 to 4 minutes for 0.1.34 and 0.1.35. Each of the six packages needs a trusted publisher for
-`phnx-labs/browser-cli`, workflow `release.yml`, environment `npm-publish`, with
-"Allow npm publish" checked. A run that fails after publishing (the tag push,
+after it accepts it, 1 to 4 minutes for 0.1.34 and 0.1.35. `NPM_TOKEN` must be
+able to publish all six packages. A run that fails after publishing (the tag push,
 say) is safe to rerun with `bash scripts/release.sh --confirm`, which reruns the failed
 workflow: published packages are verified, not republished. A stable version
 older than the current `latest` is refused, and release branches cannot be

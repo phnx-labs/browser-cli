@@ -1,0 +1,47 @@
+{
+  "kind": "suite",
+  "tool": "agent-browser",
+  "toolVersion": "0.41.2",
+  "task": "bun",
+  "trial": 1,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "expected bun-v1.4.4, 38 or 40 assets, 51.8 MB; tag true, count true, size true",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-07T18:10:58.244Z",
+  "seconds": 40.47564999100001,
+  "turns": 15,
+  "costUsd": 0.0780373,
+  "tokens": {
+    "input": 28,
+    "cacheCreation": 9574,
+    "cacheRead": 244653,
+    "output": 1522,
+    "total": 255777
+  },
+  "answer": "The latest release of oven-sh/bun is **bun-v1.4.4** (Bun v1.4.4).\n\n- **Tag:** `bun-v1.4.4`\n- **Assets:** 40, as shown on the Assets button.\n- **`bun-linux-x64.zip` size:** 49.4 MB, as GitHub shows it.\n\nI did not count the 40 assets in the expanded list myself. The release page is still open in the browser tab.",
+  "claudeVersion": "2.1.301",
+  "error": null,
+  "permissionDenials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01BJCP5RiNTgMPnna3vMqQcd",
+      "tool_input": {
+        "command": "S=$(agent-browser session id --scope worktree --prefix task); agent-browser --session $S open https://github.com/oven-sh/bun/releases/latest; agent-browser --session $S get url"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01Pk5o8z6CR2cMdYc2eo3j1M",
+      "tool_input": {
+        "command": "agent-browser --session task-fff6f26d508d snapshot | sed -n '/Assets 40/,$p' | head -60"
+      }
+    }
+  ],
+  "toolCalls": 13,
+  "openTabs": [
+    "https://github.com/oven-sh/bun/releases/tag/bun-v1.4.4"
+  ]
+}

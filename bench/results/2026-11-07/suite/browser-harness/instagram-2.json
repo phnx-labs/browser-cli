@@ -1,0 +1,32 @@
+{
+  "kind": "suite",
+  "tool": "browser-harness",
+  "toolVersion": "0.1.13",
+  "task": "instagram",
+  "trial": 2,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "page shows 104M followers",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-07T18:31:55.347Z",
+  "seconds": 17.52487219200004,
+  "turns": 4,
+  "costUsd": 0.0376618,
+  "tokens": {
+    "input": 6,
+    "cacheCreation": 7602,
+    "cacheRead": 43318,
+    "output": 291,
+    "total": 51217
+  },
+  "answer": "The profile is for **NASA** (@nasa), and the page shows **104M followers**.\n\nThe page header displays \"104M followers\". The page's meta description also says \"104M Followers\". I left the profile open in its tab.",
+  "claudeVersion": "2.1.301",
+  "error": null,
+  "permissionDenials": [],
+  "toolCalls": 2,
+  "openTabs": [
+    "https://www.instagram.com/nasa/"
+  ]
+}

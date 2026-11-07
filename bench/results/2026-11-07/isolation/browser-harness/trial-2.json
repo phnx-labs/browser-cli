@@ -1,0 +1,130 @@
+{
+  "kind": "isolation",
+  "tool": "browser-harness",
+  "toolVersion": "0.1.13",
+  "trial": 2,
+  "model": "claude-sonnet-5-5",
+  "wallSeconds": 26.005,
+  "agents": [
+    {
+      "task": "books",
+      "correct": true,
+      "grade": "expected \"The Girl You Lost\" at £12.29",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-07T18:37:22.359Z",
+      "seconds": 21.239434298999985,
+      "turns": 6,
+      "costUsd": 0.052886,
+      "tokens": {
+        "input": 10,
+        "cacheCreation": 8709,
+        "cacheRead": 81200,
+        "output": 991,
+        "total": 90910
+      },
+      "answer": "The cheapest five-star book in the Mystery category is **The Girl You Lost**, at **£12.29**.\n\nI checked both pages of the category, which hold 32 books in total. Five of them are rated five stars. The next cheapest is The Silkworm (Cormoran Strike #2) at £23.05.\n\nThe final page, Mystery page 2, is still open in the tab I opened.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 4,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "browser-harness <<'PY'\nnew_tab(\"https://books.toscrape.com/catalogue/category/books/mystery_3/index.html\")\nwait_for_load()\nimport json\nres=[]\nfor i in range(10):\n    r=js(\"\"\"[...document.querySelectorAll('article.product_pod')].map(a=>[a.querySelector('h3 a').title,a.querySelector('.price_color').te",
+          "seen": [
+            "httpbin.org"
+          ]
+        },
+        {
+          "command": "browser-harness <<'PY'\nprint(current_tab()); \nfor t in list_tabs(): print(t)\nPY",
+          "seen": [
+            "httpbin.org",
+            "saucedemo.com",
+            "Swag Labs"
+          ]
+        }
+      ]
+    },
+    {
+      "task": "pizza",
+      "correct": true,
+      "grade": "all fields submitted",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-07T18:37:22.360Z",
+      "seconds": 17.774004419000004,
+      "turns": 8,
+      "costUsd": 0.0612833,
+      "tokens": {
+        "input": 14,
+        "cacheCreation": 9480,
+        "cacheRead": 120753,
+        "output": 1126,
+        "total": 131373
+      },
+      "answer": "I submitted the pizza order and httpbin accepted it. The response page echoed back every field as I entered it:\n\n- **Customer name:** Ada Lovelace\n- **Telephone:** 555-0100\n- **Email:** ada@example.com\n- **Size:** large\n- **Toppings:** bacon and cheese (the form's value for Extra Cheese)\n- **Delivery time:** 19:45\n- **Delivery instructions:** \"Ring twice\"\n\nThe new tab I opened is still open on the response page at https://httpbin.org/post. The browser's attached tab was another agent's saucedemo.com tab, so I switched to mine and left theirs alone.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 6,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "browser-harness <<'PY'\nnew_tab(\"https://httpbin.org/forms/post\")\nwait_for_load()\nprint(page_info())\nprint(js(\"[...document.querySelectorAll('input,textarea,select')].map(e=>e.name+':'+e.type+':'+e.value).join('\\\\n')\"))\nPY",
+          "seen": [
+            "saucedemo.com",
+            "Swag Labs"
+          ]
+        },
+        {
+          "command": "browser-harness <<'PY'\nprint(current_tab())\nfor t in list_tabs(): print(t)\nPY",
+          "seen": [
+            "saucedemo.com",
+            "Swag Labs"
+          ]
+        }
+      ]
+    },
+    {
+      "task": "saucedemo",
+      "correct": true,
+      "grade": "checkout-complete page open",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-07T18:37:22.361Z",
+      "seconds": 26.002105769999993,
+      "turns": 8,
+      "costUsd": 0.0831492,
+      "tokens": {
+        "input": 14,
+        "cacheCreation": 11904,
+        "cacheRead": 124452,
+        "output": 2306,
+        "total": 138676
+      },
+      "answer": "The order is complete. The page says \"Thank you for your order!\" at https://www.saucedemo.com/checkout-complete.html, and I left that tab open.\n\n- **Login:** I logged in as standard_user.\n- **Sorting:** I sorted by price from low to high.\n- **Cart:** I added the Sauce Labs Bike Light ($9.99) and the Sauce Labs Backpack ($29.99).\n- **Checkout:** I checked out as Ada Lovelace, postal code 10001. The order total was $43.18.\n\nMy first attempt ran against another agent's httpbin tab by mistake. It failed on its first step, before changing anything, and I switched to my own saucedemo tab for the rest.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 6,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "browser-harness <<'PY'\nprint(list_tabs())\nnew_tab(\"https://www.saucedemo.com\")\nwait_for_load()\nprint(page_info())\nPY",
+          "seen": [
+            "httpbin.org"
+          ]
+        },
+        {
+          "command": "browser-harness <<'PY'\nprint(page_info()); print(list_tabs())\nPY",
+          "seen": [
+            "books.toscrape.com",
+            "Books to Scrape",
+            "httpbin.org"
+          ]
+        }
+      ]
+    }
+  ]
+}

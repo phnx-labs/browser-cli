@@ -1,0 +1,110 @@
+{
+  "kind": "isolation",
+  "tool": "browser-use",
+  "toolVersion": "0.13.14",
+  "trial": 2,
+  "model": "claude-sonnet-5-5",
+  "wallSeconds": 37.897,
+  "agents": [
+    {
+      "task": "books",
+      "correct": true,
+      "grade": "expected \"The Girl You Lost\" at £12.29",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-07T18:39:53.250Z",
+      "seconds": 11.932040603000031,
+      "turns": 4,
+      "costUsd": 0.050859499999999995,
+      "tokens": {
+        "input": 6,
+        "cacheCreation": 9890,
+        "cacheRead": 44175,
+        "output": 687,
+        "total": 54758
+      },
+      "answer": "The cheapest five-star book in the Mystery category is **\"The Girl You Lost\"**, priced at **£12.29**.\n\nI checked both pages of the category, which hold 32 books in total. Five of them are rated five stars: \"A Time of Torment\" (£48.35), \"What Happened on Beale Street\" (£25.37), \"The Bachelor Girl's Guide to Murder\" (£52.30), \"The Silkworm\" (£23.05) and \"The Girl You Lost\" (£12.29).\n\nThe tab I opened is still open on page 2 of the category.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 2,
+      "sawOtherAgentsTab": false,
+      "leakingCommands": []
+    },
+    {
+      "task": "pizza",
+      "correct": true,
+      "grade": "all fields submitted",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-07T18:39:53.251Z",
+      "seconds": 21.476410556999966,
+      "turns": 7,
+      "costUsd": 0.07438260000000001,
+      "tokens": {
+        "input": 12,
+        "cacheCreation": 12458,
+        "cacheRead": 109066,
+        "output": 1362,
+        "total": 122898
+      },
+      "answer": "I submitted the pizza order, and httpbin.org accepted it. The response page is still open in the tab I opened, `https://httpbin.org/post`.\n\nThe server echoed back these form values:\n- **Name:** Ada Lovelace\n- **Telephone:** 555-0100\n- **Email:** ada@example.com\n- **Size:** large\n- **Toppings:** bacon and cheese (the \"Extra Cheese\" option)\n- **Delivery time:** 19:45\n- **Delivery instructions:** \"Ring twice\"\n\nAnother agent switched the shared browser's active tab partway through, so my first attempt to fill the form failed. Nothing was submitted by that attempt. I switched back to my own tab and filled and submitted the form there. I didn't touch any other tabs.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 5,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "browser-use <<'PY'\nprint(current_tab()); print(list_tabs()); print(page_info())\nPY",
+          "seen": [
+            "books.toscrape.com",
+            "Books to Scrape",
+            "saucedemo.com",
+            "Swag Labs"
+          ]
+        }
+      ]
+    },
+    {
+      "task": "saucedemo",
+      "correct": true,
+      "grade": "checkout-complete page open",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-07T18:39:53.252Z",
+      "seconds": 37.89346528800001,
+      "turns": 10,
+      "costUsd": 0.10969309999999999,
+      "tokens": {
+        "input": 18,
+        "cacheCreation": 16216,
+        "cacheRead": 179531,
+        "output": 2684,
+        "total": 198449
+      },
+      "answer": "The order is complete. The confirmation page says \"Thank you for your order!\", and I left it open in my tab at https://www.saucedemo.com/checkout-complete.html.\n\n- **Login:** I logged in as standard_user.\n- **Sort:** I sorted by price from low to high.\n- **Cart:** I added the Sauce Labs Backpack and the Sauce Labs Bike Light. The cart showed just those two items.\n- **Checkout:** I checked out as Ada Lovelace, postal code 10001. The order total was $43.18.\n\n**Answer: Order complete — \"Thank you for your order!\" (total $43.18).**",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 8,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "browser-use <<'PY'\nnew_tab(\"https://www.saucedemo.com\")\nwait_for_load()\nprint(page_info())\nPY",
+          "seen": [
+            "httpbin.org"
+          ]
+        },
+        {
+          "command": "browser-use <<'PY'\nprint(current_tab())\nfor t in list_tabs(): print(t)\nPY",
+          "seen": [
+            "books.toscrape.com",
+            "Books to Scrape",
+            "httpbin.org"
+          ]
+        }
+      ]
+    }
+  ]
+}

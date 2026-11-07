@@ -1,0 +1,32 @@
+{
+  "kind": "suite",
+  "tool": "browser-harness",
+  "toolVersion": "0.1.13",
+  "task": "pizza",
+  "trial": 1,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "all fields submitted",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-07T18:09:42.283Z",
+  "seconds": 17.388614090000004,
+  "turns": 5,
+  "costUsd": 0.0517448,
+  "tokens": {
+    "input": 8,
+    "cacheCreation": 9410,
+    "cacheRead": 61388,
+    "output": 795,
+    "total": 71601
+  },
+  "answer": "I submitted the pizza order, and httpbin's response page shows the server received it. The tab is still open on https://httpbin.org/post.\n\nThe server recorded these form values:\n- **Customer name:** Ada Lovelace\n- **Telephone:** 555-0100\n- **Email:** ada@example.com\n- **Size:** large\n- **Toppings:** bacon and cheese (the form's value for Extra Cheese)\n- **Delivery time:** 19:45\n- **Delivery instructions:** Ring twice\n\nI filled the fields with JavaScript in the page rather than typing them, then submitted the form from the page.",
+  "claudeVersion": "2.1.301",
+  "error": null,
+  "permissionDenials": [],
+  "toolCalls": 3,
+  "openTabs": [
+    "https://httpbin.org/post"
+  ]
+}

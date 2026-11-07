@@ -1,0 +1,85 @@
+{
+  "kind": "isolation",
+  "tool": "browser-cli",
+  "toolVersion": "0.2.3 (b5779f7)",
+  "trial": 1,
+  "model": "claude-sonnet-5-5",
+  "wallSeconds": 86.243,
+  "agents": [
+    {
+      "task": "books",
+      "correct": true,
+      "grade": "expected \"The Girl You Lost\" at £12.29",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-07T18:35:55.603Z",
+      "seconds": 13.111531199000005,
+      "turns": 4,
+      "costUsd": 0.0351984,
+      "tokens": {
+        "input": 6,
+        "cacheCreation": 6399,
+        "cacheRead": 42204,
+        "output": 537,
+        "total": 49146
+      },
+      "answer": "The cheapest five-star book in the Mystery category is **The Girl You Lost**, at **£12.29**.\n\nThe category has two pages. I fetched pages 1 to 3 (page 3 doesn't exist, so it added nothing). Five books are rated five stars, priced £12.29, £23.05, £25.37, £48.35 and £52.30, and The Girl You Lost is the £12.29 one.\n\nThe Mystery category page is still open in the tab I started.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 2,
+      "sawOtherAgentsTab": false,
+      "leakingCommands": []
+    },
+    {
+      "task": "pizza",
+      "correct": true,
+      "grade": "all fields submitted",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-07T18:35:55.604Z",
+      "seconds": 53.87342126700001,
+      "turns": 5,
+      "costUsd": 0.0395846,
+      "tokens": {
+        "input": 8,
+        "cacheCreation": 7281,
+        "cacheRead": 59846,
+        "output": 446,
+        "total": 67581
+      },
+      "answer": "I submitted the pizza order, and httpbin accepted it. The response page echoed back these form values:\n\n- **Customer name:** Ada Lovelace\n- **Telephone:** 555-0100\n- **Email:** ada@example.com\n- **Size:** large\n- **Toppings:** bacon and extra cheese\n- **Delivery time:** 19:45\n- **Delivery instructions:** Ring twice\n\nThe response page (`https://httpbin.org/post`) is still open in the tab I opened. I didn't touch any other tabs.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 3,
+      "sawOtherAgentsTab": false,
+      "leakingCommands": []
+    },
+    {
+      "task": "saucedemo",
+      "correct": true,
+      "grade": "checkout-complete page open",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-07T18:35:55.604Z",
+      "seconds": 86.240474785,
+      "turns": 6,
+      "costUsd": 0.04527210000000001,
+      "tokens": {
+        "input": 10,
+        "cacheCreation": 8107,
+        "cacheRead": 77741,
+        "output": 505,
+        "total": 86363
+      },
+      "answer": "The order is complete. I logged in as standard_user and sorted by price from low to high. I added the Sauce Labs Backpack and the Sauce Labs Bike Light and checked out as Ada Lovelace, postal code 10001. The final page, checkout-complete.html, says \"Thank you for your order!\" and is still open in my tab.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 4,
+      "sawOtherAgentsTab": false,
+      "leakingCommands": []
+    }
+  ]
+}

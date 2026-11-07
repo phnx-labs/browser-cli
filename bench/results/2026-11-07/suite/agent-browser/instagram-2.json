@@ -1,0 +1,40 @@
+{
+  "kind": "suite",
+  "tool": "agent-browser",
+  "toolVersion": "0.41.2",
+  "task": "instagram",
+  "trial": 2,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "page shows 104M followers",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-07T18:32:13.113Z",
+  "seconds": 19.254363816000055,
+  "turns": 8,
+  "costUsd": 0.048095,
+  "tokens": {
+    "input": 14,
+    "cacheCreation": 7453,
+    "cacheRead": 111150,
+    "output": 714,
+    "total": 119331
+  },
+  "answer": "The NASA profile page shows the account name as **NASA** (@nasa) and its follower count as **104M followers**.\n\nI read this from the page text. A login dialog was covering the profile, and I left it as it was. The tab is still open on https://www.instagram.com/nasa/.\n\nThe page's meta description also says \"104M Followers\", so the two agree.",
+  "claudeVersion": "2.1.301",
+  "error": null,
+  "permissionDenials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01ETw5zVoTPJRhuVHQFhCfrG",
+      "tool_input": {
+        "command": "S=$(agent-browser session id --scope worktree --prefix task); agent-browser --session $S open https://www.instagram.com/nasa/ && agent-browser --session $S snapshot | head -60"
+      }
+    }
+  ],
+  "toolCalls": 6,
+  "openTabs": [
+    "https://www.instagram.com/nasa/"
+  ]
+}

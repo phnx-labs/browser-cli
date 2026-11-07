@@ -1,0 +1,40 @@
+{
+  "kind": "suite",
+  "tool": "agent-browser",
+  "toolVersion": "0.41.2",
+  "task": "instagram",
+  "trial": 1,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "page shows 104M followers",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-07T18:19:57.699Z",
+  "seconds": 16.754530804999987,
+  "turns": 8,
+  "costUsd": 0.0634034,
+  "tokens": {
+    "input": 14,
+    "cacheCreation": 11178,
+    "cacheRead": 123134,
+    "output": 635,
+    "total": 134961
+  },
+  "answer": "The profile is NASA, with the username @nasa. The page shows **104M followers**.\n\nThe page body text says \"104M followers\". The meta description says \"104M Followers\". The page was behind a login/sign-up dialog, but the count was still readable. I left the tab open on https://www.instagram.com/nasa/.",
+  "claudeVersion": "2.1.301",
+  "error": null,
+  "permissionDenials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01UeSviBWXRLvgQWZxKFRTJs",
+      "tool_input": {
+        "command": "S=$(agent-browser session id --scope worktree --prefix task); agent-browser --session $S open https://www.instagram.com/nasa/ && agent-browser --session $S snapshot -i -c | head -50"
+      }
+    }
+  ],
+  "toolCalls": 6,
+  "openTabs": [
+    "https://www.instagram.com/nasa/"
+  ]
+}

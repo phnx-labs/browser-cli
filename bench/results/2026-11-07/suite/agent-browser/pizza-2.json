@@ -1,0 +1,47 @@
+{
+  "kind": "suite",
+  "tool": "agent-browser",
+  "toolVersion": "0.41.2",
+  "task": "pizza",
+  "trial": 2,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "all fields submitted",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-07T18:22:56.974Z",
+  "seconds": 25.068238965000027,
+  "turns": 12,
+  "costUsd": 0.08684259999999999,
+  "tokens": {
+    "input": 22,
+    "cacheCreation": 12580,
+    "cacheRead": 214186,
+    "output": 1506,
+    "total": 228294
+  },
+  "answer": "I submitted the pizza order, and httpbin's response page echoed back the values I entered. I left that page open in its tab.\n\n- **Customer name:** Ada Lovelace\n- **Telephone:** 555-0100\n- **Email:** ada@example.com\n- **Size:** large\n- **Toppings:** bacon and extra cheese\n- **Delivery time:** 19:45\n- **Delivery instructions:** \"Ring twice\"\n\nThe form's time picker didn't accept typed input, so I set the delivery time field's value to 19:45 directly in the page. The submitted data shows it went through.",
+  "claudeVersion": "2.1.301",
+  "error": null,
+  "permissionDenials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01Mh1Lk7RbCZMujdvce9dZNQ",
+      "tool_input": {
+        "command": "S=$(agent-browser session id --scope worktree --prefix task); agent-browser --session $S open https://httpbin.org/forms/post; agent-browser --session $S snapshot -i"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01NX5eBDEEF85YDesphWrcgQ",
+      "tool_input": {
+        "command": "A=\"agent-browser --session task-e986687aa37d\"; $A fill @e2 \"Ada Lovelace\"; $A fill @e3 555-0100; $A fill @e4 ada@example.com; $A check @e7; $A check @e8; $A check @e9; $A fill @e12 \"Ring twice\"; $A click @e14; $A type @e14 \"07\"; $A type @e15 \"45\"; $A type @e16 \"PM\"; $A snapshot -i"
+      }
+    }
+  ],
+  "toolCalls": 10,
+  "openTabs": [
+    "https://httpbin.org/post"
+  ]
+}

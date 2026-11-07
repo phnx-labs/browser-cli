@@ -39,6 +39,14 @@ export function pickArcSpace(
   return undefined;
 }
 
+export function pickShowSpace(
+  own: ReadonlyArray<{ id: string; title: string }>,
+  live: ReadonlyArray<ArcEnumeratedSpace>,
+  agentWindows: ReadonlySet<string>,
+): { windowId: string; spaceId: string; spaceTitle: string } | undefined {
+  return pickArcSpace(own, live.filter((space) => !agentWindows.has(space.windowId))) ?? pickArcSpace(own, live);
+}
+
 export class ArcNativeCapabilityError extends Error {
   constructor(public readonly capability: string, message?: string) {
     super(message ?? `Native Arc does not support ${capability}. Use a configured browser with that capability.`);

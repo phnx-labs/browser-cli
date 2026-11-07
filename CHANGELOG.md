@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- `browser type --secret` works. It read bundles with `secrets export <name> --json`, a command the `secrets` CLI does not have, so every call failed with `Could not resolve secrets bundle`; a profile's `--secrets` binding failed the same way and launched without its variables. Values now come from `secrets exec`.
+- A secret from a bundle named after a site types only into a field on that site or its subdomains: `browser type "Password" --secret stripe.com/PASSWORD` on any other site, including a cross-origin iframe on a stripe.com page or a `--tab` aimed elsewhere, prints `Refused: this secret types only into stripe.com, and the field is on <host>. Nothing was typed.` and exits 1. A bundle whose name is not a host (`logins`) types anywhere, as before.
 - Firefox installed without root now works on Linux. A fresh Firefox tarball keeps its profiles in `$XDG_CONFIG_HOME/mozilla/firefox` (`~/.config/mozilla/firefox`), which profile discovery now reads beside `~/.mozilla/firefox` and the snap path. On every platform, when none of a browser's standard install paths exist, `browser` looks its binary name up in the absolute directories on `PATH` (relative entries such as `.` are skipped), so a Firefox in `~/.local/bin` starts. Two profile roots that resolve to the same directory, such as `~/.mozilla/firefox` symlinked to the XDG one, list each profile once. Before, 0.2.0 listed no Firefox profile on such a machine and then said `Browser "firefox" not found. Install it first.`
 
 ## 0.2.0

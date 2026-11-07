@@ -3,7 +3,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync, cpSync, rmSync, statSync } from 'node:fs';
 import { join, dirname, relative, resolve } from 'node:path';
 import { createServer } from 'node:net';
-import { grade, openPages, type Page } from './grade.ts';
+import { grade, onSite, openPages, type Page } from './grade.ts';
 
 const BENCH = dirname(new URL(import.meta.url).pathname);
 const REPO = resolve(BENCH, '..');
@@ -420,7 +420,7 @@ async function check(opts: Record<string, string>) {
       const ctx = prepare(tool, id, chrome.port);
       const out = sh(['bash', '-c', tool.probe], { PATH: `${ctx.bin}:${process.env.PATH}` });
       const pages = await openPages(chrome.port).catch((): Page[] => []);
-      const ok = pages.some((p) => p.url.startsWith('https://example.com') && /Example Domain/.test(p.title + p.text));
+      const ok = pages.some((p) => onSite(p.url, 'example.com') && /Example Domain/.test(p.title + p.text));
       console.log(`${tool.name} ${tool.version()}: ${ok ? 'ok' : 'FAILED'} (${chromeVersion()}, ${pages.length} open tab(s))`);
       if (!ok) console.log(out.slice(0, 2000), JSON.stringify(pages).slice(0, 1000));
       reap(id);

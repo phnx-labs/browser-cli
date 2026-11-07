@@ -113,7 +113,7 @@ browser-cli 0.1.23 leaked once (1 / 6): agents that ran `start` at the same mome
 
 ### How it compares
 
-The README's comparison table comes from reading each tool's source at a pinned commit and its documentation on 2026-10-19, not from runs. The pinned commits are not recorded in this repository, so check a row against the tool's current docs before relying on it.
+The README's comparison table comes from reading each tool's own docs and source, not from runs. Each cell links to the line it comes from, pinned to the commit read on 2026-11-07 (Claude in Chrome's docs are live pages, quoted as of that day).
 
 ### What the runs changed
 

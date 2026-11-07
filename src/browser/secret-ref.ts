@@ -29,3 +29,18 @@ export function onSecretSite(url: string, site: string): boolean {
   }
   return host === site || host.endsWith('.' + site);
 }
+
+/** Throw unless `origin` (the field's document origin) is on `site`; the message says nothing was typed. */
+export function assertSecretSite(site: string, origin: string): void {
+  if (onSecretSite(origin, site)) return;
+  let where = origin;
+  try {
+    where = new URL(origin).hostname || origin;
+  } catch {
+    // an opaque origin ("null") names itself
+  }
+  throw new Error([
+    `Refused: this secret types only into ${site}, and the field is on ${where}. Nothing was typed.`,
+    `Next: browser navigate https://${site}  |  browser tabs`,
+  ].join('\n'));
+}

@@ -8,7 +8,7 @@ const truth = new Map<string, Promise<string>>();
 function fetchText(url: string, headers: Record<string, string> = {}): Promise<string> {
   if (!truth.has(url)) {
     const p = fetch(url, { headers: { 'user-agent': 'browser-cli-bench grader', ...headers } }).then((res) => {
-      if (!res.ok) throw new Error(`${url}: HTTP ${res.status}`);
+      if (!res.ok) throw Object.assign(new Error(`${url}: HTTP ${res.status}`), { status: res.status });
       return res.text();
     });
     p.catch(() => truth.delete(url));
@@ -16,7 +16,11 @@ function fetchText(url: string, headers: Record<string, string> = {}): Promise<s
   }
   return truth.get(url)!;
 }
-const html = (url: string) => fetchText(url);
+const pastLastPage = (error: { status?: number }) => {
+  if (error.status === 404) return '';
+  throw error;
+};
+const html = (url: string) => fetchText(url).catch(pastLastPage);
 
 export function numbersIn(text: string): number[] {
   const out: number[] = [];
@@ -44,13 +48,14 @@ async function books(_: Page[], answer: string): Promise<Grade> {
   const base = 'https://books.toscrape.com/catalogue/category/books/mystery_3/';
   let best: { title: string; price: number } | undefined;
   for (let page = 1; ; page++) {
-    const body = await html(page === 1 ? `${base}index.html` : `${base}page-${page}.html`).catch(() => '');
+    const body = await html(page === 1 ? `${base}index.html` : `${base}page-${page}.html`);
     const pods = body.split('<article class="product_pod">').slice(1);
     if (pods.length === 0) break;
     for (const pod of pods) {
       if (!pod.includes('star-rating Five')) continue;
       const title = /title="([^"]+)"/.exec(pod)?.[1] ?? '';
       const price = Number(/£([\d.]+)/.exec(pod)?.[1]);
+      if (!Number.isFinite(price)) throw new Error(`no price on "${title}"`);
       if (!best || price < best.price) best = { title: title.replace(/&#39;/g, "'").replace(/&amp;/g, '&'), price };
     }
   }
@@ -109,12 +114,13 @@ async function laptops(_: Page[], answer: string): Promise<Grade> {
   const base = 'https://webscraper.io/test-sites/e-commerce/static/computers/laptops';
   let best: { title: string; price: number } | undefined;
   for (let page = 1; page < 60; page++) {
-    const body = await html(`${base}?page=${page}`).catch(() => '');
+    const body = await html(`${base}?page=${page}`);
     const cards = body.split('class="card thumbnail"').slice(1);
     if (cards.length === 0) break;
     for (const card of cards) {
       const price = Number(/\$([\d,.]+)/.exec(card)?.[1]?.replace(/,/g, ''));
       const title = /title="([^"]+)"/.exec(card)?.[1] ?? '';
+      if (!Number.isFinite(price)) throw new Error(`no price on "${title}"`);
       if (!best || price > best.price) best = { title, price };
     }
   }
@@ -134,7 +140,7 @@ async function instagram(pages: Page[], answer: string): Promise<Grade> {
   const page = pages.find((p) => p.url.includes('instagram.com/nasa'));
   if (!page) return { correct: false, detail: 'no open tab on instagram.com/nasa' };
   const shown = /([\d.,]+\s*[KMB]?)\s+Followers/i.exec(`${page.description} ${page.text}`)?.[1];
-  if (!shown) return { correct: false, detail: 'the open tab shows no follower count (login wall?)' };
+  if (!shown) return { correct: false, detail: 'the open tab shows no follower count (login wall?)', error: true };
   const target = numbersIn(shown)[0];
   const ok = /nasa/i.test(answer) && (answer.includes(shown.trim()) || near(numbersIn(answer), target, 0.01));
   return { correct: ok, detail: `page shows ${shown.trim()} followers` };

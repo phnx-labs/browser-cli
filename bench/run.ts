@@ -386,18 +386,20 @@ async function isolation(opts: Record<string, string>) {
       const wall = (Date.now() - t0) / 1000;
       const pages = await openPages(chrome.port).catch((): Page[] => []);
       const agents = [];
+      const graderErrors: string[] = [];
       for (const [i, task] of tasks.entries()) {
         const r = results[i];
         const others = tasks.filter((t) => t.id !== task.id).flatMap((t) => t.marks);
         const leaks = r.toolOutputs.filter((o) => others.some((h) => o.output.includes(h)));
         const g = await grade(task.id, pages, r.answer);
+        if (g.error) graderErrors.push(`${task.id}: ${g.detail}`);
         agents.push({
           task: task.id, correct: g.correct, grade: g.detail, ...stripOutputs(r),
           sawOtherAgentsTab: leaks.length > 0,
           leakingCommands: leaks.map((l) => ({ command: l.command.slice(0, 300), seen: others.filter((h) => l.output.includes(h)) })),
         });
       }
-      const failure = results.map((r) => r.error).find(Boolean) ?? null;
+      const failure = results.map((r) => r.error).find(Boolean) ?? graderErrors[0] ?? null;
       const record = { kind: 'isolation', tool: tool.name, toolVersion: tool.version(), trial, model: MODEL, wallSeconds: wall, agents };
       save(outDir, file, record, failure);
       console.log(`${tool.name} isolation #${trial}: solved ${agents.filter((a) => a.correct).length}/3, saw another tab ${agents.filter((a) => a.sawOtherAgentsTab).length}/3, ${wall.toFixed(0)} s`);

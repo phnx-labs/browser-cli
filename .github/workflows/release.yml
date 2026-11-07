@@ -1,9 +1,8 @@
 name: release
 # Pushing release/x.y.z (or release/x.y.z-pre.n) publishes that version, which must match
 # package.json, from the compiled-packages artifact of main's successful test.yml run for the
-# commit: nothing is rebuilt or retested. It publishes with the npm-publish environment's
-# NPM_TOKEN; trusted publishing (OIDC) was never set up on npm for these packages.
-# `bash scripts/release.sh --confirm` pushes the branch.
+# commit: nothing is rebuilt or retested. npm auth is the npm-publish environment's NPM_TOKEN,
+# read through setup-node's .npmrc. `bash scripts/release.sh --confirm` pushes the branch.
 on:
   push:
     branches: ['release/[0-9]*']
@@ -23,10 +22,11 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 24
+          registry-url: https://registry.npmjs.org
       - run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
       - run: bash scripts/release.sh --confirm
         env:
           GH_TOKEN: ${{ github.token }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

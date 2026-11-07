@@ -134,7 +134,7 @@ if (args.has('--confirm')) {
   const remoteBranch = run('git', ['ls-remote', '--heads', 'origin', 'refs/heads/' + branch]).split('\t')[0];
   if (sha !== remoteBranch) throw new Error(branch + ' on origin is at ' + (remoteBranch || 'nothing') + ', not ' + sha + '; only its newest push releases');
   const [major, minor, patch] = run('npm', ['--version']).split('.').map(Number);
-  if (major < 11 || (major === 11 && (minor < 5 || (minor === 5 && patch < 1)))) throw new Error('Trusted publishing needs npm 11.5.1 or newer');
+  if (major < 11 || (major === 11 && (minor < 5 || (minor === 5 && patch < 1)))) throw new Error('Publishing with provenance needs npm 11.5.1 or newer');
 }
 // In the workflow: publish main CI's compiled-packages for this commit, byte for byte.
 const mainCi = workflowRun('test.yml', 'main');

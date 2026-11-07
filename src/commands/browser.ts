@@ -37,7 +37,7 @@ import {
   credKeysForService,
   AUTH_SIGNATURES,
 } from '../browser/login-detection.js';
-import { parseSecretRef } from '../browser/secret-ref.js';
+import { parseSecretRef, secretSite } from '../browser/secret-ref.js';
 import { readAndResolveBundleEnv, bundleExists, readBundle } from '../runtime/secrets.js';
 import { findBrowserPath, getPortOccupant, getProcessUserDataDir, isLauncherScript, listInstalledBrowsers } from '../browser/chrome.js';
 import {
@@ -3231,7 +3231,7 @@ function registerTaskCommands(browser: Command): void {
     .option(DEVICE_ON_PAGE_VERB_FLAG, DEVICE_ON_PAGE_VERB_DESC)
     .option('-t, --tab <tabId>', 'Tab ID (defaults to current)')
     .option('--text <text>', 'Text to type (use quotes for spaces/special chars)')
-    .option('--secret <ref>', 'Resolve <bundle>/<KEY> from the `secrets` CLI and type the value. The secret is resolved in-process and never printed to stdout or the transcript. Alternative to --text.')
+    .option('--secret <ref>', 'Resolve <bundle>/<KEY> from the `secrets` CLI and type the value. The secret is resolved in-process and never printed to stdout or the transcript. A bundle named after a site (stripe.com) types only into a field on that site or its subdomains. Alternative to --text.')
     .option('--clear', 'Clear editor content before typing')
     .option(SNAPSHOT_OPTION_FLAG, SNAPSHOT_OPTION_DESC)
     .addOption(waitOption())
@@ -3246,6 +3246,7 @@ function registerTaskCommands(browser: Command): void {
       // Resolve the text to type: literal text, or a --secret <bundle>/<KEY>
       // reference resolved in-process so the value never crosses stdout/transcript.
       let text: string | undefined = positional ?? opts.text;
+      let site: string | undefined;
       if (opts.secret) {
         if (text !== undefined) {
           console.error('Pass either --text or --secret, not both.');
@@ -3267,6 +3268,7 @@ function registerTaskCommands(browser: Command): void {
             process.exit(1);
           }
           text = env[parsed.key];
+          site = secretSite(parsed.bundle) ?? undefined;
         } catch (err) {
           console.error((err as Error).message);
           process.exit(1);
@@ -3283,6 +3285,7 @@ function registerTaskCommands(browser: Command): void {
         tabId: opts.tab,
         ...refOrName(target),
         text,
+        secretSite: site,
         clear: opts.clear,
         snapshot: opts.snapshot,
         wait: opts.wait,

@@ -280,3 +280,15 @@ export async function chooseNativeOption(
     await cdp.send('Runtime.releaseObject', { objectId: object.objectId }, sessionId).catch(() => {});
   }
 }
+
+export async function nodeOrigin(cdp: CDPClient, sessionId: string, backendNodeId: number | undefined): Promise<string> {
+  if (backendNodeId === undefined) return 'null';
+  const { object } = await cdp.send<{ object: { objectId?: string } }>('DOM.resolveNode', { backendNodeId }, sessionId);
+  if (!object.objectId) return 'null';
+  const { result } = await cdp.send<{ result: { value?: unknown } }>('Runtime.callFunctionOn', {
+    objectId: object.objectId,
+    functionDeclaration: 'function () { var w = this.ownerDocument && this.ownerDocument.defaultView; return w ? w.origin : "null"; }',
+    returnByValue: true,
+  }, sessionId);
+  return typeof result.value === 'string' ? result.value : 'null';
+}

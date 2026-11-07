@@ -355,6 +355,7 @@ export interface IPCRequest {
   atX?: number;
   atY?: number;
   text?: string;
+  secretSite?: string;
   /** `click --text … --role <role>`: only elements of this accessibility role. */
   role?: string;
   key?: string;

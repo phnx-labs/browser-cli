@@ -11,21 +11,36 @@ export async function bundleExists(name: string): Promise<boolean> {
   return res.status === 0;
 }
 
+const ENV_KEY = /^[A-Za-z_][A-Za-z0-9_]*$/;
+
+function bundleKeys(name: string): string[] {
+  const res = spawnSync('secrets', ['view', name, '--json'], { encoding: 'utf-8', timeout: 8000 });
+  if (res.status !== 0) return [];
+  const parsed = JSON.parse(res.stdout || '{}') as { keys?: Array<{ key?: unknown }> };
+  return (parsed.keys ?? []).map((k) => k.key).filter((k): k is string => typeof k === 'string');
+}
+
 export async function readAndResolveBundleEnv(
   name: string,
-  _opts?: { caller?: string; agentOnly?: boolean; keys?: string[]; keyMode?: string },
+  opts: { caller?: string; agentOnly?: boolean; keys?: string[]; keyMode?: string } = {},
 ): Promise<{ env: Record<string, string> }> {
-  const res = spawnSync('secrets', ['export', name, '--json'], { encoding: 'utf-8', timeout: 15000 });
+  const keys = (opts.keys ?? bundleKeys(name)).filter((k) => ENV_KEY.test(k));
+  if (keys.length === 0) return { env: {} };
+  const printer = process.platform === 'win32'
+    ? ['powershell', '-NoProfile', '-Command', 'foreach($k in $args){[Console]::Out.Write([Environment]::GetEnvironmentVariable($k)+[char]0)}', ...keys]
+    : ['awk', 'BEGIN{for(i=1;i<ARGC;i++) printf "%s%c", ENVIRON[ARGV[i]], 0}', ...keys];
+  const res = spawnSync('secrets', ['exec', name, '--keys', keys.join(','), '--', ...printer], { encoding: 'utf-8', timeout: 15000 });
   if (res.status !== 0) {
-    throw new Error(`Could not resolve secrets bundle ${JSON.stringify(name)}. Install @phnx-labs/secrets-cli or unset the profile secrets binding.`);
+    const why = (res.stderr || '').trim().split('\n').filter(Boolean).pop();
+    throw new Error(why
+      ? `Could not read ${keys.join(', ')} from secrets bundle ${JSON.stringify(name)}: ${why}`
+      : `Could not resolve secrets bundle ${JSON.stringify(name)}. Install @phnx-labs/secrets-cli or unset the profile secrets binding.`);
   }
-  const parsed = JSON.parse(res.stdout || '{}') as unknown;
+  const values = res.stdout.split('\0');
   const env: Record<string, string> = {};
-  if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-    for (const [key, value] of Object.entries(parsed as Record<string, unknown>)) {
-      if (typeof value === 'string') env[key] = value;
-    }
-  }
+  keys.forEach((k, i) => {
+    if (values[i] !== undefined) env[k] = values[i];
+  });
   return { env };
 }
 

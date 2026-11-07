@@ -61,7 +61,8 @@ import {
 import { taskMatchesCaller } from './caller-identity.js';
 import { pageText } from './frames.js';
 import { getRefs, resolveRefToCoords, describeRefs, healRef, type RefOpts, type RefNode, type RefSnapshot, refStillMatches } from './refs.js';
-import { clickAtCoords, hoverAtCoords, scrollAtCoords, typeText, pressKey, focusNode, typeIntoValueInput, chooseNativeOption } from './input.js';
+import { clickAtCoords, hoverAtCoords, scrollAtCoords, typeText, pressKey, focusNode, typeIntoValueInput, chooseNativeOption, nodeOrigin } from './input.js';
+import { assertSecretSite } from './secret-ref.js';
 import { typeEditorText } from './editor.js';
 import {
   arcClickExpression,
@@ -387,6 +388,7 @@ function requireCdp(
 export function actionable(...lines: string[]): string {
   return lines.filter((l) => l != null && l !== '').join('\n');
 }
+
 
 /** Arc crashes on Target.createTarget; refuse creation and direct callers to existing tabs or another
  * browser. */
@@ -2462,10 +2464,11 @@ export class BrowserService {
     text: string,
     tabHint?: string,
     clear?: boolean,
-    opts: ActionOpts = {},
+    opts: ActionOpts & { secretSite?: string } = {},
   ): Promise<{ snapshot?: PageSnapshot; reads?: string }> {
     const { conn, task } = await this.findTask(taskId);
     const shortId = tabHint ? await this.resolveTabHint(conn, task, tabHint) : this.resolveCurrentTab(task);
+    const site = opts.secretSite;
     if (conn.backend === 'arc-native') {
       const snapshot = task.refDescriptors?.[shortId];
       const buildOpts = snapshot?.opts ?? { interactive: true, limit: 500 };
@@ -2477,6 +2480,7 @@ export class BrowserService {
       const { targetRef } = this.resolveHealedRef(snapshot, nodeMap, ref);
       const selector = nodeMap.get(targetRef)?.selector;
       if (!selector) throw new Error(`Ref ${ref} has no DOM selector`);
+      if (site) assertSecretSite(site, String(await this.evaluateArcNative(conn, task, shortId, 'location.origin')));
       await this.evaluateArcNative(conn, task, shortId, arcFillExpression(selector, text, clear ?? false));
       return this.withSnapshot({}, conn, task, shortId, opts);
     }
@@ -2491,6 +2495,7 @@ export class BrowserService {
       const { targetRef } = this.resolveHealedRef(snapshot, nodeMap, ref);
       const selector = nodeMap.get(targetRef)?.selector;
       if (!selector) throw new Error(`Ref ${ref} has no DOM selector`);
+      if (site) assertSecretSite(site, String(await this.evaluateFirefox(conn, task, shortId, 'location.origin')));
       await this.evaluateFirefox(conn, task, shortId, arcFillExpression(selector, text, clear ?? false));
       return this.withSnapshot({}, conn, task, shortId, opts);
     }
@@ -2503,6 +2508,7 @@ export class BrowserService {
     const settle = opts.snapshot || opts.wait ? await this.armSettle(conn, sessionId) : undefined;
     try {
       const node = await this.cdpRefNode(conn, sessionId, task, shortId, ref, { roles: TYPE_ROLES, opts, typing: true });
+      if (site) assertSecretSite(site, await nodeOrigin(conn.cdp, node.sessionId ?? sessionId, node.backendNodeId));
       let reads: string | undefined;
       if (node.editor) {
         await typeEditorText(conn.cdp, sessionId, node, text, clear);

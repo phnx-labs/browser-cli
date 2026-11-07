@@ -1060,6 +1060,7 @@ export class BrowserIPCServer {
         const typed = await this.service.type(request.task, typeTarget, request.text, request.tabId, request.clear, {
           snapshot: request.snapshot,
           wait: request.wait !== false,
+          secretSite: request.secretSite,
         });
         return {
           ok: true,

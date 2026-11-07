@@ -22,8 +22,8 @@ export type FirefoxDiscoveryResult =
   | { ok: false; kind: 'not-installed' | 'invalid'; reason: string };
 
 /**
- * Every directory a `profiles.ini` may live in: deb or older tarball under `~/.mozilla/firefox/`,
- * a fresh tarball install under `$XDG_CONFIG_HOME/mozilla/firefox/`, snap under `~/snap/firefox/common/`. `AGENTS_FIREFOX_DIRS` overrides them.
+ * Every directory a `profiles.ini` may live in: `~/.mozilla/firefox/` (deb, older tarball),
+ * `$XDG_CONFIG_HOME/mozilla/firefox/` (fresh tarball), snap's `~/snap/firefox/common/`; `AGENTS_FIREFOX_DIRS` overrides.
  */
 export function firefoxProfileRoots(): string[] {
   const override = process.env.AGENTS_FIREFOX_DIRS;
@@ -34,12 +34,14 @@ export function firefoxProfileRoots(): string[] {
       return [path.join(home, 'Library', 'Application Support', 'Firefox')];
     case 'win32':
       return [path.join(process.env.APPDATA || path.join(home, 'AppData', 'Roaming'), 'Mozilla', 'Firefox')];
-    default:
+    default: {
+      const xdg = process.env.XDG_CONFIG_HOME;
       return [
         path.join(home, '.mozilla', 'firefox'),
-        path.join(process.env.XDG_CONFIG_HOME || path.join(home, '.config'), 'mozilla', 'firefox'),
+        path.join(xdg && path.isAbsolute(xdg) ? xdg : path.join(home, '.config'), 'mozilla', 'firefox'),
         path.join(home, 'snap', 'firefox', 'common', '.mozilla', 'firefox'),
       ];
+    }
   }
 }
 
@@ -87,7 +89,8 @@ export function parseProfilesIni(iniPath: string): FirefoxIniProfile[] | { error
 }
 
 export function discoverFirefoxProfilesAt(roots: string[]): FirefoxDiscoveryResult {
-  const iniPaths = roots.map((root) => path.join(root, 'profiles.ini')).filter((p) => fs.existsSync(p));
+  const iniPaths = [...new Set(roots.map((root) => path.join(root, 'profiles.ini')).filter((p) => fs.existsSync(p))
+    .map((p) => fs.realpathSync(p)))];
   if (iniPaths.length === 0) {
     return {
       ok: false,

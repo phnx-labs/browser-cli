@@ -140,7 +140,7 @@ export function resolveBrowserBinary(binaryPath: string): string {
 }
 
 export function findOnPath(names: string[]): string | undefined {
-  for (const dir of (process.env.PATH || '').split(path.delimiter).filter(Boolean)) {
+  for (const dir of (process.env.PATH || '').split(path.delimiter).filter((d) => path.isAbsolute(d))) {
     for (const name of new Set(names)) {
       const candidate = path.join(dir, name);
       try {

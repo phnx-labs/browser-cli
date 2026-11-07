@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { join } from 'node:path';
-import { arcPageRect, pickArcSpace, readArcSidebar, type ArcEnumeratedSpace } from './arc.js';
+import { arcPageRect, pickArcSpace, pickShowSpace, readArcSidebar, type ArcEnumeratedSpace } from './arc.js';
 
 // Every Arc window lists every Space; rows arrive front to back. This is the
 // laptop layout of 2026-10-18 that made `browser start` refuse the Work profile:
@@ -41,6 +41,31 @@ describe('pickArcSpace', () => {
 
   test('returns undefined with no visible window', () => {
     expect(pickArcSpace(work, [])).toBeUndefined();
+  });
+});
+
+// zion, 2026-11-07: the recorded agent window was the owner's only visible Arc
+// window, on Work, and every `browser show` failed with "via": "none".
+describe('pickShowSpace', () => {
+  const work = [{ id: 'work', title: 'Work' }, { id: 'computers', title: 'Computers' }];
+
+  test('prefers a window that is not an agent window', () => {
+    const live = [...windowRows('w-agent', 'work'), ...windowRows('w-owner', 'gmail')];
+    expect(pickShowSpace(work, live, new Set(['w-agent']))).toEqual({ windowId: 'w-owner', spaceId: 'work', spaceTitle: 'Work' });
+  });
+
+  test('uses the agent window when it is the only visible one', () => {
+    expect(pickShowSpace(work, windowRows('w-agent', 'work'), new Set(['w-agent', 'w-retired'])))
+      .toEqual({ windowId: 'w-agent', spaceId: 'work', spaceTitle: 'Work' });
+  });
+
+  test('without a recorded agent window it is pickArcSpace', () => {
+    const live = windowRows('w-only', 'gmail');
+    expect(pickShowSpace(work, live, new Set())).toEqual(pickArcSpace(work, live));
+  });
+
+  test('returns undefined with no visible window', () => {
+    expect(pickShowSpace(work, [], new Set(['w-agent']))).toBeUndefined();
   });
 });
 

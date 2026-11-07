@@ -39,6 +39,20 @@ export function pickArcSpace(
   return undefined;
 }
 
+/**
+ * Where `show` puts a page for the owner: a window that is not one of the agent's
+ * first, so a task's window is left alone, then an agent window when no other one
+ * is visible. On zion (2026-11-07) the recorded agent window was the owner's only
+ * visible Arc window, so excluding it made every `show` fail with "via": "none".
+ */
+export function pickShowSpace(
+  own: ReadonlyArray<{ id: string; title: string }>,
+  live: ReadonlyArray<ArcEnumeratedSpace>,
+  agentWindows: ReadonlySet<string>,
+): { windowId: string; spaceId: string; spaceTitle: string } | undefined {
+  return pickArcSpace(own, live.filter((space) => !agentWindows.has(space.windowId))) ?? pickArcSpace(own, live);
+}
+
 export class ArcNativeCapabilityError extends Error {
   constructor(public readonly capability: string, message?: string) {
     super(message ?? `Native Arc does not support ${capability}. Use a configured browser with that capability.`);

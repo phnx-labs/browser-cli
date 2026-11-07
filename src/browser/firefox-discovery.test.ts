@@ -162,6 +162,7 @@ describe('firefoxProfileRoots', () => {
       fs.symlinkSync(root, linked);
       const both = discoverFirefoxProfilesAt([linked, root]);
       expect(both.ok && both.profiles.length).toBe(1);
+      expect(both.ok && both.profiles[0].dir).toBe(path.join(linked, 'abcd.default'));
     } finally {
       fs.rmSync(xdg, { recursive: true, force: true });
       for (const [key, value] of [['AGENTS_FIREFOX_DIRS', prev.dirs], ['XDG_CONFIG_HOME', prev.xdg]] as const) {

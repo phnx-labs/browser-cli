@@ -89,8 +89,11 @@ export function parseProfilesIni(iniPath: string): FirefoxIniProfile[] | { error
 }
 
 export function discoverFirefoxProfilesAt(roots: string[]): FirefoxDiscoveryResult {
-  const iniPaths = [...new Set(roots.map((root) => path.join(root, 'profiles.ini')).filter((p) => fs.existsSync(p))
-    .map((p) => fs.realpathSync(p)))];
+  const byRealPath = new Map<string, string>();
+  for (const ini of roots.map((root) => path.join(root, 'profiles.ini')).filter((p) => fs.existsSync(p))) {
+    if (!byRealPath.has(fs.realpathSync(ini))) byRealPath.set(fs.realpathSync(ini), ini);
+  }
+  const iniPaths = [...byRealPath.values()];
   if (iniPaths.length === 0) {
     return {
       ok: false,

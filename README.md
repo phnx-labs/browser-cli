@@ -66,7 +66,7 @@ Captured in Arc. In Chromium-family browsers `click --text "Learn more"` also cl
 
 - **Fastest and cheapest of the four:** 17.1 s and $0.047 per task, against 19.7 s and $0.058 for Browser Use and 20.4 s and $0.050 for browser-harness.
 - **browser-harness took the fewest turns and tokens:** 5.56 turns and 82k tokens per task, against 5.69 and 91k for Browser Use and 5.88 and 89k for browser-cli.
-- **agent-browser took about 2.5 times the turns and 3 times the tokens.** Part of that is the benchmark's rules: Claude Code refused 36 of its commands, mostly its skill's `S=$(agent-browser session id …)` line, because only the tool's own command is allowed in Bash.
+- **agent-browser took about 2.5 times the turns and 3 times the tokens.** Part of that is the benchmark's rules: Claude Code refused 36 of its commands (16 of them its skill's `S=$(agent-browser session id …)` line, most of the rest other shell assignments and pipes), because only the tool's own command is allowed in Bash.
 - **All 16 runs correct** for every tool.
 - **Earlier, on 2026-10-19, on [Browser Use Bench v2.1](https://github.com/browser-use/benchmark)**, Browser Use's own benchmark of long research tasks, browser-cli 0.1.33 was 2.2 times as fast as Browser Use (90 s against 202 s per task), 7% cheaper, and scored 45.4 to its 43.6 with the benchmark's own rubric judge. browser-harness scored higher (50.4) at 220 s. Four tasks, 16 runs per tool: [docs/benchmarks.md](docs/benchmarks.md#browser-use-bench-v21).
 

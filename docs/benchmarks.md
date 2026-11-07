@@ -48,7 +48,7 @@ Every run's record is in [`bench/results/2026-11-07/`](../bench/results/2026-11-
 | Browser Use 0.13.14 | 16/16 | 5.69 | 19.7 | 91k | $0.0584 |
 | agent-browser 0.41.2 | 16/16 | 14.75 | 35.8 | 267k | $0.0970 |
 
-browser-cli is fastest and cheapest; browser-harness takes the fewest turns and tokens. Claude Code refused 36 of agent-browser's commands in the 16 runs and none of the other tools'. Most were its skill's `S=$(agent-browser session id --scope worktree --prefix task)` line, which the benchmark's allow rule (only the tool's own command in Bash) does not admit, so part of agent-browser's turns is that rule rather than the tool.
+browser-cli is fastest and cheapest; browser-harness takes the fewest turns and tokens. Claude Code refused 36 of agent-browser's commands in the 16 runs and none of the other tools'. 16 of them were its skill's `S=$(agent-browser session id --scope worktree --prefix task)` line and most of the rest other shell assignments and pipes, which the benchmark's allow rule (only the tool's own command in Bash) does not admit, so part of agent-browser's turns is that rule rather than the tool.
 
 Per task, both runs correct for every tool; mean turns and seconds:
 

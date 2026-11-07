@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.2.1
+## 0.2.2
+
+0.2.1 was cut but never published: its release workflow had no npm credential. Everything below ships in 0.2.2, together with the release fix (#17).
 
 - `browser show` into native Arc uses an agent window when no other Arc window is visible. It skipped the recorded agent window and every retired one, so once the owner was working in one, every `show` failed with `"via": "none"` and "No visible Arc window shows a Space of Arc profile". Another visible window is still preferred, so a task's window is left alone whenever there is a choice (`pickShowSpace`).
 - `browser type --secret` works. It read bundles with `secrets export <name> --json`, a command the `secrets` CLI does not have, so every call failed with `Could not resolve secrets bundle`; a profile's `--secrets` binding failed the same way and launched without its variables. Values now come from `secrets exec`.

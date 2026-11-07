@@ -1,0 +1,32 @@
+{
+  "kind": "suite",
+  "tool": "browser-use",
+  "toolVersion": "0.13.14",
+  "task": "instagram",
+  "trial": 1,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "page shows 104M followers",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-07T18:20:25.370Z",
+  "seconds": 10.395351376999985,
+  "turns": 4,
+  "costUsd": 0.0450412,
+  "tokens": {
+    "input": 6,
+    "cacheCreation": 9591,
+    "cacheRead": 44052,
+    "output": 226,
+    "total": 53875
+  },
+  "answer": "The Instagram profile shows the account name as **NASA** (username @nasa) with **104M followers**.\n\nI left the profile page open in its tab.",
+  "claudeVersion": "2.1.301",
+  "error": null,
+  "permissionDenials": [],
+  "toolCalls": 2,
+  "openTabs": [
+    "https://www.instagram.com/nasa/"
+  ]
+}

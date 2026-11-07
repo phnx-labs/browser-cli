@@ -1,0 +1,200 @@
+{
+  "kind": "isolation",
+  "tool": "agent-browser",
+  "toolVersion": "0.41.2",
+  "trial": 1,
+  "model": "claude-sonnet-5-5",
+  "wallSeconds": 64.242,
+  "agents": [
+    {
+      "task": "books",
+      "correct": true,
+      "grade": "expected \"The Girl You Lost\" at £12.29",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-07T18:34:50.967Z",
+      "seconds": 31.74316656,
+      "turns": 12,
+      "costUsd": 0.09423540000000001,
+      "tokens": {
+        "input": 22,
+        "cacheCreation": 12917,
+        "cacheRead": 212034,
+        "output": 2132,
+        "total": 227105
+      },
+      "answer": "The cheapest five-star book in the Mystery category is **The Girl You Lost**, at **£12.29**.\n\nThe category has two pages, and I checked both. Six books are rated five stars:\n\n| Title | Price |\n|---|---|\n| The Girl You Lost | £12.29 |\n| The Silkworm (Cormoran Strike #2) | £23.05 |\n| What Happened on Beale Street (Secrets of the South Mysteries #2) | £25.37 |\n| A Time of Torment (Charlie Parker #14) | £48.35 |\n| The Bachelor Girl's Guide to Murder (Herringford and Watts Mysteries #1) | £52.30 |\n\nThat is only five rows. The second page's Mystery results show only two five-star titles, and I listed those two plus the three from page one, so the count of six is wrong: there are five.\n\nI worked in my own tab (t2), which is still open on page 2 of the Mystery category. I left the other tab (t1) alone.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [
+        {
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_01S2iB3XVwpjJ6nBQ3jf92tz",
+          "tool_input": {
+            "command": "S=$(agent-browser session id --scope worktree --prefix task); echo $S; agent-browser --session $S open https://books.toscrape.com/catalogue/category/books/mystery_3/index.html; agent-browser --session $S tab"
+          }
+        },
+        {
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_01JyDQ2Tm7TTdCTWDGY1kM51",
+          "tool_input": {
+            "command": "cat <<'EOF' | agent-browser --session task-faa1109a6b48 eval --stdin\n(async()=>{let out=[];let url=location.href;while(url){const d=new DOMParser().parseFromString(await (await fetch(url)).text(),'text/html');d.querySelectorAll('article.product_pod').forEach(a=>out.push([a.querySelector('p.star-rating').className,a.querySelector('h3 a').title,a.querySelector('.price_color').textContent]));const n=d.querySelector('li.next a');url=n?new URL(n.getAttribute('href'),url).href:null}return out.filter(x=>x[0].includes('Five'))})()\nEOF"
+          }
+        },
+        {
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_01QyWyMC29HLZRMbnhEnAjLq",
+          "tool_input": {
+            "command": "mkdir -p <run>/scripts && printf '%s\\n' \"(async()=>{let out=[];let url=location.href;while(url){const d=new DOMParser().parseFromString(await (await fetch(url)).text(),'text/html');d.querySelectorAll('article.product_pod').forEach(a=>out.push([a.querySelector('p.star-rating').className,a.querySelector('h3 a').title,a.querySelector('.price_color').textContent]));const n=d.querySelector('li.next a');url=n?new URL(n.getAttribute('href'),url).href:null}return out.filter(x=>x[0].includes('Five'))})()\" > <run>/scripts/e.js; agent-browser --session task-faa1109a6b48 eval --stdin < <run>/scripts/e.js"
+          }
+        }
+      ],
+      "toolCalls": 10,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "agent-browser --session task-faa1109a6b48 open https://books.toscrape.com/catalogue/category/books/mystery_3/index.html; agent-browser --session task-faa1109a6b48 tab",
+          "seen": [
+            "saucedemo.com",
+            "Swag Labs"
+          ]
+        },
+        {
+          "command": "agent-browser --session task-faa1109a6b48 tab new https://books.toscrape.com/catalogue/category/books/mystery_3/index.html; agent-browser --session task-faa1109a6b48 tab",
+          "seen": [
+            "httpbin.org"
+          ]
+        },
+        {
+          "command": "agent-browser --session task-faa1109a6b48 open https://books.toscrape.com/catalogue/category/books/mystery_3/page-2.html; agent-browser --session task-faa1109a6b48 tab; agent-browser --session task-faa1109a6b48 eval \"[...document.querySelectorAll('article.product_pod')].filter(a=>a.querySelector('p.",
+          "seen": [
+            "httpbin.org"
+          ]
+        }
+      ]
+    },
+    {
+      "task": "pizza",
+      "correct": true,
+      "grade": "all fields submitted",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-07T18:34:50.968Z",
+      "seconds": 45.339697547,
+      "turns": 16,
+      "costUsd": 0.1321885,
+      "tokens": {
+        "input": 30,
+        "cacheCreation": 17981,
+        "cacheRead": 322245,
+        "output": 2798,
+        "total": 343054
+      },
+      "answer": "I submitted the pizza order, and httpbin accepted it. The response page at https://httpbin.org/post echoed these values:\n\n- **Customer name:** Ada Lovelace\n- **Telephone:** 555-0100\n- **Email:** ada@example.com\n- **Size:** large\n- **Toppings:** bacon and extra cheese (the form's value for it is `cheese`)\n- **Delivery time:** 19:45\n- **Delivery instructions:** \"Ring twice\"\n\nI set the time field with a script rather than typing into it. The form's data matched the order before I submitted.\n\nPartway through, the browser's active tab switched to another agent's page (a books.toscrape.com tab). Some of my commands ran against that tab and failed, and nothing was filled in there. I switched back to my own tab, t1, and did all the filling and submitting there. I left t1 open on the response page.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [
+        {
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_016Gz613yC5hT9fWVPP7TeTv",
+          "tool_input": {
+            "command": "S=$(agent-browser session id --scope worktree --prefix task); agent-browser --session $S open https://httpbin.org/forms/post && agent-browser --session $S snapshot -i"
+          }
+        },
+        {
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_0146dEAT2QzdsUoRLZDDSYRj",
+          "tool_input": {
+            "command": "A=\"agent-browser --session task-726986e4d76a\"; $A fill @e2 \"Ada Lovelace\"; $A fill @e3 \"555-0100\"; $A fill @e4 \"ada@example.com\"; $A check @e7; $A check @e8; $A check @e9; $A fill \"input[name=delivery]\" \"19:45\"; $A fill @e12 \"Ring twice\"; $A eval \"JSON.stringify([...new FormData(document.forms[0])])\""
+          }
+        },
+        {
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_01PkkvzbVBa98oh5gqCwV1Np",
+          "tool_input": {
+            "command": "cd /tmp; A=\"agent-browser --session task-726986e4d76a\"; $A tab t1 && $A fill @e2 \"Ada Lovelace\" && $A fill @e3 \"555-0100\" && $A fill @e4 \"ada@example.com\" && $A check @e7 && $A check @e8 && $A check @e9 && $A fill @e12 \"Ring twice\" && $A eval \"document.querySelector('input[type=time]').value='19:45'; JSON.stringify([location.href,...new FormData(document.forms[0])])\""
+          }
+        }
+      ],
+      "toolCalls": 14,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "agent-browser --session task-726986e4d76a tab; agent-browser --session task-726986e4d76a snapshot -i",
+          "seen": [
+            "books.toscrape.com",
+            "Books to Scrape"
+          ]
+        }
+      ]
+    },
+    {
+      "task": "saucedemo",
+      "correct": true,
+      "grade": "checkout-complete page open",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-07T18:34:50.968Z",
+      "seconds": 64.23994490199999,
+      "turns": 19,
+      "costUsd": 0.1365962,
+      "tokens": {
+        "input": 36,
+        "cacheCreation": 18156,
+        "cacheRead": 403102,
+        "output": 2359,
+        "total": 423653
+      },
+      "answer": "The order is complete. The final page says \"Checkout: Complete! Thank you for your order!\"\n\nI logged in as standard_user and sorted the products by price from low to high. I added the Sauce Labs Backpack and the Sauce Labs Bike Light to the cart. I checked out as Ada Lovelace, postal code 10001, and clicked Finish.\n\nMy first login attempt landed on a tab that wasn't mine, which another agent had pointed at books.toscrape.com. I opened my own tab (t3) and did everything there. That tab is still open on the confirmation page. I didn't open or close any other tabs.\n\nI used the `agent-browser` CLI through the shell. I had no other browser tool.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [
+        {
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_01SG6sJAv1FpBuETfMXLxSZd",
+          "tool_input": {
+            "command": "S=$(agent-browser session id --scope worktree --prefix task); echo $S; agent-browser --session $S open https://www.saucedemo.com && agent-browser --session $S snapshot -i"
+          }
+        },
+        {
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_015JUSgJdBkUV6k7FQwZST4D",
+          "tool_input": {
+            "command": "B=\"agent-browser --session task-5556db1af3f2\"; $B fill @e5 standard_user && $B fill @e6 secret_sauce && $B click @e4 && $B wait --url \"**/inventory.html\" && $B snapshot -i"
+          }
+        }
+      ],
+      "toolCalls": 17,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "agent-browser --session task-5556db1af3f2 snapshot -i",
+          "seen": [
+            "Books to Scrape"
+          ]
+        },
+        {
+          "command": "agent-browser --session task-5556db1af3f2 tab",
+          "seen": [
+            "books.toscrape.com",
+            "httpbin.org"
+          ]
+        },
+        {
+          "command": "agent-browser --session task-5556db1af3f2 tab new https://www.saucedemo.com; agent-browser --session task-5556db1af3f2 tab",
+          "seen": [
+            "books.toscrape.com",
+            "httpbin.org"
+          ]
+        },
+        {
+          "command": "agent-browser --session task-5556db1af3f2 fill @e115 standard_user && agent-browser --session task-5556db1af3f2 fill @e116 secret_sauce && agent-browser --session task-5556db1af3f2 click @e114 && agent-browser --session task-5556db1af3f2 tab && agent-browser --session task-5556db1af3f2 snapshot -i",
+          "seen": [
+            "books.toscrape.com",
+            "httpbin.org"
+          ]
+        }
+      ]
+    }
+  ]
+}

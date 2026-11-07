@@ -1,0 +1,33 @@
+{
+  "kind": "suite",
+  "tool": "browser-cli",
+  "toolVersion": "0.2.3 (b5779f7)",
+  "task": "demoblaze",
+  "trial": 2,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "confirmation open: true, its Amount 1180; answer gives 1180: true",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-07T18:29:57.440Z",
+  "seconds": 27.909033020000205,
+  "turns": 8,
+  "costUsd": 0.0493797,
+  "tokens": {
+    "input": 14,
+    "cacheCreation": 7768,
+    "cacheRead": 113997,
+    "output": 688,
+    "total": 122467
+  },
+  "answer": "I ordered the Samsung Galaxy S6 ($360) and the Nokia Lumia 1520 ($820) as Ada Lovelace (UK, London, card 4111111111111111, 11/2026). The confirmation is still showing, and I left the tab open.\n\n- **Id:** 3977071\n- **Amount:** 1180 USD",
+  "claudeVersion": "2.1.301",
+  "error": null,
+  "permissionDenials": [],
+  "toolCalls": 6,
+  "openTabs": [
+    "https://www.demoblaze.com/cart.html",
+    "about:blank"
+  ]
+}

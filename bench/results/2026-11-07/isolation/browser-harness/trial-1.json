@@ -1,0 +1,120 @@
+{
+  "kind": "isolation",
+  "tool": "browser-harness",
+  "toolVersion": "0.1.13",
+  "trial": 1,
+  "model": "claude-sonnet-5-5",
+  "wallSeconds": 27.77,
+  "agents": [
+    {
+      "task": "books",
+      "correct": true,
+      "grade": "expected \"The Girl You Lost\" at £12.29",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-07T18:34:22.831Z",
+      "seconds": 16.003491726000004,
+      "turns": 6,
+      "costUsd": 0.0566983,
+      "tokens": {
+        "input": 10,
+        "cacheCreation": 9440,
+        "cacheRead": 80583,
+        "output": 1086,
+        "total": 91119
+      },
+      "answer": "The cheapest five-star book in the Mystery category is **The Girl You Lost**, at **£12.29**.\n\nI checked both pages of the category, which list 32 books in total. Five of them are rated five stars. The next cheapest is The Silkworm (Cormoran Strike #2) at £23.05.\n\nI did the work in the tab I opened, and it's still open on page 2 of the category.\n\nMy first script ran in a different agent's tab, because the harness had switched its attached tab. That script only read the page, and it found no books because the tab was on saucedemo.com. I then switched to my own tab and reran the extraction there.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 4,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "browser-harness <<'PY'\nnew_tab(\"https://books.toscrape.com/catalogue/category/books/mystery_3/index.html\")\nwait_for_load()\nimport json\nres=[]\nfor i in range(1,10):\n    r=js(\"\"\"(()=>[...document.querySelectorAll('article.product_pod')].map(a=>[a.querySelector('h3 a').title,a.querySelector('.star-rati",
+          "seen": [
+            "saucedemo.com",
+            "Swag Labs"
+          ]
+        },
+        {
+          "command": "browser-harness <<'PY'\nprint(current_tab())\nfor t in list_tabs(): print(t)\nPY",
+          "seen": [
+            "httpbin.org",
+            "saucedemo.com",
+            "Swag Labs"
+          ]
+        }
+      ]
+    },
+    {
+      "task": "pizza",
+      "correct": true,
+      "grade": "all fields submitted",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-07T18:34:22.832Z",
+      "seconds": 22.690727259999996,
+      "turns": 10,
+      "costUsd": 0.0934527,
+      "tokens": {
+        "input": 16,
+        "cacheCreation": 14550,
+        "cacheRead": 153207,
+        "output": 1990,
+        "total": 169763
+      },
+      "answer": "I submitted the pizza order, and httpbin.org returned the data I sent, so the form went through.\n\nThe response page shows these fields:\n- **Customer name:** Ada Lovelace\n- **Telephone:** 555-0100\n- **Email:** ada@example.com\n- **Size:** large\n- **Toppings:** bacon and cheese (Extra Cheese)\n- **Delivery time:** 19:45\n- **Delivery instructions:** Ring twice\n\nThe result page (https://httpbin.org/post) is still open in the tab I created.\n\nAnother agent moved the shared browser connection to its own tab partway through. My first two attempts to fill the form therefore ran in that other tab, and both errored out. I then switched back to my own tab by its ID and filled and submitted the form there. The errors suggest those two attempts changed nothing in the other tab, but I did not check it.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 8,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "browser-harness <<'PY'\nprint(current_tab()); print(page_info())\nfor t in list_tabs(): print(t)\nPY",
+          "seen": [
+            "books.toscrape.com",
+            "Books to Scrape",
+            "saucedemo.com",
+            "Swag Labs"
+          ]
+        }
+      ]
+    },
+    {
+      "task": "saucedemo",
+      "correct": true,
+      "grade": "checkout-complete page open",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-07T18:34:22.833Z",
+      "seconds": 27.767742657000003,
+      "turns": 9,
+      "costUsd": 0.0956231,
+      "tokens": {
+        "input": 16,
+        "cacheCreation": 13326,
+        "cacheRead": 149771,
+        "output": 2731,
+        "total": 165844
+      },
+      "answer": "The order is complete. After checkout, the page showed \"Thank you for your order!\" at https://www.saucedemo.com/checkout-complete.html.\n\n- **Login:** I logged in as standard_user.\n- **Sort:** Products were sorted by price low to high. The prices ran $7.99, $9.99, $15.99, $15.99, $29.99, $49.99.\n- **Cart:** I added the Sauce Labs Backpack and the Sauce Labs Bike Light. The order overview listed exactly those two items.\n- **Checkout:** I checked out as Ada Lovelace, postal code 10001.\n\nThat tab is still open on the confirmation page.\n\nPartway through, the harness's current tab switched to another agent's tab. One script ran there and failed on a JavaScript error without changing anything. I then switched back to my own saucedemo tab and finished from there.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 7,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "browser-harness <<'PY'\nprint(list_tabs()); print(current_tab()); print(page_info())\nPY",
+          "seen": [
+            "books.toscrape.com",
+            "Books to Scrape",
+            "httpbin.org"
+          ]
+        }
+      ]
+    }
+  ]
+}

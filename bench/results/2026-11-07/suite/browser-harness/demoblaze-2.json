@@ -1,0 +1,32 @@
+{
+  "kind": "suite",
+  "tool": "browser-harness",
+  "toolVersion": "0.1.13",
+  "task": "demoblaze",
+  "trial": 2,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "confirmation open: true, its Amount 1180; answer gives 1180: true",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-07T18:30:55.922Z",
+  "seconds": 34.36489914500015,
+  "turns": 7,
+  "costUsd": 0.0530089,
+  "tokens": {
+    "input": 12,
+    "cacheCreation": 8280,
+    "cacheRead": 99849,
+    "output": 988,
+    "total": 109129
+  },
+  "answer": "The order went through, and I left the confirmation showing on the open demoblaze.com tab.\n\n- **Id:** 2827475\n- **Amount:** 1180 USD\n\nThe cart held the Samsung galaxy s6 (360) and the Nokia lumia 1520 (820). The order was placed as Ada Lovelace, UK, London, card 4111111111111111, month 11, year 2026.",
+  "claudeVersion": "2.1.301",
+  "error": null,
+  "permissionDenials": [],
+  "toolCalls": 5,
+  "openTabs": [
+    "https://www.demoblaze.com/cart.html"
+  ]
+}

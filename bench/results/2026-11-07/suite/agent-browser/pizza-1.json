@@ -1,0 +1,47 @@
+{
+  "kind": "suite",
+  "tool": "agent-browser",
+  "toolVersion": "0.41.2",
+  "task": "pizza",
+  "trial": 1,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "all fields submitted",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-07T18:09:59.915Z",
+  "seconds": 29.362423580999994,
+  "turns": 13,
+  "costUsd": 0.09160419999999998,
+  "tokens": {
+    "input": 24,
+    "cacheCreation": 12777,
+    "cacheRead": 237382,
+    "output": 1671,
+    "total": 251854
+  },
+  "answer": "I submitted the order, and httpbin's response page shows it received everything you specified. I left that page open in its tab.\n\nThe response lists these form values:\n- **Customer name:** Ada Lovelace\n- **Telephone:** 555-0100\n- **Email:** ada@example.com\n- **Size:** large\n- **Toppings:** bacon, cheese (Extra Cheese)\n- **Delivery time:** 19:45\n- **Delivery instructions:** Ring twice\n\nThe time picker ignored my typed input, so I set the delivery field's value directly with a script instead. The submission still recorded 19:45.",
+  "claudeVersion": "2.1.301",
+  "error": null,
+  "permissionDenials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_018YLXCNczBr4iPMvpaAJnRT",
+      "tool_input": {
+        "command": "S=$(agent-browser session id --scope worktree --prefix task); echo $S; agent-browser --session $S open https://httpbin.org/forms/post && agent-browser --session $S snapshot -i"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01V4tNnjvwdkdfw6oq2diTQY",
+      "tool_input": {
+        "command": "A=\"agent-browser --session task-8a0d928fe20e\"; $A fill @e2 \"Ada Lovelace\" && $A fill @e3 \"555-0100\" && $A fill @e4 \"ada@example.com\" && $A check @e7 && $A check @e8 && $A check @e9 && $A fill @e12 \"Ring twice\" && $A click @e14 && $A type @e14 \"07\" && $A type @e15 \"45\" && $A type @e16 \"PM\" && $A snapshot -i"
+      }
+    }
+  ],
+  "toolCalls": 11,
+  "openTabs": [
+    "https://httpbin.org/post"
+  ]
+}

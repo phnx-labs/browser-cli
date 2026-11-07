@@ -1,0 +1,32 @@
+{
+  "kind": "suite",
+  "tool": "browser-use",
+  "toolVersion": "0.13.14",
+  "task": "instagram",
+  "trial": 2,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "page shows 104M followers",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-07T18:31:41.348Z",
+  "seconds": 13.765138015999925,
+  "turns": 5,
+  "costUsd": 0.0502292,
+  "tokens": {
+    "input": 8,
+    "cacheCreation": 9714,
+    "cacheRead": 63972,
+    "output": 496,
+    "total": 74190
+  },
+  "answer": "The Instagram profile at https://www.instagram.com/nasa/ shows:\n\n- **Account name:** NASA (username @nasa)\n- **Follower count:** 104M followers\n\nThe page itself shows \"104M followers\". The page's meta description also says \"104M Followers\". The page showed 90 following, while the meta description said 94, so the meta tags may be slightly stale. The profile tab is still open in the browser.",
+  "claudeVersion": "2.1.301",
+  "error": null,
+  "permissionDenials": [],
+  "toolCalls": 3,
+  "openTabs": [
+    "https://www.instagram.com/nasa/"
+  ]
+}

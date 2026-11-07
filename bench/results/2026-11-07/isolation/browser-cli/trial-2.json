@@ -1,0 +1,85 @@
+{
+  "kind": "isolation",
+  "tool": "browser-cli",
+  "toolVersion": "0.2.3 (b5779f7)",
+  "trial": 2,
+  "model": "claude-sonnet-5-5",
+  "wallSeconds": 79.834,
+  "agents": [
+    {
+      "task": "books",
+      "correct": true,
+      "grade": "expected \"The Girl You Lost\" at £12.29",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-07T18:38:32.862Z",
+      "seconds": 11.29583811000001,
+      "turns": 4,
+      "costUsd": 0.03800780000000001,
+      "tokens": {
+        "input": 6,
+        "cacheCreation": 7153,
+        "cacheRead": 41538,
+        "output": 523,
+        "total": 49220
+      },
+      "answer": "The cheapest five-star book in the Mystery category is **The Girl You Lost**, at **£12.29**.\n\nThe category has two pages. I checked both and found five five-star books. The other four cost £23.05 (The Silkworm), £25.37 (What Happened on Beale Street), £48.35 (A Time of Torment) and £52.30 (The Bachelor Girl's Guide to Murder).\n\nThe tab I opened is still open on the Mystery category's first page. It isn't on the book's own page.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 2,
+      "sawOtherAgentsTab": false,
+      "leakingCommands": []
+    },
+    {
+      "task": "pizza",
+      "correct": true,
+      "grade": "all fields submitted",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-07T18:38:32.863Z",
+      "seconds": 54.724541818999974,
+      "turns": 6,
+      "costUsd": 0.04581230000000001,
+      "tokens": {
+        "input": 10,
+        "cacheCreation": 8228,
+        "cacheRead": 77003,
+        "output": 518,
+        "total": 85759
+      },
+      "answer": "I submitted the pizza order, and httpbin's response confirms it received these values:\n\n- **Customer name:** Ada Lovelace\n- **Telephone:** 555-0100\n- **Email:** ada@example.com\n- **Size:** Large\n- **Toppings:** Bacon and Extra Cheese\n- **Delivery time:** 19:45\n- **Delivery instructions:** Ring twice\n\nThe response page (`https://httpbin.org/post`) is still open in the tab I opened.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 4,
+      "sawOtherAgentsTab": false,
+      "leakingCommands": []
+    },
+    {
+      "task": "saucedemo",
+      "correct": true,
+      "grade": "checkout-complete page open",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-07T18:38:32.864Z",
+      "seconds": 79.831058747,
+      "turns": 6,
+      "costUsd": 0.0434626,
+      "tokens": {
+        "input": 10,
+        "cacheCreation": 7439,
+        "cacheRead": 78666,
+        "output": 582,
+        "total": 86697
+      },
+      "answer": "The order is complete. The final page, \"Checkout: Complete!\", says \"Thank you for your order!\" and is still open in the tab I opened.\n\n- **Login:** I logged in as standard_user.\n- **Sort:** I sorted the products by price, low to high.\n- **Cart:** I added the Sauce Labs Bike Light ($9.99) and the Sauce Labs Backpack ($29.99).\n- **Checkout:** I checked out as Ada Lovelace, postal code 10001. The item total was $39.98, tax $3.20, and the order total $43.18.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 4,
+      "sawOtherAgentsTab": false,
+      "leakingCommands": []
+    }
+  ]
+}

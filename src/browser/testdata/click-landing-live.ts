@@ -66,6 +66,20 @@ try {
   assert.equal(await title(), 'Swallowed');
   results.push('swallowed: reported, never repeated');
 
+  refs = await open(page('Pressed', `${count}<button onclick="hit()">Buy</button>
+    <script>addEventListener('click', (e) => { if (e.isTrusted) e.stopImmediatePropagation(); }, true);</script>`));
+  clicked = await service.click('land', ref(refs, 'button "Buy"'));
+  assert.equal(clicked.note, 'the press reached button "Buy" but no click followed; check the page');
+  assert.equal(await title(), 'Pressed');
+  results.push('pressed only: reported, never repeated');
+
+  refs = await open(page('Still', `${count}<button onclick="hit()">Buy</button>
+    <script>addEventListener('mousemove', (e) => e.stopImmediatePropagation(), true);</script>`));
+  clicked = await service.click('land', ref(refs, 'button "Buy"'));
+  assert.equal(clicked.note, 'the mouse is not reaching button "Buy" in this tab, so it was clicked through the DOM');
+  assert.equal(await title(), 'clicks 1');
+  results.push('no mouse: clicked in the DOM instead, once');
+
   refs = await open(page('Closed', `${count}<x-buy></x-buy><script>customElements.define('x-buy', class extends HTMLElement {
     constructor() { super(); const b = document.createElement('button'); b.textContent = 'Buy'; b.onclick = hit;
       this.attachShadow({ mode: 'closed' }).append(b); } });</script>`));

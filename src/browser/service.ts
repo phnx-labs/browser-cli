@@ -2445,20 +2445,27 @@ export class BrowserService {
     };
     const cover = await coverAt(conn.cdp, at.sessionId, id, at.x, at.y);
     if (cover) return inDom(`${cover} covers ${label}`);
-    const landed = await armClickProbe(conn.cdp, at.sessionId, id);
-    if (!landed) throw new Error(`${label} is disabled; nothing was clicked.`);
+    const probe = await armClickProbe(conn.cdp, at.sessionId, id);
+    if (!probe) throw new Error(`${label} is disabled; nothing was clicked.`);
     let asking: string | undefined;
     try {
+      for (const dx of [-1, 0]) await hoverAtCoords(conn.cdp, at.sessionId, at.x + dx, at.y);
+      if (!(await probe.moved())) {
+        await probe.landed();
+        return inDom(`the mouse is not reaching ${label} in this tab`);
+      }
       asking = await this.raceDialog(at.sessionId, clickAtCoords(conn.cdp, at.sessionId, at.x, at.y));
     } catch (error) {
-      void landed();
+      void probe.landed();
       throw error;
     }
     if (asking) {
-      void landed();
+      void probe.landed();
       return { asking };
     }
-    return (await landed()) ? {} : { note: `the click may not have reached ${label}; check the page` };
+    const landed = await probe.landed();
+    if (landed === 'clicked') return {};
+    return { note: landed === 'pressed' ? `the press reached ${label} but no click followed; check the page` : `the click may not have reached ${label}; check the page` };
   }
 
   /** Click viewport coordinates when screenshot-visible targets have no usable accessibility ref. */

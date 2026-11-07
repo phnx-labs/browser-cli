@@ -57,34 +57,44 @@ const DISABLED = `this.matches(':disabled') || this.getAttribute('aria-disabled'
 
 const PROBE_FN = `function () {
   if (${DISABLED}) return null;
-  const target = this, seen = { hit: false }, root = target.getRootNode(), types = ['pointerdown', 'mousedown', 'click'];
-  const on = (e) => { if (e.composedPath().includes(target)) seen.hit = true; };
+  const target = this, seen = {}, root = target.getRootNode(), types = ['mousemove', 'mousedown', 'click'];
+  const on = (e) => {
+    if (e.composedPath().some((n) => n === target || (n.tagName === 'LABEL' && n.control === target))) seen[e.type] = true;
+  };
   for (const type of types) root.addEventListener(type, on, true);
   seen.done = () => {
     for (const type of types) root.removeEventListener(type, on, true);
-    return seen.hit || !target.isConnected;
+    return seen.click || !target.isConnected ? 'clicked' : seen.mousedown ? 'pressed' : 'missed';
   };
   return seen;
 }`;
 
-export async function armClickProbe(cdp: CDPClient, sessionId: string, backendNodeId: number): Promise<(() => Promise<boolean>) | undefined> {
+export interface ClickProbe {
+  moved: () => Promise<boolean>;
+  landed: () => Promise<'clicked' | 'pressed' | 'missed'>;
+}
+
+export async function armClickProbe(cdp: CDPClient, sessionId: string, backendNodeId: number): Promise<ClickProbe | undefined> {
   const { object } = await cdp.send<{ object: { objectId?: string } }>('DOM.resolveNode', { backendNodeId }, sessionId);
   try {
     const { result } = await cdp.send<{ result: { objectId?: string } }>('Runtime.callFunctionOn', {
       objectId: object.objectId, functionDeclaration: PROBE_FN,
     }, sessionId);
     if (!result.objectId) return undefined;
-    return async () => {
-      try {
-        const seen = await cdp.send<{ result: { value?: boolean } }>('Runtime.callFunctionOn', {
-          objectId: result.objectId, functionDeclaration: 'function () { return this.done(); }', returnByValue: true,
-        }, sessionId);
-        return seen.result.value !== false;
-      } catch {
-        return true;
-      } finally {
-        await cdp.send('Runtime.releaseObject', { objectId: result.objectId }, sessionId).catch(() => {});
-      }
+    const read = <T>(fn: string) => cdp.send<{ result: { value?: T } }>('Runtime.callFunctionOn', {
+      objectId: result.objectId, functionDeclaration: fn, returnByValue: true,
+    }, sessionId);
+    return {
+      moved: async () => (await read<boolean>('function () { return this.mousemove === true; }')).result.value === true,
+      landed: async () => {
+        try {
+          return (await read<'clicked' | 'pressed' | 'missed'>('function () { return this.done(); }')).result.value ?? 'clicked';
+        } catch {
+          return 'clicked';
+        } finally {
+          await cdp.send('Runtime.releaseObject', { objectId: result.objectId }, sessionId).catch(() => {});
+        }
+      },
     };
   } finally {
     await cdp.send('Runtime.releaseObject', { objectId: object.objectId }, sessionId).catch(() => {});

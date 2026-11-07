@@ -18,7 +18,7 @@ test.skipIf(!chrome)('a click says how it landed, and text loads lazy parts firs
     expect(error).toBe('');
     expect(code).toBe(0);
     expect(output.trim()).toBe(
-      'plain: one mouse click; scrolled: one mouse click; covered: named, clicked in the DOM; swallowed: reported, never repeated; closed shadow: one mouse click; same-site iframe: one mouse click; disabled and fieldset-disabled: refused; label: its control counts; lazy: loaded, scroll restored; hidden: no wait; stuck: reported, scroll restored',
+      'plain: one mouse click; scrolled: one mouse click; covered: named, clicked in the DOM; swallowed: reported, never repeated; pressed only: reported, never repeated; no mouse: clicked in the DOM instead, once; closed shadow: one mouse click; same-site iframe: one mouse click; disabled and fieldset-disabled: refused; label: its control counts; lazy: loaded, scroll restored; hidden: no wait; stuck: reported, scroll restored',
     );
   } finally {
     rmSync(directory, { recursive: true, force: true });

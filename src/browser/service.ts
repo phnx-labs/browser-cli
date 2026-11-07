@@ -541,10 +541,21 @@ async function evaluateInPage<T>(cdp: CDPClient, params: Record<string, unknown>
 
 /** Rendered GitHub-style `include-fragment`s still waiting to load, the first scrolled into view; the scroll before it. */
 const LAZY_PARTS = `(() => {
-  const pending = [...document.querySelectorAll('include-fragment')].filter((f) => f.getClientRects().length > 0);
-  const at = [scrollX, scrollY];
-  if (pending[0]) pending[0].scrollIntoView({ block: 'center' });
-  return [pending.length, ...at];
+  const s = window[Symbol.for('browser-cli lazy parts')] ??= { failed: new WeakSet(), watched: new WeakSet(), scrolled: new Map() };
+  const pending = [...document.querySelectorAll('include-fragment[src]')]
+    .filter((f) => !s.failed.has(f) && f.checkVisibility({ visibilityProperty: true, opacityProperty: true }));
+  const f = pending[0];
+  if (!f) return 0;
+  if (!s.watched.has(f)) f.addEventListener('error', () => s.failed.add(f), { once: true });
+  s.watched.add(f);
+  for (let n = f.parentElement; n; n = n.parentElement) if (!s.scrolled.has(n)) s.scrolled.set(n, [n.scrollLeft, n.scrollTop]);
+  f.scrollIntoView({ block: 'center', behavior: 'instant' });
+  return pending.length;
+})()`;
+const LAZY_RESTORE = `(() => {
+  const key = Symbol.for('browser-cli lazy parts');
+  for (const [n, [left, top]] of window[key]?.scrolled ?? []) n.scrollTo({ left, top, behavior: 'instant' });
+  delete window[key];
 })()`;
 
 /** `type` and `select` by name look only at elements that take text, or choose an option. */
@@ -1652,13 +1663,25 @@ export class BrowserService {
   }
 
   async loadLazyParts(taskId: string, tabHint: string | undefined): Promise<number> {
-    const [first, x, y] = (await this.evaluate(taskId, tabHint, LAZY_PARTS)) as number[];
-    let left = first;
-    for (const deadline = Date.now() + 4000; left > 0 && Date.now() < deadline;) {
-      await new Promise((r) => setTimeout(r, 150));
-      [left] = (await this.evaluate(taskId, tabHint, LAZY_PARTS)) as number[];
+    const ask = async (expression: string): Promise<unknown> => {
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      const late = new Promise<never>((_, fail) => { timer = setTimeout(() => fail(new Error('The page did not answer within 2 s.')), 2000); });
+      try {
+        return await Promise.race([this.evaluate(taskId, tabHint, expression), late]);
+      } finally {
+        clearTimeout(timer);
+      }
+    };
+    let left = Number(await ask(LAZY_PARTS));
+    if (!left) return 0;
+    try {
+      for (const deadline = Date.now() + 4000; left > 0 && Date.now() < deadline;) {
+        await new Promise((r) => setTimeout(r, 150));
+        left = Number(await ask(LAZY_PARTS));
+      }
+    } finally {
+      await ask(LAZY_RESTORE).catch(() => {});
     }
-    if (first > 0) await this.evaluate(taskId, tabHint, `scrollTo(${x}, ${y})`);
     return left;
   }
 
@@ -2423,9 +2446,19 @@ export class BrowserService {
     const cover = await coverAt(conn.cdp, at.sessionId, id, at.x, at.y);
     if (cover) return inDom(`${cover} covers ${label}`);
     const landed = await armClickProbe(conn.cdp, at.sessionId, id);
-    const asking = await this.raceDialog(at.sessionId, clickAtCoords(conn.cdp, at.sessionId, at.x, at.y));
-    if (asking) return { asking };
-    return (await landed()) ? {} : inDom(`the mouse click did not reach ${label}`);
+    if (!landed) throw new Error(`${label} is disabled; nothing was clicked.`);
+    let asking: string | undefined;
+    try {
+      asking = await this.raceDialog(at.sessionId, clickAtCoords(conn.cdp, at.sessionId, at.x, at.y));
+    } catch (error) {
+      void landed();
+      throw error;
+    }
+    if (asking) {
+      void landed();
+      return { asking };
+    }
+    return (await landed()) ? {} : { note: `the click may not have reached ${label}; check the page` };
   }
 
   /** Click viewport coordinates when screenshot-visible targets have no usable accessibility ref. */

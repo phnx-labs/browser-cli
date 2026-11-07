@@ -20,8 +20,10 @@ export async function clickAtCoords(
 }
 
 const COVER_FN = `function (target) {
-  for (let n = this; n; n = n.parentNode || n.host) {
-    if (n === target || (n.tagName === 'LABEL' && n.control === target)) return null;
+  const frames = [];
+  for (let w = target.ownerDocument.defaultView; w && w.frameElement; w = w.frameElement.ownerDocument.defaultView) frames.push(w.frameElement);
+  for (let n = this; n; n = n.assignedSlot || n.parentNode || n.host) {
+    if (n === target || frames.includes(n) || (n.tagName === 'LABEL' && n.control === target)) return null;
   }
   const e = this.nodeType === 1 ? this : this.parentElement;
   if (!e) return 'another document';
@@ -51,32 +53,42 @@ export async function coverAt(cdp: CDPClient, sessionId: string, backendNodeId: 
   }
 }
 
+const DISABLED = `this.matches(':disabled') || this.getAttribute('aria-disabled') === 'true'`;
+
 const PROBE_FN = `function () {
-  const target = this, seen = { hit: false }, win = target.ownerDocument.defaultView;
+  if (${DISABLED}) return null;
+  const target = this, seen = { hit: false }, root = target.getRootNode(), types = ['pointerdown', 'mousedown', 'click'];
   const on = (e) => { if (e.composedPath().includes(target)) seen.hit = true; };
-  for (const type of ['mousedown', 'click']) win.addEventListener(type, on, true);
+  for (const type of types) root.addEventListener(type, on, true);
   seen.done = () => {
-    for (const type of ['mousedown', 'click']) win.removeEventListener(type, on, true);
+    for (const type of types) root.removeEventListener(type, on, true);
     return seen.hit || !target.isConnected;
   };
   return seen;
 }`;
 
-export async function armClickProbe(cdp: CDPClient, sessionId: string, backendNodeId: number): Promise<() => Promise<boolean>> {
+export async function armClickProbe(cdp: CDPClient, sessionId: string, backendNodeId: number): Promise<(() => Promise<boolean>) | undefined> {
   const { object } = await cdp.send<{ object: { objectId?: string } }>('DOM.resolveNode', { backendNodeId }, sessionId);
-  const { result } = await cdp.send<{ result: { objectId?: string } }>('Runtime.callFunctionOn', {
-    objectId: object.objectId, functionDeclaration: PROBE_FN,
-  }, sessionId);
-  await cdp.send('Runtime.releaseObject', { objectId: object.objectId }, sessionId).catch(() => {});
-  return async () => {
-    const seen = await cdp
-      .send<{ result: { value?: boolean } }>('Runtime.callFunctionOn', {
-        objectId: result.objectId, functionDeclaration: 'function () { return this.done(); }', returnByValue: true,
-      }, sessionId)
-      .catch(() => undefined);
-    await cdp.send('Runtime.releaseObject', { objectId: result.objectId }, sessionId).catch(() => {});
-    return seen?.result.value !== false;
-  };
+  try {
+    const { result } = await cdp.send<{ result: { objectId?: string } }>('Runtime.callFunctionOn', {
+      objectId: object.objectId, functionDeclaration: PROBE_FN,
+    }, sessionId);
+    if (!result.objectId) return undefined;
+    return async () => {
+      try {
+        const seen = await cdp.send<{ result: { value?: boolean } }>('Runtime.callFunctionOn', {
+          objectId: result.objectId, functionDeclaration: 'function () { return this.done(); }', returnByValue: true,
+        }, sessionId);
+        return seen.result.value !== false;
+      } catch {
+        return true;
+      } finally {
+        await cdp.send('Runtime.releaseObject', { objectId: result.objectId }, sessionId).catch(() => {});
+      }
+    };
+  } finally {
+    await cdp.send('Runtime.releaseObject', { objectId: object.objectId }, sessionId).catch(() => {});
+  }
 }
 
 export async function clickInDom(cdp: CDPClient, sessionId: string, backendNodeId: number): Promise<boolean> {
@@ -85,7 +97,7 @@ export async function clickInDom(cdp: CDPClient, sessionId: string, backendNodeI
     const { result } = await cdp.send<{ result: { value?: boolean } }>('Runtime.callFunctionOn', {
       objectId: object.objectId,
       functionDeclaration: `function () {
-        if (this.disabled || (this.getAttribute && this.getAttribute('aria-disabled') === 'true')) return false;
+        if (${DISABLED}) return false;
         if (typeof this.click === 'function') this.click();
         else this.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, composed: true }));
         return true;

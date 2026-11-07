@@ -13,7 +13,7 @@ const cdp = new CDPClient();
 const deadline = setTimeout(() => { browser.kill(); process.exit(2); }, 40_000);
 const page = (title: string, body: string) =>
   `data:text/html,${encodeURIComponent(`<!doctype html><title>${title}</title>${body}`)}`;
-const count = `<script>window.n = 0; const hit = () => { document.title = 'clicks ' + (++window.n); };</script>`;
+const count = `<script>window.n = 0; function hit() { document.title = 'clicks ' + (++window.n); }</script>`;
 
 try {
   let address = '';
@@ -58,16 +58,36 @@ try {
   results.push('covered: named, clicked in the DOM');
 
   refs = await open(page('Swallowed', `${count}<button onclick="hit()">Buy</button>
-    <script>addEventListener('mousedown', (e) => e.stopImmediatePropagation(), true);
-    addEventListener('click', (e) => { if (e.isTrusted) e.stopImmediatePropagation(); }, true);</script>`));
+    <script>addEventListener('click', (e) => { if (e.isTrusted) e.stopImmediatePropagation(); }, true);
+    addEventListener('mousedown', (e) => e.stopImmediatePropagation(), true);
+    addEventListener('pointerdown', (e) => e.stopImmediatePropagation(), true);</script>`));
   const byName = await service.clickByName('land', 'Buy', undefined);
-  assert.equal(byName.note, 'the mouse click did not reach button "Buy", so it was clicked through the DOM');
+  assert.equal(byName.note, 'the click may not have reached button "Buy"; check the page');
+  assert.equal(await title(), 'Swallowed');
+  results.push('swallowed: reported, never repeated');
+
+  refs = await open(page('Closed', `${count}<x-buy></x-buy><script>customElements.define('x-buy', class extends HTMLElement {
+    constructor() { super(); const b = document.createElement('button'); b.textContent = 'Buy'; b.onclick = hit;
+      this.attachShadow({ mode: 'closed' }).append(b); } });</script>`));
+  clicked = await service.click('land', ref(refs, 'button "Buy"'));
+  assert.equal(clicked.note, undefined);
   assert.equal(await title(), 'clicks 1');
-  results.push('missed: clicked in the DOM');
+  results.push('closed shadow: one mouse click');
+
+  refs = await open(page('Frame', `${count}<p style="height:1500px">Above</p>
+    <iframe srcdoc="<button onclick='parent.hit()'>Inner</button>"></iframe>`));
+  for (let attempt = 0; attempt < 50 && !/button "Inner"/.test(refs); attempt++) { await Bun.sleep(50); refs = (await service.refs('land')).refs; }
+  clicked = await service.click('land', ref(refs, 'button "Inner"'));
+  assert.equal(clicked.note, undefined);
+  assert.equal(await title(), 'clicks 1');
+  results.push('same-site iframe: one mouse click');
 
   refs = await open(page('Disabled', `${count}<button onclick="hit()" disabled>Buy</button>`));
   await assert.rejects(service.clickByName('land', 'Buy', undefined), /button "Buy" is disabled; nothing was clicked\./);
-  results.push('disabled: refused');
+  refs = await open(page('Fieldset', `${count}<fieldset disabled><button onclick="hit()">Buy</button></fieldset>`));
+  await assert.rejects(service.clickByName('land', 'Buy', undefined), /button "Buy" is disabled; nothing was clicked\./);
+  assert.equal(await title(), 'Fieldset');
+  results.push('disabled and fieldset-disabled: refused');
 
   refs = await open(page('Label', `${count}<label><input type="checkbox" onclick="hit()"
     style="position:absolute;opacity:0"><span style="display:inline-block;width:40px;height:40px;position:relative">Bacon</span></label>`));
@@ -76,18 +96,26 @@ try {
   assert.equal(await title(), 'clicks 1');
   results.push('label: its control counts');
 
-  await open(page('Release', `<p>Assets</p><div style="height:3000px"></div>
-    <include-fragment id="lazy">Loading</include-fragment><include-fragment hidden>Never</include-fragment>
+  await open(page('Release', `<p>Assets</p><div id="box" style="height:100px;overflow:auto"><div style="height:2000px"></div>
+    <include-fragment id="lazy" src="/assets">Loading</include-fragment></div>
+    <include-fragment src="/hidden" style="visibility:hidden">Never</include-fragment><include-fragment>No source</include-fragment>
     <script>new IntersectionObserver((seen, watcher) => { if (seen[0].isIntersecting) { watcher.disconnect();
       setTimeout(() => lazy.replaceWith(Object.assign(document.createElement('p'), { textContent: 'bun-linux-x64.zip 49.4 MB' })), 200); } }).observe(lazy);</script>`));
   assert.equal(await service.loadLazyParts('land', undefined), 0);
   assert.match(await service.text('land', undefined), /bun-linux-x64\.zip 49\.4 MB/);
-  assert.equal(await service.evaluate('land', undefined, 'scrollY'), 0);
+  assert.deepEqual(await service.evaluate('land', undefined, '[scrollY, box.scrollTop]'), [0, 0]);
   results.push('lazy: loaded, scroll restored');
 
-  await open(page('Stuck', `<div style="height:3000px"></div><include-fragment>Loading</include-fragment>`));
+  await open(page('Idle', `<include-fragment src="/x" hidden>Never</include-fragment><include-fragment src="/y" style="opacity:0">Never</include-fragment>`));
+  const started = Date.now();
+  assert.equal(await service.loadLazyParts('land', undefined), 0);
+  assert.ok(Date.now() - started < 1000, 'hidden fragments must not cost the 4 s wait');
+  results.push('hidden: no wait');
+
+  await open(page('Stuck', `<div style="height:3000px"></div><include-fragment src="/never">Loading</include-fragment>`));
   assert.equal(await service.loadLazyParts('land', undefined), 1);
-  results.push('stuck: reported');
+  assert.equal(await service.evaluate('land', undefined, 'scrollY'), 0);
+  results.push('stuck: reported, scroll restored');
 
   console.log(results.join('; '));
 } finally {

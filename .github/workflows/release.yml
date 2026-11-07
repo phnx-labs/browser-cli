@@ -1,8 +1,9 @@
 name: release
 # Pushing release/x.y.z (or release/x.y.z-pre.n) publishes that version, which must match
 # package.json, from the compiled-packages artifact of main's successful test.yml run for the
-# commit: nothing is rebuilt or retested. npm trusts this file and the npm-publish environment
-# (OIDC), so no npm token is stored. `bash scripts/release.sh --confirm` pushes the branch.
+# commit: nothing is rebuilt or retested. It publishes with the npm-publish environment's
+# NPM_TOKEN; trusted publishing (OIDC) was never set up on npm for these packages.
+# `bash scripts/release.sh --confirm` pushes the branch.
 on:
   push:
     branches: ['release/[0-9]*']
@@ -28,3 +29,4 @@ jobs:
       - run: bash scripts/release.sh --confirm
         env:
           GH_TOKEN: ${{ github.token }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

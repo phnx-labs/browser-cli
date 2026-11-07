@@ -31,8 +31,9 @@ const COVER_FN = `function (target) {
 }`;
 
 export async function coverAt(cdp: CDPClient, sessionId: string, backendNodeId: number, x: number, y: number): Promise<string | undefined> {
+  const { cssLayoutViewport: scrolled } = await cdp.send<{ cssLayoutViewport: { pageX: number; pageY: number } }>('Page.getLayoutMetrics', {}, sessionId);
   const hit = await cdp
-    .send<{ backendNodeId: number }>('DOM.getNodeForLocation', { x: Math.round(x), y: Math.round(y) }, sessionId)
+    .send<{ backendNodeId: number }>('DOM.getNodeForLocation', { x: Math.round(x + scrolled.pageX), y: Math.round(y + scrolled.pageY) }, sessionId)
     .catch(() => undefined);
   if (!hit) return 'nothing';
   if (hit.backendNodeId === backendNodeId) return undefined;

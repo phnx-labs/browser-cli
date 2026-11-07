@@ -44,6 +44,12 @@ try {
   assert.equal(await title(), 'clicks 1');
   results.push('plain: one mouse click');
 
+  refs = await open(page('Scrolled', `${count}<p style="height:2000px">Above</p><div>Price <button onclick="hit()">Buy</button></div>`));
+  clicked = await service.click('land', ref(refs, 'button "Buy"'));
+  assert.equal(clicked.note, undefined);
+  assert.equal(await title(), 'clicks 1');
+  results.push('scrolled: one mouse click');
+
   refs = await open(page('Covered', `${count}<button onclick="hit()">Buy</button>
     <div id="veil" style="position:fixed;inset:0;background:#0001">Accept cookies</div>`));
   clicked = await service.click('land', ref(refs, 'button "Buy"'));

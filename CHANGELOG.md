@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.1
 
 - `browser type --secret` works. It read bundles with `secrets export <name> --json`, a command the `secrets` CLI does not have, so every call failed with `Could not resolve secrets bundle`; a profile's `--secrets` binding failed the same way and launched without its variables. Values now come from `secrets exec`.
 - A secret from a bundle named after a site types only into a field on that site or its subdomains: `browser type "Password" --secret stripe.com/PASSWORD` on any other site, including a cross-origin iframe on a stripe.com page or a `--tab` aimed elsewhere, prints `Refused: this secret types only into stripe.com, and the field is on <host>. Nothing was typed.` and exits 1. A bundle whose name is not a host (`logins`) types anywhere, as before.

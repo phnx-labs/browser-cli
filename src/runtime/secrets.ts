@@ -37,7 +37,10 @@ export async function readAndResolveBundleEnv(
     : ['awk', 'BEGIN{for(i=1;i<ARGC;i++) printf "%s%c", ENVIRON[ARGV[i]], 0}', ...keys];
   const res = spawnSync('secrets', ['exec', name, '--keys', keys.join(','), '--', ...printer], { encoding: 'utf-8', timeout: 15000 });
   if (res.status !== 0) {
-    throw new Error(`Could not resolve secrets bundle ${JSON.stringify(name)}. Install @phnx-labs/secrets-cli or unset the profile secrets binding.`);
+    const why = (res.stderr || '').trim().split('\n').filter(Boolean).pop();
+    throw new Error(why
+      ? `Could not read ${keys.join(', ')} from secrets bundle ${JSON.stringify(name)}: ${why}`
+      : `Could not resolve secrets bundle ${JSON.stringify(name)}. Install @phnx-labs/secrets-cli or unset the profile secrets binding.`);
   }
   const values = res.stdout.split('\0');
   const env: Record<string, string> = {};

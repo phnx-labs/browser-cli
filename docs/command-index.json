@@ -3411,7 +3411,7 @@
         },
         {
           "flags": "--secret <ref>",
-          "description": "Resolve <bundle>/<KEY> from the `secrets` CLI and type the value. The secret is resolved in-process and never printed to stdout or the transcript. Alternative to --text.",
+          "description": "Resolve <bundle>/<KEY> from the `secrets` CLI and type the value. The secret is resolved in-process and never printed to stdout or the transcript. A bundle named after a site (stripe.com) types only into a field on that site or its subdomains. Alternative to --text.",
           "long": "--secret",
           "required": true,
           "optional": false,

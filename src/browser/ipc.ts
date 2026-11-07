@@ -16,7 +16,6 @@ import { compareVersions } from '../runtime/semver.js';
 import { isFleetRemoteInvocation } from './remote-control.js';
 import { resolveCallerIdentity } from './caller-identity.js';
 import { actionable } from './service.js';
-import { onSecretSite } from './secret-ref.js';
 import type { IPCRequest, IPCResponse, RefNodeJson } from './types.js';
 
 /** Only page verbs may create tasks; observation-only verbs resolve without opening a browser. */
@@ -1058,23 +1057,10 @@ export class BrowserIPCServer {
         if (!request.task || typeTarget === undefined || !request.text) {
           return { ok: false, error: 'Task, ref or name, and text required' };
         }
-        if (request.secretSite) {
-          const tabs = await this.service.tabList(request.task);
-          const tab = tabs.find((t) => t.id === request.tabId) ?? tabs.find((t) => t.current);
-          if (!tab || !onSecretSite(tab.url, request.secretSite)) {
-            const where = tab ? new URL(tab.url).hostname || tab.url : 'an unknown page';
-            return {
-              ok: false,
-              error: actionable(
-                `Refused: this secret types only into ${request.secretSite}, and this tab is on ${where}. Nothing was typed.`,
-                `Next: browser navigate https://${request.secretSite}  |  browser tabs`,
-              ),
-            };
-          }
-        }
         const typed = await this.service.type(request.task, typeTarget, request.text, request.tabId, request.clear, {
           snapshot: request.snapshot,
           wait: request.wait !== false,
+          secretSite: request.secretSite,
         });
         return {
           ok: true,

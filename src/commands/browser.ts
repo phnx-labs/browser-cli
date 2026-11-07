@@ -3231,7 +3231,7 @@ function registerTaskCommands(browser: Command): void {
     .option(DEVICE_ON_PAGE_VERB_FLAG, DEVICE_ON_PAGE_VERB_DESC)
     .option('-t, --tab <tabId>', 'Tab ID (defaults to current)')
     .option('--text <text>', 'Text to type (use quotes for spaces/special chars)')
-    .option('--secret <ref>', 'Resolve <bundle>/<KEY> from the `secrets` CLI and type the value. The secret is resolved in-process and never printed to stdout or the transcript. Alternative to --text.')
+    .option('--secret <ref>', 'Resolve <bundle>/<KEY> from the `secrets` CLI and type the value. The secret is resolved in-process and never printed to stdout or the transcript. A bundle named after a site (stripe.com) types only into a field on that site or its subdomains. Alternative to --text.')
     .option('--clear', 'Clear editor content before typing')
     .option(SNAPSHOT_OPTION_FLAG, SNAPSHOT_OPTION_DESC)
     .addOption(waitOption())

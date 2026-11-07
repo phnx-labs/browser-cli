@@ -280,3 +280,17 @@ export async function chooseNativeOption(
     await cdp.send('Runtime.releaseObject', { objectId: object.objectId }, sessionId).catch(() => {});
   }
 }
+
+/** The origin of the document that owns a node: the iframe's, not the tab's, when the field sits in
+ * one. "null" when it can't be read, which no site matches. */
+export async function nodeOrigin(cdp: CDPClient, sessionId: string, backendNodeId: number | undefined): Promise<string> {
+  if (backendNodeId === undefined) return 'null';
+  const { object } = await cdp.send<{ object: { objectId?: string } }>('DOM.resolveNode', { backendNodeId }, sessionId);
+  if (!object.objectId) return 'null';
+  const { result } = await cdp.send<{ result: { value?: unknown } }>('Runtime.callFunctionOn', {
+    objectId: object.objectId,
+    functionDeclaration: 'function () { var w = this.ownerDocument && this.ownerDocument.defaultView; return w ? w.origin : "null"; }',
+    returnByValue: true,
+  }, sessionId);
+  return typeof result.value === 'string' ? result.value : 'null';
+}

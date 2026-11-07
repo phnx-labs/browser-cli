@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'bun:test';
-import { parseSecretRef, secretSite, onSecretSite } from './secret-ref.js';
+import { parseSecretRef, secretSite, onSecretSite, assertSecretSite } from './secret-ref.js';
 
 describe('parseSecretRef', () => {
   it('parses <bundle>/<KEY>', () => {
@@ -37,5 +37,22 @@ describe('secret site binding', () => {
     expect(onSecretSite('https://stripe.com.evil.io/', 'stripe.com')).toBe(false);
     expect(onSecretSite('https://evilstripe.com/', 'stripe.com')).toBe(false);
     expect(onSecretSite('about:blank', 'stripe.com')).toBe(false);
+  });
+});
+
+describe('secret site edge cases', () => {
+  it('refuses userinfo tricks, trailing dots and opaque origins', () => {
+    expect(onSecretSite('https://stripe.com@evil.io/', 'stripe.com')).toBe(false);
+    expect(onSecretSite('https://stripe.com./', 'stripe.com')).toBe(false);
+    expect(onSecretSite('null', 'stripe.com')).toBe(false);
+    expect(onSecretSite('data:text/html,<input>', 'stripe.com')).toBe(false);
+    expect(onSecretSite('blob:https://evil.io/x', 'stripe.com')).toBe(false);
+    expect(onSecretSite('https://STRIPE.com:8443', 'stripe.com')).toBe(true);
+  });
+
+  it('names the other site and says nothing was typed', () => {
+    expect(() => assertSecretSite('stripe.com', 'https://dashboard.stripe.com')).not.toThrow();
+    expect(() => assertSecretSite('stripe.com', 'https://evil.io')).toThrow('the field is on evil.io. Nothing was typed.');
+    expect(() => assertSecretSite('stripe.com', 'null')).toThrow('the field is on null.');
   });
 });

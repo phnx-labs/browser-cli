@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- `browser show` into native Arc uses an agent window when no other Arc window is visible. It skipped the recorded agent window and every retired one, so once the owner was working in one (on zion, 2026-11-07, the recorded agent window was their only visible Arc window, on Work), every `show` failed with `"via": "none"` and "No visible Arc window shows a Space of Arc profile". Another visible window is still preferred, so a task's window is left alone whenever there is a choice (`pickShowSpace`).
+- `browser show` into native Arc uses an agent window when no other Arc window is visible. It skipped the recorded agent window and every retired one, so once the owner was working in one, every `show` failed with `"via": "none"` and "No visible Arc window shows a Space of Arc profile". Another visible window is still preferred, so a task's window is left alone whenever there is a choice (`pickShowSpace`).
 - Firefox installed without root now works on Linux. A fresh Firefox tarball keeps its profiles in `$XDG_CONFIG_HOME/mozilla/firefox` (`~/.config/mozilla/firefox`), which profile discovery now reads beside `~/.mozilla/firefox` and the snap path. On every platform, when none of a browser's standard install paths exist, `browser` looks its binary name up in the absolute directories on `PATH` (relative entries such as `.` are skipped), so a Firefox in `~/.local/bin` starts. Two profile roots that resolve to the same directory, such as `~/.mozilla/firefox` symlinked to the XDG one, list each profile once. Before, 0.2.0 listed no Firefox profile on such a machine and then said `Browser "firefox" not found. Install it first.`
 
 ## 0.2.0

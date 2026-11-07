@@ -42,8 +42,8 @@ export function pickArcSpace(
 /**
  * Where `show` puts a page for the owner: a window that is not one of the agent's
  * first, so a task's window is left alone, then an agent window when no other one
- * is visible. On zion (2026-11-07) the recorded agent window was the owner's only
- * visible Arc window, so excluding it made every `show` fail with "via": "none".
+ * is visible. Excluding it unconditionally made `show` fail with "via": "none" whenever
+ * the owner's only visible Arc window was the agent's.
  */
 export function pickShowSpace(
   own: ReadonlyArray<{ id: string; title: string }>,

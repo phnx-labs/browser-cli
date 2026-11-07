@@ -139,6 +139,23 @@ export function resolveBrowserBinary(binaryPath: string): string {
   return fs.existsSync(realBinary) ? realBinary : binaryPath;
 }
 
+export function findOnPath(names: string[]): string | undefined {
+  for (const dir of (process.env.PATH || '').split(path.delimiter).filter(Boolean)) {
+    for (const name of new Set(names)) {
+      const candidate = path.join(dir, name);
+      try {
+        if (fs.statSync(candidate).isFile()) {
+          fs.accessSync(candidate, fs.constants.X_OK);
+          return candidate;
+        }
+      } catch {
+        continue;
+      }
+    }
+  }
+  return undefined;
+}
+
 export function findBrowserPath(browserType: BrowserType, customBinary?: string): string {
   if (customBinary) {
     if (!fs.existsSync(customBinary)) {
@@ -163,6 +180,9 @@ export function findBrowserPath(browserType: BrowserType, customBinary?: string)
       return resolveBrowserBinary(p);
     }
   }
+
+  const onPath = findOnPath(candidates.map((p) => path.basename(p)));
+  if (onPath) return resolveBrowserBinary(onPath);
 
   if (browserType === 'comet' && platform === 'linux') {
     throw new Error('Browser "comet" is not available on Linux (Comet ships macOS and Windows builds only). Use chrome, chromium, brave, or edge on this platform.');

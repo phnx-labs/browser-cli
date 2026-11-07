@@ -22,8 +22,8 @@ export type FirefoxDiscoveryResult =
   | { ok: false; kind: 'not-installed' | 'invalid'; reason: string };
 
 /**
- * Every directory a `profiles.ini` may live in: snap Firefox under `~/snap/firefox/common/` and
- * deb or tarball under `~/.mozilla/firefox/`, both read. `AGENTS_FIREFOX_DIRS` overrides them.
+ * Every directory a `profiles.ini` may live in: deb or older tarball under `~/.mozilla/firefox/`,
+ * a fresh tarball install under `$XDG_CONFIG_HOME/mozilla/firefox/`, snap under `~/snap/firefox/common/`. `AGENTS_FIREFOX_DIRS` overrides them.
  */
 export function firefoxProfileRoots(): string[] {
   const override = process.env.AGENTS_FIREFOX_DIRS;
@@ -37,6 +37,7 @@ export function firefoxProfileRoots(): string[] {
     default:
       return [
         path.join(home, '.mozilla', 'firefox'),
+        path.join(process.env.XDG_CONFIG_HOME || path.join(home, '.config'), 'mozilla', 'firefox'),
         path.join(home, 'snap', 'firefox', 'common', '.mozilla', 'firefox'),
       ];
   }

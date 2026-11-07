@@ -72,7 +72,7 @@ Captured in Arc. In Chromium-family browsers `click --text "Learn more"` also cl
 Versions, from each project's own release page: [Browser Use 0.13.11](https://pypi.org/project/browser-use/0.13.11/), [browser-harness 0.1.13](https://pypi.org/project/browser-harness/0.1.13/), [agent-browser 0.39.1](https://www.npmjs.com/package/agent-browser/v/0.39.1), [Browserbase browse 0.6.1](https://www.npmjs.com/package/@browserbasehq/browse-cli/v/0.6.1). These tools have shipped since; [`bench/`](bench/) reruns the suite against current versions, and the method and every task prompt are in [docs/benchmarks.md](docs/benchmarks.md).
 
 <details>
-<summary>Method and every run</summary>
+<summary>Method and per-task results</summary>
 
 Claude Sonnet 5.5 ran each task headless in Claude Code with one tool and that
 tool's own shipped skill, on macOS against a fresh headless Chrome for Testing

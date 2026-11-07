@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'bun:test';
-import { parseSecretRef } from './secret-ref.js';
+import { parseSecretRef, secretSite, onSecretSite } from './secret-ref.js';
 
 describe('parseSecretRef', () => {
   it('parses <bundle>/<KEY>', () => {
@@ -20,5 +20,22 @@ describe('parseSecretRef', () => {
     expect(parseSecretRef('trailing/')).toBeNull();
     expect(parseSecretRef('')).toBeNull();
     expect(parseSecretRef('secret:')).toBeNull();
+  });
+});
+
+describe('secret site binding', () => {
+  it('reads the site from a bundle named after one', () => {
+    expect(secretSite('stripe.com')).toBe('stripe.com');
+    expect(secretSite('Accounts.Google.com')).toBe('accounts.google.com');
+    expect(secretSite('logins')).toBeNull();
+  });
+
+  it('allows the site and its subdomains, nothing else', () => {
+    expect(onSecretSite('https://stripe.com/login', 'stripe.com')).toBe(true);
+    expect(onSecretSite('https://dashboard.stripe.com/x', 'stripe.com')).toBe(true);
+    expect(onSecretSite('https://stripe-billing-help.io/login', 'stripe.com')).toBe(false);
+    expect(onSecretSite('https://stripe.com.evil.io/', 'stripe.com')).toBe(false);
+    expect(onSecretSite('https://evilstripe.com/', 'stripe.com')).toBe(false);
+    expect(onSecretSite('about:blank', 'stripe.com')).toBe(false);
   });
 });

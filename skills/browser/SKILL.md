@@ -40,8 +40,9 @@ browser text --grep "Total|Tax"                      # only the matching lines
 browser text --css ".product"                        # each match's text, one block per match
 browser text --css ".product a" --attr href          # or each match's attribute; no script needed
 browser evaluate "document.title"                    # JavaScript, when the page text is not enough
-browser evaluate --file - <<'JS'                     # a longer script, on stdin; no file to write
-[...document.querySelectorAll('h2')].map((h) => h.textContent)
+browser evaluate --file - <<'JS'                     # read other pages: one expression on stdin
+const base = '/catalogue/'; const urls = ['page-1.html', 'page-2.html'];
+Promise.all(urls.map((p) => fetch(base + p).then((r) => r.text()))).then((pages) => pages.map((html) => new DOMParser().parseFromString(html, 'text/html').title))
 JS
 browser done                                         # close the task's tabs
 ```
@@ -54,7 +55,7 @@ Waiting, screenshots, console and network capture are in `browser --help`. `brow
 - A ref keeps naming its element while that element is on the page, even when a count in its label changes ("Cart, empty" to "Cart, 2 items"). A new listing (`refs` or `--snapshot`) renumbers, so act on the numbers from the latest one.
 - Alerts and leave-page prompts are accepted for you and printed. A confirm() or prompt() waits: the action that raised it prints the question, and you answer with `browser dialog accept` or `browser dialog dismiss`.
 - Read the page without a script first. `browser text --css <selector>` lists each match (a product card, a table row, a search result) and `--attr href` its links; `browser text --grep <pattern>` prints only the matching lines, two lines around each (`--context <n>`), and a miss just says so. Write an `evaluate` script only for what those cannot do, such as fetching other pages. Keep the filtering inside `browser`: a pipe into `grep`, `python` or `jq` can need approval where only `browser` commands are allowed.
-- Claude Code refuses a shell command, heredoc included, that has a quote anywhere inside `{…}` or a `\u00a0`-style escape. In `evaluate` scripts, put strings in variables before any braces (`const sel = 'td'; [...document.querySelectorAll(sel)].map((r) => ({t: r.textContent}))`), use expression bodies instead of `{ return … }`, and match spaces with `/\s/`, which covers no-break spaces.
+- Claude Code refuses a shell command, heredoc included, that has a quote anywhere inside `{…}` or a `\u00a0`-style escape. In `evaluate` scripts, return arrays (`[title, price]`) rather than objects, put strings in variables before any braces (`const sel = 'td'; [...document.querySelectorAll(sel)].map((r) => ({t: r.textContent}))`), use expression bodies instead of `{ return … }` (so `Promise.all(urls.map(…)).then(…)`, not an `async` function or a loop), and match spaces with `/\s/`, which covers no-break spaces.
 - `browser start --url` prints the site guide for that site when one exists (`--- site guide: … ---`). Read it before you click.
 
 ## Flags: read the help, never guess

@@ -61,7 +61,7 @@ import {
 import { taskMatchesCaller } from './caller-identity.js';
 import { pageText } from './frames.js';
 import { getRefs, resolveRefToCoords, describeRefs, healRef, type RefOpts, type RefNode, type RefSnapshot, refStillMatches } from './refs.js';
-import { clickAtCoords, hoverAtCoords, scrollAtCoords, typeText, pressKey, focusNode, typeIntoValueInput, chooseNativeOption, nodeOrigin } from './input.js';
+import { clickAtCoords, coverAt, armClickProbe, clickInDom, hoverAtCoords, scrollAtCoords, typeText, pressKey, focusNode, typeIntoValueInput, chooseNativeOption, nodeOrigin } from './input.js';
 import { assertSecretSite } from './secret-ref.js';
 import { typeEditorText } from './editor.js';
 import {
@@ -528,6 +528,36 @@ function onceAsync<T>(fn: () => Promise<T>): () => Promise<T> {
 function plainSpaces(text: string): string {
   return text.replace(/[\u00a0\u2007\u202f]/g, ' ');
 }
+
+async function evaluateInPage<T>(cdp: CDPClient, params: Record<string, unknown>, sessionId: string): Promise<T> {
+  try {
+    return await cdp.send<T>('Runtime.evaluate', params, sessionId);
+  } catch (error) {
+    if (!/Cannot find default execution context/.test(String(error))) throw error;
+    await new Promise((r) => setTimeout(r, 500));
+    return cdp.send<T>('Runtime.evaluate', params, sessionId);
+  }
+}
+
+/** Rendered GitHub-style `include-fragment`s still waiting to load, the first scrolled into view; the scroll before it. */
+const LAZY_PARTS = `(() => {
+  const key = Symbol.for('browser-cli lazy parts');
+  const pending = [...document.querySelectorAll('include-fragment[src]')]
+    .filter((f) => !window[key]?.failed.has(f) && f.checkVisibility({ visibilityProperty: true, opacityProperty: true }));
+  const f = pending[0];
+  if (!f) return 0;
+  const s = window[key] ??= { failed: new WeakSet(), watched: new WeakSet(), scrolled: new Map() };
+  if (!s.watched.has(f)) f.addEventListener('error', () => s.failed.add(f), { once: true });
+  s.watched.add(f);
+  for (let n = f.parentElement; n; n = n.parentElement) if (!s.scrolled.has(n)) s.scrolled.set(n, [n.scrollLeft, n.scrollTop]);
+  f.scrollIntoView({ block: 'center', behavior: 'instant' });
+  return pending.length;
+})()`;
+const LAZY_RESTORE = `(() => {
+  const key = Symbol.for('browser-cli lazy parts');
+  for (const [n, [left, top]] of window[key]?.scrolled ?? []) n.scrollTo({ left, top, behavior: 'instant' });
+  delete window[key];
+})()`;
 
 /** `type` and `select` by name look only at elements that take text, or choose an option. */
 const TYPE_ROLES = ['textbox', 'searchbox', 'combobox', 'spinbutton', 'inputtime', 'date'];
@@ -1633,6 +1663,30 @@ export class BrowserService {
     await this.saveTaskState(task.profile, conn.tasks);
   }
 
+  async loadLazyParts(taskId: string, tabHint: string | undefined): Promise<number> {
+    const ask = async (expression: string): Promise<unknown> => {
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      const late = new Promise<never>((_, fail) => { timer = setTimeout(() => fail(new Error('The page did not answer within 2 s.')), 2000); });
+      try {
+        return await Promise.race([this.evaluate(taskId, tabHint, expression), late]);
+      } finally {
+        clearTimeout(timer);
+      }
+    };
+    const step = async () => Number(await ask(LAZY_PARTS).catch(() => 0));
+    let left = await step();
+    if (!left) return 0;
+    try {
+      for (const deadline = Date.now() + 4000; left > 0 && Date.now() < deadline;) {
+        await new Promise((r) => setTimeout(r, 150));
+        left = await step();
+      }
+    } finally {
+      await ask(LAZY_RESTORE).catch(() => {});
+    }
+    return left;
+  }
+
   /** `browser text`: the tab's title and URL, then what a reader sees in the page and its iframes. */
   async text(taskId: string, tabHint: string | undefined, select?: { css: string; attr?: string }): Promise<string> {
     const { conn, task } = await this.findTask(taskId);
@@ -1661,10 +1715,8 @@ export class BrowserService {
     if (!target) throw new Error(`Tab ${shortId} not found`);
     const sessionId = await this.getSessionId(conn, target.targetId);
     await this.enablePageForSession(conn, sessionId);
-    const { result, exceptionDetails } = (await conn.cdp.send('Runtime.evaluate', { expression: header, returnByValue: true }, sessionId)) as {
-      result: { value?: string };
-      exceptionDetails?: { text?: string };
-    };
+    const { result, exceptionDetails } = await evaluateInPage<{ result: { value?: string }; exceptionDetails?: { text?: string } }>(
+      conn.cdp, { expression: header, returnByValue: true }, sessionId);
     if (exceptionDetails || typeof result.value !== 'string') throw new Error(`Could not read the page: ${exceptionDetails?.text ?? 'no document'}`);
     const page = JSON.parse(result.value) as { url: string; title: string };
     return plainSpaces(`${page.title ? `${page.title} — ` : ''}${page.url}\n\n${await pageText(conn.cdp, sessionId)}`);
@@ -1708,11 +1760,8 @@ export class BrowserService {
           'evaluate failed',
       );
     };
-    const ran = (await conn.cdp.send(
-      'Runtime.evaluate',
-      { expression, awaitPromise: true, replMode: true },
-      sessionId,
-    )) as { result: Remote; exceptionDetails?: Thrown };
+    const ran = await evaluateInPage<{ result: Remote; exceptionDetails?: Thrown }>(
+      conn.cdp, { expression, awaitPromise: true, replMode: true }, sessionId);
     if (ran.exceptionDetails) fail(ran.exceptionDetails);
     if (!ran.result.objectId) return ran.result.value;
     if (ran.result.subtype === 'promise') {
@@ -2307,7 +2356,7 @@ export class BrowserService {
     ref: number,
     tabHint?: string,
     opts: ActionOpts = {},
-  ): Promise<{ healed?: HealInfo; snapshot?: PageSnapshot; chose?: string; asking?: string }> {
+  ): Promise<{ healed?: HealInfo; snapshot?: PageSnapshot; chose?: string; asking?: string; note?: string }> {
     const { conn, task } = await this.findTask(taskId);
     const shortId = tabHint ? await this.resolveTabHint(conn, task, tabHint) : this.resolveCurrentTab(task);
     if (conn.backend === 'arc-native') {
@@ -2358,13 +2407,12 @@ export class BrowserService {
       if (current) {
         const chose = await option(current.node);
         if (chose !== undefined) return await finish(current.renamed, chose);
-        const at = await resolveRefToCoords(conn.cdp, sessionId, new Map([[ref, current.node]]), ref);
-        const asking = await this.raceDialog(at.sessionId, clickAtCoords(conn.cdp, at.sessionId, at.x, at.y));
+        const { asking, note } = await this.clickNode(conn, sessionId, current.node);
         if (asking) return { asking };
         // Awaited so `finally` disposes the settle only after it settles: an
         // unawaited return unhooked its listeners mid-wait, and every
         // same-document click sat out the 3 s load timeout.
-        return await finish(current.renamed);
+        return { ...(await finish(current.renamed)), ...(note ? { note } : {}) };
       }
       // Rebuild with the cached listing's options so ref numbers match what the caller saw.
       const snapshot = task.refDescriptors?.[shortId];
@@ -2377,14 +2425,54 @@ export class BrowserService {
 
       const chose = await option(nodeMap.get(targetRef));
       if (chose !== undefined) return await finish(healed, chose);
-      const at = await resolveRefToCoords(conn.cdp, sessionId, nodeMap, targetRef);
-      const asking = await this.raceDialog(at.sessionId, clickAtCoords(conn.cdp, at.sessionId, at.x, at.y));
+      const node = nodeMap.get(targetRef);
+      if (!node) throw new Error(`Ref ${targetRef} not found`);
+      const { asking, note } = await this.clickNode(conn, sessionId, node);
       if (asking) return { ...(healed ? { healed } : {}), asking };
-
-      return await finish(healed);
+      return { ...(await finish(healed)), ...(note ? { note } : {}) };
     } finally {
       settle?.dispose();
     }
+  }
+
+  private async clickNode(conn: CdpProfileConnection, sessionId: string, node: RefNode): Promise<{ asking?: string; note?: string }> {
+    const at = await resolveRefToCoords(conn.cdp, sessionId, new Map([[node.ref, node]]), node.ref);
+    const id = node.backendNodeId!;
+    const label = `${node.role}${node.name ? ` "${node.name}"` : ''}`;
+    const inDom = async (why: string): Promise<{ asking?: string; note: string }> => {
+      let enabled = true;
+      const asking = await this.raceDialog(at.sessionId, clickInDom(conn.cdp, at.sessionId, id).then((ok) => { enabled = ok; }));
+      if (!enabled) throw new Error(`${label} is disabled; nothing was clicked.`);
+      return { ...(asking ? { asking } : {}), note: `${why}, so only a click event was sent to it, without mouse-down` };
+    };
+    const cover = await coverAt(conn.cdp, at.sessionId, id, at.x, at.y);
+    if (cover) return inDom(`${cover} covers ${label}`);
+    const probe = await armClickProbe(conn.cdp, at.sessionId, id);
+    if (!probe) throw new Error(`${label} is disabled; nothing was clicked.`);
+    let asking: string | undefined;
+    try {
+      for (const dx of [-1, 0]) await hoverAtCoords(conn.cdp, at.sessionId, at.x + dx, at.y);
+      if (!(await probe.moved())) {
+        await probe.landed();
+        return inDom(`the mouse is not reaching ${label} in this tab`);
+      }
+      const opened = await coverAt(conn.cdp, at.sessionId, id, at.x, at.y);
+      if (opened) {
+        await probe.landed();
+        return inDom(`${opened} covers ${label} once the mouse is over it`);
+      }
+      asking = await this.raceDialog(at.sessionId, clickAtCoords(conn.cdp, at.sessionId, at.x, at.y));
+    } catch (error) {
+      void probe.landed();
+      throw error;
+    }
+    if (asking) {
+      void probe.landed();
+      return { asking };
+    }
+    const landed = await probe.landed();
+    if (landed === 'clicked') return {};
+    return { note: landed === 'pressed' ? `the press reached ${label} but no click followed; check the page` : `the click may not have reached ${label}; check the page` };
   }
 
   /** Click viewport coordinates when screenshot-visible targets have no usable accessibility ref. */
@@ -2539,7 +2627,7 @@ export class BrowserService {
     role: string | undefined,
     tabHint?: string,
     opts: ActionOpts = {},
-  ): Promise<{ clicked: string; matches: number; snapshot?: PageSnapshot; asking?: string }> {
+  ): Promise<{ clicked: string; matches: number; snapshot?: PageSnapshot; asking?: string; note?: string }> {
     const { conn, task } = await this.findTask(taskId);
     requireCdp(conn, 'click --text');
     const shortId = tabHint ? await this.resolveTabHint(conn, task, tabHint) : this.resolveCurrentTab(task);
@@ -2550,11 +2638,10 @@ export class BrowserService {
     const { node, matches } = await this.nodeByName(conn, sessionId, name, role ? [role.toLowerCase()] : undefined, opts);
     const settle = opts.snapshot || opts.wait ? await this.armSettle(conn, sessionId) : undefined;
     try {
-      const at = await resolveRefToCoords(conn.cdp, sessionId, new Map([[node.ref, node]]), node.ref);
       const clicked = `${node.role} "${node.name}"`;
-      const asking = await this.raceDialog(at.sessionId, clickAtCoords(conn.cdp, at.sessionId, at.x, at.y));
+      const { asking, note } = await this.clickNode(conn, sessionId, node);
       if (asking) return { clicked, matches, asking };
-      return { clicked, matches, ...(await this.settled(settle, opts, conn, task, shortId)) };
+      return { clicked, matches, ...(note ? { note } : {}), ...(await this.settled(settle, opts, conn, task, shortId)) };
     } finally {
       settle?.dispose();
     }

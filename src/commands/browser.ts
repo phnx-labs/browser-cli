@@ -2678,6 +2678,7 @@ function registerTaskCommands(browser: Command): void {
         console.error(response.error);
         process.exit(1);
       }
+      if (response.message) console.error(response.message);
       // printLine writes all of it: a console.log over 64 KiB to a pipe keeps only the start (AGENTS.md).
       const text = String(response.result ?? '');
       if (opts.grep === undefined) {

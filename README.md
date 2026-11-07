@@ -114,6 +114,8 @@ including cached context, plus output. Wall-clock time is mostly the model
 thinking between turns, so it varies more between runs than turns and tokens do.
 With two runs per task, read single rows as a direction. One `browse` Demoblaze run took 810 s and 28 turns without an answer, which carries most of its 85.4 s mean. One browser-cli run that found the benchmark's Chrome not running was set aside and run again; no other run hit that.
 
+To run this suite and the several-agents test yourself, use [`bench/`](docs/benchmarks.md#reproduce). It runs on Linux and covers four of these tools (not `browse`) at the versions it pins, so its numbers compare with each other rather than with this table.
+
 | Task | <img src="docs/assets/logos/browser-cli.png" width="16" height="16" alt="browser-cli logo"> browser-cli | <img src="docs/assets/logos/browser-use.png" width="16" height="16" alt="Browser Use logo"> Browser Use | <img src="docs/assets/logos/browser-use.png" width="16" height="16" alt="Browser Use logo"> browser-harness | <img src="docs/assets/logos/agent-browser.png" width="16" height="16" alt="agent-browser logo"> agent-browser | <img src="docs/assets/logos/browserbase.png" width="16" height="16" alt="Browserbase logo"> browse |
 | --- | --- | --- | --- | --- | --- |
 | Shop: cheapest five-star Mystery book across pages | 5 / 3 turns, 85k | 4 / 4 turns, 92k | 5 / 6 turns, 128k | 8 / 11 turns, 247k | 4 / 5 turns, 95k |

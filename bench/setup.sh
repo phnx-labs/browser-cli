@@ -9,6 +9,7 @@ BROWSER_HARNESS_VERSION=${BROWSER_HARNESS_VERSION:-0.1.13}
 AGENT_BROWSER_VERSION=${AGENT_BROWSER_VERSION:-0.41.2}
 CHROME_VERSION=${CHROME_VERSION:-153.0.8010.36}
 
+bash scripts/install.sh
 bash scripts/build.sh --skip-tests
 
 uv venv -q --allow-existing -p 3.12 "$tools/browser-use"

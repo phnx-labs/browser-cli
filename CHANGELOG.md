@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.3
+## 0.2.4
 
 - `browser show` opens a local file in native Arc. It created the tab at its https marker and then sent it to the `file:` URL, and Arc drops a tab sent from a web page to a file, so every show of a local report failed with "Arc closed the tab before it showed file://…". A file page is now created at itself, marked in its fragment (`#agents-browser-<uuid>`), and never navigated.
 

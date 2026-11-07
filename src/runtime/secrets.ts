@@ -13,7 +13,6 @@ export async function bundleExists(name: string): Promise<boolean> {
 
 const ENV_KEY = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
-/** The key names a bundle holds, from `secrets view --json` (values stay masked there). */
 function bundleKeys(name: string): string[] {
   const res = spawnSync('secrets', ['view', name, '--json'], { encoding: 'utf-8', timeout: 8000 });
   if (res.status !== 0) return [];
@@ -21,7 +20,6 @@ function bundleKeys(name: string): string[] {
   return (parsed.keys ?? []).map((k) => k.key).filter((k): k is string => typeof k === 'string');
 }
 
-/** Values via `secrets exec`: the child prints each variable by name, NUL-separated, never in argv. */
 export async function readAndResolveBundleEnv(
   name: string,
   opts: { caller?: string; agentOnly?: boolean; keys?: string[]; keyMode?: string } = {},

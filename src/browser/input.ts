@@ -281,7 +281,6 @@ export async function chooseNativeOption(
   }
 }
 
-/** Origin of the document owning a node (an iframe's, not the tab's); "null", matching no site, if unread. */
 export async function nodeOrigin(cdp: CDPClient, sessionId: string, backendNodeId: number | undefined): Promise<string> {
   if (backendNodeId === undefined) return 'null';
   const { object } = await cdp.send<{ object: { objectId?: string } }>('DOM.resolveNode', { backendNodeId }, sessionId);

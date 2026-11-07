@@ -158,6 +158,10 @@ describe('firefoxProfileRoots', () => {
       fs.writeFileSync(path.join(root, 'profiles.ini'), '[Profile0]\nName=default\nIsRelative=1\nPath=abcd.default\n');
       const found = discoverFirefoxProfilesAt([root]);
       expect(found.ok).toBe(true);
+      const linked = path.join(xdg, 'legacy-link');
+      fs.symlinkSync(root, linked);
+      const both = discoverFirefoxProfilesAt([linked, root]);
+      expect(both.ok && both.profiles.length).toBe(1);
     } finally {
       fs.rmSync(xdg, { recursive: true, force: true });
       for (const [key, value] of [['AGENTS_FIREFOX_DIRS', prev.dirs], ['XDG_CONFIG_HOME', prev.xdg]] as const) {

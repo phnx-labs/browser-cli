@@ -31,6 +31,20 @@ describe('findOnPath', () => {
     expect(findOnPath(['nothing-here'])).toBeUndefined();
   });
 
+  it('never resolves through a relative PATH entry, so the cwd cannot plant a browser', () => {
+    const cwd = process.cwd();
+    fs.mkdirSync(path.join(dir, 'bin'));
+    fs.writeFileSync(path.join(dir, 'firefox'), '#!/bin/sh\n', { mode: 0o755 });
+    fs.writeFileSync(path.join(dir, 'bin', 'firefox'), '#!/bin/sh\n', { mode: 0o755 });
+    process.chdir(dir);
+    try {
+      process.env.PATH = ['.', 'bin'].join(path.delimiter);
+      expect(findOnPath(['firefox'])).toBeUndefined();
+    } finally {
+      process.chdir(cwd);
+    }
+  });
+
   it.skipIf(process.platform !== 'linux' || fs.existsSync('/usr/bin/microsoft-edge'))(
     'lets findBrowserPath use a browser installed without root',
     () => {

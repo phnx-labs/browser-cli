@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Firefox installed without root now works on Linux. A fresh Firefox tarball keeps its profiles in `$XDG_CONFIG_HOME/mozilla/firefox` (`~/.config/mozilla/firefox`), which profile discovery now reads beside `~/.mozilla/firefox` and the snap path. When none of a browser's standard install paths exist, `browser` looks its command up on `PATH`, so a Firefox in `~/.local/bin` starts. Before, 0.2.0 listed no Firefox profile on such a machine and then said `Browser "firefox" not found. Install it first.`
+- Firefox installed without root now works on Linux. A fresh Firefox tarball keeps its profiles in `$XDG_CONFIG_HOME/mozilla/firefox` (`~/.config/mozilla/firefox`), which profile discovery now reads beside `~/.mozilla/firefox` and the snap path. On every platform, when none of a browser's standard install paths exist, `browser` looks its binary name up in the absolute directories on `PATH` (relative entries such as `.` are skipped), so a Firefox in `~/.local/bin` starts. Two profile roots that resolve to the same directory, such as `~/.mozilla/firefox` symlinked to the XDG one, list each profile once. Before, 0.2.0 listed no Firefox profile on such a machine and then said `Browser "firefox" not found. Install it first.`
 
 ## 0.2.0
 

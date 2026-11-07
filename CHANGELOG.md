@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- `browser show` opens a local file in native Arc. It created the tab at its https marker and then sent it to the `file:` URL, and Arc drops a tab sent from a web page to a file, so every show of a local report failed with "Arc closed the tab before it showed file://…". A file page is now created at itself, marked in its fragment (`#agents-browser-<uuid>`), and never navigated.
+
 ## 0.2.3
 
 - `browser click` with a ref or `--text` no longer prints a bare `Clicked` when nothing landed, and never clicks twice. It first asks the page what sits at the element's centre, then moves the mouse onto it and asks again, since a hover can open a menu over it. If something else covers the element (`div#veil "Accept cookies" covers button "Buy"`), or the move never reaches it (`the mouse is not reaching button "Buy" in this tab`), no mouse button is pressed: a `click` event is sent to the element instead, and the output says so (`so only a click event was sent to it, without mouse-down`), because widgets that act on mouse-down do not respond to it. A press that reaches the page but brings no `click` is reported and not repeated: `the click may not have reached button "Buy"; check the page`, or `the press reached button "Buy" but no click followed`. A disabled element exits 1 with `button "Buy" is disabled; nothing was clicked.`; that covers a control inside `<fieldset disabled>` and, new in this release, any element with `aria-disabled="true"`, which used to be clicked. On saucedemo.com a tab could stop taking mouse input after the login page; every click there printed `Clicked` while nothing happened, and an agent spent 9 turns finding out.

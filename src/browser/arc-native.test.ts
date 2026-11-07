@@ -52,4 +52,11 @@ describe('durable native Arc identity', () => {
     expect(isArcCreateMarker('data:text/plain,agents-browser-x')).toBe(false);
     expect(isArcCreateMarker('about:blank#agents-browser-x')).toBe(false);
   });
+
+  it('creates a file page at itself, marked in its fragment', () => {
+    const marker = arcCreateMarker('file:///Users/x/report/index.html#section-2');
+    expect(marker).toMatch(/^file:\/\/\/Users\/x\/report\/index\.html#agents-browser-[0-9a-f-]{36}$/);
+    expect(arcCreateMarker('file:///Users/x/report/index.html')).not.toBe(marker);
+    expect(arcCreateMarker('https://example.com/')).toMatch(/^https:\/\/agents-browser\.invalid\//);
+  });
 });

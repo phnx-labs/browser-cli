@@ -498,10 +498,11 @@ export interface StartResult {
   firstOpen?: PageOpenResult;
 }
 
-/** Arc accepts only HTTP(S) creation URLs; a unique .invalid URL keeps a matchable marker without a
- * real destination. */
+/** A unique .invalid URL keeps a matchable marker without a real destination. Arc drops a tab sent
+ * from it to a file: URL, so a file page is created at itself with the marker in its fragment. */
 const ARC_CREATE_MARKER_PREFIX = 'https://agents-browser.invalid/';
-export function arcCreateMarker(): string {
+export function arcCreateMarker(target?: string): string {
+  if (target?.startsWith('file:')) return `${target.split('#')[0]}#agents-browser-${crypto.randomUUID()}`;
   return `${ARC_CREATE_MARKER_PREFIX}${crypto.randomUUID()}`;
 }
 export function isArcCreateMarker(url: string): boolean {
@@ -6044,11 +6045,11 @@ export class BrowserService {
       }
       const space = pickShowSpace(this.arcProfileSpaces(conn.arcProfile), all, agentWindows)
         ?? await this.resolveArcSpace(conn.arcProfile, all);
-      const created = await createArcTab(space, arcCreateMarker());
+      const created = await createArcTab(space, arcCreateMarker(url));
       try {
-        await navigateArcTab(created, url);
+        if (!url.startsWith('file:')) await navigateArcTab(created, url);
         await selectArcTab(created, { activate: true });
-        await confirmArcShows(created, url, created.url);
+        await confirmArcShows(created, url, url.startsWith('file:') ? '' : created.url);
       } catch (error) {
         // No task owns this tab, so nothing would ever close a marker tab left behind.
         const message = error instanceof Error ? error.message : String(error);

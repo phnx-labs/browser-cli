@@ -39,12 +39,6 @@ export function pickArcSpace(
   return undefined;
 }
 
-/**
- * Where `show` puts a page for the owner: a window that is not one of the agent's
- * first, so a task's window is left alone, then an agent window when no other one
- * is visible. Excluding it unconditionally made `show` fail with "via": "none" whenever
- * the owner's only visible Arc window was the agent's.
- */
 export function pickShowSpace(
   own: ReadonlyArray<{ id: string; title: string }>,
   live: ReadonlyArray<ArcEnumeratedSpace>,

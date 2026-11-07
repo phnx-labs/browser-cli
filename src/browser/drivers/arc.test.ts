@@ -44,8 +44,6 @@ describe('pickArcSpace', () => {
   });
 });
 
-// When the recorded agent window was the owner's only visible Arc window, every
-// `browser show` failed with "via": "none".
 describe('pickShowSpace', () => {
   const work = [{ id: 'work', title: 'Work' }, { id: 'computers', title: 'Computers' }];
 

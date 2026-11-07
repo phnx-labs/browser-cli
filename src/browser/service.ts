@@ -5932,7 +5932,6 @@ export class BrowserService {
       const agentWindows = new Set(recorded ? [recorded.windowId, ...recorded.retired] : []);
       const all = await enumerateArcSpaces();
       const others = all.filter((space) => !agentWindows.has(space.windowId));
-      // An agent window takes the page only when no other window is visible.
       const live = others.length > 0 ? others : all;
       if (!fresh) {
         const own = new Set(this.arcProfileSpaces(conn.arcProfile).map((space) => space.id));
@@ -5951,7 +5950,7 @@ export class BrowserService {
         }
       }
       const space = pickShowSpace(this.arcProfileSpaces(conn.arcProfile), all, agentWindows)
-        ?? await this.resolveArcSpace(conn.arcProfile, live);
+        ?? await this.resolveArcSpace(conn.arcProfile, all);
       const created = await createArcTab(space, arcCreateMarker());
       try {
         await navigateArcTab(created, url);

@@ -53,11 +53,13 @@ export async function coverAt(cdp: CDPClient, sessionId: string, backendNodeId: 
   }
 }
 
-const DISABLED = `this.matches(':disabled') || this.getAttribute('aria-disabled') === 'true'`;
+const ELEMENT = 'const el = this.nodeType === 1 ? this : this.parentElement;';
+const DISABLED = `el.matches(':disabled') || el.getAttribute('aria-disabled') === 'true'`;
 
 const PROBE_FN = `function () {
+  ${ELEMENT}
   if (${DISABLED}) return null;
-  const target = this, seen = {}, root = target.getRootNode(), types = ['mousemove', 'mousedown', 'click'];
+  const target = el, seen = {}, root = target.getRootNode(), types = ['mousemove', 'mousedown', 'click'];
   const on = (e) => {
     if (e.composedPath().some((n) => n === target || (n.tagName === 'LABEL' && n.control === target))) seen[e.type] = true;
   };
@@ -77,10 +79,11 @@ export interface ClickProbe {
 export async function armClickProbe(cdp: CDPClient, sessionId: string, backendNodeId: number): Promise<ClickProbe | undefined> {
   const { object } = await cdp.send<{ object: { objectId?: string } }>('DOM.resolveNode', { backendNodeId }, sessionId);
   try {
-    const { result } = await cdp.send<{ result: { objectId?: string } }>('Runtime.callFunctionOn', {
-      objectId: object.objectId, functionDeclaration: PROBE_FN,
-    }, sessionId);
-    if (!result.objectId) return undefined;
+    const { result, exceptionDetails } = await cdp.send<{ result: { objectId?: string; subtype?: string }; exceptionDetails?: { exception?: { description?: string } } }>(
+      'Runtime.callFunctionOn', { objectId: object.objectId, functionDeclaration: PROBE_FN }, sessionId);
+    if (exceptionDetails) throw new Error(`Could not watch the element for the click: ${exceptionDetails.exception?.description?.split('\n')[0] ?? 'it threw'}`);
+    if (result.subtype === 'null') return undefined;
+    if (!result.objectId) throw new Error('Could not watch the element for the click.');
     const read = <T>(fn: string) => cdp.send<{ result: { value?: T } }>('Runtime.callFunctionOn', {
       objectId: result.objectId, functionDeclaration: fn, returnByValue: true,
     }, sessionId);
@@ -107,9 +110,10 @@ export async function clickInDom(cdp: CDPClient, sessionId: string, backendNodeI
     const { result } = await cdp.send<{ result: { value?: boolean } }>('Runtime.callFunctionOn', {
       objectId: object.objectId,
       functionDeclaration: `function () {
+        ${ELEMENT}
         if (${DISABLED}) return false;
-        if (typeof this.click === 'function') this.click();
-        else this.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, composed: true }));
+        if (typeof el.click === 'function') el.click();
+        else el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, composed: true }));
         return true;
       }`,
       returnByValue: true,

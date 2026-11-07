@@ -541,11 +541,12 @@ async function evaluateInPage<T>(cdp: CDPClient, params: Record<string, unknown>
 
 /** Rendered GitHub-style `include-fragment`s still waiting to load, the first scrolled into view; the scroll before it. */
 const LAZY_PARTS = `(() => {
-  const s = window[Symbol.for('browser-cli lazy parts')] ??= { failed: new WeakSet(), watched: new WeakSet(), scrolled: new Map() };
+  const key = Symbol.for('browser-cli lazy parts');
   const pending = [...document.querySelectorAll('include-fragment[src]')]
-    .filter((f) => !s.failed.has(f) && f.checkVisibility({ visibilityProperty: true, opacityProperty: true }));
+    .filter((f) => !window[key]?.failed.has(f) && f.checkVisibility({ visibilityProperty: true, opacityProperty: true }));
   const f = pending[0];
   if (!f) return 0;
+  const s = window[key] ??= { failed: new WeakSet(), watched: new WeakSet(), scrolled: new Map() };
   if (!s.watched.has(f)) f.addEventListener('error', () => s.failed.add(f), { once: true });
   s.watched.add(f);
   for (let n = f.parentElement; n; n = n.parentElement) if (!s.scrolled.has(n)) s.scrolled.set(n, [n.scrollLeft, n.scrollTop]);
@@ -1672,12 +1673,13 @@ export class BrowserService {
         clearTimeout(timer);
       }
     };
-    let left = Number(await ask(LAZY_PARTS));
+    const step = async () => Number(await ask(LAZY_PARTS).catch(() => 0));
+    let left = await step();
     if (!left) return 0;
     try {
       for (const deadline = Date.now() + 4000; left > 0 && Date.now() < deadline;) {
         await new Promise((r) => setTimeout(r, 150));
-        left = Number(await ask(LAZY_PARTS));
+        left = await step();
       }
     } finally {
       await ask(LAZY_RESTORE).catch(() => {});
@@ -2441,7 +2443,7 @@ export class BrowserService {
       let enabled = true;
       const asking = await this.raceDialog(at.sessionId, clickInDom(conn.cdp, at.sessionId, id).then((ok) => { enabled = ok; }));
       if (!enabled) throw new Error(`${label} is disabled; nothing was clicked.`);
-      return { ...(asking ? { asking } : {}), note: `${why}, so it was clicked through the DOM` };
+      return { ...(asking ? { asking } : {}), note: `${why}, so only a click event was sent to it, without mouse-down` };
     };
     const cover = await coverAt(conn.cdp, at.sessionId, id, at.x, at.y);
     if (cover) return inDom(`${cover} covers ${label}`);
@@ -2453,6 +2455,11 @@ export class BrowserService {
       if (!(await probe.moved())) {
         await probe.landed();
         return inDom(`the mouse is not reaching ${label} in this tab`);
+      }
+      const opened = await coverAt(conn.cdp, at.sessionId, id, at.x, at.y);
+      if (opened) {
+        await probe.landed();
+        return inDom(`${opened} covers ${label} once the mouse is over it`);
       }
       asking = await this.raceDialog(at.sessionId, clickAtCoords(conn.cdp, at.sessionId, at.x, at.y));
     } catch (error) {

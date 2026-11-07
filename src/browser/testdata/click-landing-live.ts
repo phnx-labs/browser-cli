@@ -53,7 +53,7 @@ try {
   refs = await open(page('Covered', `${count}<button onclick="hit()">Buy</button>
     <div id="veil" style="position:fixed;inset:0;background:#0001">Accept cookies</div>`));
   clicked = await service.click('land', ref(refs, 'button "Buy"'));
-  assert.equal(clicked.note, 'div#veil "Accept cookies" covers button "Buy", so it was clicked through the DOM');
+  assert.equal(clicked.note, 'div#veil "Accept cookies" covers button "Buy", so only a click event was sent to it, without mouse-down');
   assert.equal(await title(), 'clicks 1');
   results.push('covered: named, clicked in the DOM');
 
@@ -76,9 +76,23 @@ try {
   refs = await open(page('Still', `${count}<button onclick="hit()">Buy</button>
     <script>addEventListener('mousemove', (e) => e.stopImmediatePropagation(), true);</script>`));
   clicked = await service.click('land', ref(refs, 'button "Buy"'));
-  assert.equal(clicked.note, 'the mouse is not reaching button "Buy" in this tab, so it was clicked through the DOM');
+  assert.equal(clicked.note, 'the mouse is not reaching button "Buy" in this tab, so only a click event was sent to it, without mouse-down');
   assert.equal(await title(), 'clicks 1');
   results.push('no mouse: clicked in the DOM instead, once');
+
+  refs = await open(page('Hover', `${count}<button onclick="hit()" onmouseenter="veil.hidden = false">Buy</button>
+    <div id="veil" hidden style="position:fixed;inset:0">Menu</div>`));
+  clicked = await service.click('land', ref(refs, 'button "Buy"'));
+  assert.equal(clicked.note, 'div#veil "Menu" covers button "Buy" once the mouse is over it, so only a click event was sent to it, without mouse-down');
+  assert.equal(await title(), 'clicks 1');
+  results.push('hover opens a cover: clicked in the DOM instead, once');
+
+  await open(page('Busy', `<include-fragment src="/x">Loading</include-fragment>`));
+  await service.evaluate('land', undefined, 'setTimeout(() => { const end = Date.now() + 2600; while (Date.now() < end); }, 50), 1');
+  await Bun.sleep(100);
+  assert.equal(await service.loadLazyParts('land', undefined), 0);
+  await Bun.sleep(2600);
+  results.push('busy page: lazy step gives way');
 
   refs = await open(page('Closed', `${count}<x-buy></x-buy><script>customElements.define('x-buy', class extends HTMLElement {
     constructor() { super(); const b = document.createElement('button'); b.textContent = 'Buy'; b.onclick = hit;

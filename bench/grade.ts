@@ -20,6 +20,15 @@ const pastLastPage = (error: { status?: number }) => {
   if (error.status === 404) return '';
   throw error;
 };
+export function onSite(url: string, host: string, path = ''): boolean {
+  try {
+    const u = new URL(url);
+    return (u.hostname === host || u.hostname.endsWith(`.${host}`)) && u.pathname.startsWith(path);
+  } catch {
+    return false;
+  }
+}
+
 const html = (url: string) => fetchText(url).catch(pastLastPage);
 
 export function numbersIn(text: string): number[] {
@@ -65,7 +74,7 @@ async function books(_: Page[], answer: string): Promise<Grade> {
 }
 
 async function pizza(pages: Page[]): Promise<Grade> {
-  const page = pages.find((p) => p.url.startsWith('https://httpbin.org/post'));
+  const page = pages.find((p) => onSite(p.url, 'httpbin.org', '/post'));
   if (!page) return { correct: false, detail: 'no open tab on httpbin.org/post' };
   let form: Record<string, unknown> = {};
   try {
@@ -106,7 +115,7 @@ async function bun(_: Page[], answer: string): Promise<Grade> {
 }
 
 async function saucedemo(pages: Page[]): Promise<Grade> {
-  const done = pages.find((p) => p.url.includes('saucedemo.com/checkout-complete.html'));
+  const done = pages.find((p) => onSite(p.url, 'saucedemo.com', '/checkout-complete.html'));
   return { correct: Boolean(done), detail: done ? 'checkout-complete page open' : 'no open tab on checkout-complete.html' };
 }
 
@@ -130,14 +139,14 @@ async function laptops(_: Page[], answer: string): Promise<Grade> {
 }
 
 async function demoblaze(pages: Page[], answer: string): Promise<Grade> {
-  const page = pages.find((p) => p.url.includes('demoblaze.com') && /Thank you for your purchase/i.test(p.text));
+  const page = pages.find((p) => onSite(p.url, 'demoblaze.com') && /Thank you for your purchase/i.test(p.text));
   const shown = page ? /Amount:\s*(\d+)/.exec(page.text)?.[1] : undefined;
   const said = numbersIn(answer).includes(1180);
   return { correct: shown === '1180' && said, detail: `confirmation open: ${Boolean(page)}, its Amount ${shown ?? 'none'}; answer gives 1180: ${said}` };
 }
 
 async function instagram(pages: Page[], answer: string): Promise<Grade> {
-  const page = pages.find((p) => p.url.includes('instagram.com/nasa'));
+  const page = pages.find((p) => onSite(p.url, 'instagram.com', '/nasa'));
   if (!page) return { correct: false, detail: 'no open tab on instagram.com/nasa' };
   const shown = /([\d.,]+\s*[KMB]?)\s+Followers/i.exec(`${page.description} ${page.text}`)?.[1];
   if (!shown) return { correct: false, detail: 'the open tab shows no follower count (login wall?)', error: true };

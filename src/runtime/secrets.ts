@@ -21,11 +21,7 @@ function bundleKeys(name: string): string[] {
   return (parsed.keys ?? []).map((k) => k.key).filter((k): k is string => typeof k === 'string');
 }
 
-/**
- * Resolve a bundle's values through `secrets exec`, the CLI's one way to hand values to a process:
- * the child prints each requested variable NUL-separated, read by name from its own environment so
- * no value is ever interpolated into a command line.
- */
+/** Values via `secrets exec`: the child prints each variable by name, NUL-separated, never in argv. */
 export async function readAndResolveBundleEnv(
   name: string,
   opts: { caller?: string; agentOnly?: boolean; keys?: string[]; keyMode?: string } = {},

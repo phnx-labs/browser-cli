@@ -10,10 +10,7 @@ export function parseSecretRef(ref: string): { bundle: string; key: string } | n
   return { bundle: body.slice(0, slash), key: body.slice(slash + 1) };
 }
 
-/**
- * The site a bundle is named after (`stripe.com`), or null for a bundle whose name is not a host
- * (`logins`). A secret from a site-named bundle types only into that site or its subdomains.
- */
+/** The site a bundle is named after (`stripe.com`), or null when its name is not a host (`logins`). */
 export function secretSite(bundle: string): string | null {
   const name = bundle.toLowerCase();
   return /^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(name) ? name : null;
@@ -33,12 +30,7 @@ export function onSecretSite(url: string, site: string): boolean {
 /** Throw unless `origin` (the field's document origin) is on `site`; the message says nothing was typed. */
 export function assertSecretSite(site: string, origin: string): void {
   if (onSecretSite(origin, site)) return;
-  let where = origin;
-  try {
-    where = new URL(origin).hostname || origin;
-  } catch {
-    // an opaque origin ("null") names itself
-  }
+  const where = URL.canParse(origin) ? new URL(origin).hostname || origin : origin;
   throw new Error([
     `Refused: this secret types only into ${site}, and the field is on ${where}. Nothing was typed.`,
     `Next: browser navigate https://${site}  |  browser tabs`,

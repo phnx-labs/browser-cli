@@ -911,7 +911,10 @@ export class BrowserIPCServer {
       case 'text': {
         if (!request.task) return { ok: false, error: 'Task required' };
         const select = request.css ? { css: request.css, attr: request.attr } : undefined;
-        return { ok: true, result: await this.service.text(request.task, request.tabId, select) };
+        const loading = await this.service.loadLazyParts(request.task, request.tabId);
+        const result = await this.service.text(request.task, request.tabId, select);
+        if (!loading) return { ok: true, result };
+        return { ok: true, result, message: `${loading} part${loading === 1 ? ' is' : 's are'} still loading after 4 s; run \`browser text\` again to read ${loading === 1 ? 'it' : 'them'}.` };
       }
 
       case 'evaluate': {
@@ -1008,7 +1011,6 @@ export class BrowserIPCServer {
         if (!request.task) {
           return { ok: false, error: 'Task required' };
         }
-        // Coordinate click (`--at X,Y`) bypasses ref resolution entirely.
         if (request.atX !== undefined && request.atY !== undefined) {
           const at = await this.service.clickAt(request.task, request.atX, request.atY, request.tabId, {
             snapshot: request.snapshot,
@@ -1023,16 +1025,17 @@ export class BrowserIPCServer {
             wait: request.wait !== false,
           });
           const which = byName.matches > 1 ? `${byName.clicked}, first of ${byName.matches} matches` : byName.clicked;
+          const said = byName.note ? `${which}; ${byName.note}` : which;
           return {
             ok: true,
-            message: byName.asking ? `${which}. ${askingNote(byName.asking)}` : which,
+            message: byName.asking ? `${said}. ${askingNote(byName.asking)}` : said,
             snapshot: byName.snapshot,
           };
         }
         if (request.ref === undefined) {
           return { ok: false, error: 'Task and ref (or --at X,Y, or --text) required' };
         }
-        const { healed, snapshot, chose, asking } = await this.service.click(request.task, request.ref, request.tabId, {
+        const { healed, snapshot, chose, asking, note } = await this.service.click(request.task, request.ref, request.tabId, {
           snapshot: request.snapshot,
           wait: request.wait !== false,
         });
@@ -1040,16 +1043,13 @@ export class BrowserIPCServer {
         if (chose !== undefined) {
           return { ok: true, message: `selected option "${chose}"`, snapshot };
         }
-        if (healed) {
-          return {
-            ok: true,
-            message: healed.renamed !== undefined
-              ? `${healed.role} "${healed.name}" now reads "${healed.renamed}"`
-              : `self-healed ref ${healed.from} -> ${healed.to} (${healed.role} "${healed.name}")`,
-            snapshot,
-          };
-        }
-        return { ok: true, snapshot };
+        const said = [
+          healed && (healed.renamed !== undefined
+            ? `${healed.role} "${healed.name}" now reads "${healed.renamed}"`
+            : `self-healed ref ${healed.from} -> ${healed.to} (${healed.role} "${healed.name}")`),
+          note,
+        ].filter(Boolean).join('; ');
+        return { ok: true, ...(said ? { message: said } : {}), snapshot };
       }
 
       case 'type': {

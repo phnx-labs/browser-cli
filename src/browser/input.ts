@@ -19,6 +19,84 @@ export async function clickAtCoords(
   );
 }
 
+const COVER_FN = `function (target) {
+  for (let n = this; n; n = n.parentNode || n.host) {
+    if (n === target || (n.tagName === 'LABEL' && n.control === target)) return null;
+  }
+  const e = this.nodeType === 1 ? this : this.parentElement;
+  if (!e) return 'another document';
+  const cls = typeof e.className === 'string' && e.className.trim() ? '.' + e.className.trim().split(/\\s+/)[0] : '';
+  const text = (e.innerText || '').trim().replace(/\\s+/g, ' ').slice(0, 40);
+  return e.tagName.toLowerCase() + (e.id ? '#' + e.id : cls) + (text ? ' "' + text + '"' : '');
+}`;
+
+export async function coverAt(cdp: CDPClient, sessionId: string, backendNodeId: number, x: number, y: number): Promise<string | undefined> {
+  const hit = await cdp
+    .send<{ backendNodeId: number }>('DOM.getNodeForLocation', { x: Math.round(x), y: Math.round(y) }, sessionId)
+    .catch(() => undefined);
+  if (!hit) return 'nothing';
+  if (hit.backendNodeId === backendNodeId) return undefined;
+  const [over, target] = await Promise.all([hit.backendNodeId, backendNodeId].map((id) =>
+    cdp.send<{ object: { objectId?: string } }>('DOM.resolveNode', { backendNodeId: id }, sessionId).then((r) => r.object.objectId)));
+  try {
+    const { result } = await cdp.send<{ result: { value?: string | null } }>('Runtime.callFunctionOn', {
+      objectId: over, functionDeclaration: COVER_FN, arguments: [{ objectId: target }], returnByValue: true,
+    }, sessionId);
+    return result.value ?? undefined;
+  } catch {
+    return undefined;
+  } finally {
+    for (const objectId of [over, target]) if (objectId) await cdp.send('Runtime.releaseObject', { objectId }, sessionId).catch(() => {});
+  }
+}
+
+const PROBE_FN = `function () {
+  const target = this, seen = { hit: false }, win = target.ownerDocument.defaultView;
+  const on = (e) => { if (e.composedPath().includes(target)) seen.hit = true; };
+  for (const type of ['mousedown', 'click']) win.addEventListener(type, on, true);
+  seen.done = () => {
+    for (const type of ['mousedown', 'click']) win.removeEventListener(type, on, true);
+    return seen.hit || !target.isConnected;
+  };
+  return seen;
+}`;
+
+export async function armClickProbe(cdp: CDPClient, sessionId: string, backendNodeId: number): Promise<() => Promise<boolean>> {
+  const { object } = await cdp.send<{ object: { objectId?: string } }>('DOM.resolveNode', { backendNodeId }, sessionId);
+  const { result } = await cdp.send<{ result: { objectId?: string } }>('Runtime.callFunctionOn', {
+    objectId: object.objectId, functionDeclaration: PROBE_FN,
+  }, sessionId);
+  await cdp.send('Runtime.releaseObject', { objectId: object.objectId }, sessionId).catch(() => {});
+  return async () => {
+    const seen = await cdp
+      .send<{ result: { value?: boolean } }>('Runtime.callFunctionOn', {
+        objectId: result.objectId, functionDeclaration: 'function () { return this.done(); }', returnByValue: true,
+      }, sessionId)
+      .catch(() => undefined);
+    await cdp.send('Runtime.releaseObject', { objectId: result.objectId }, sessionId).catch(() => {});
+    return seen?.result.value !== false;
+  };
+}
+
+export async function clickInDom(cdp: CDPClient, sessionId: string, backendNodeId: number): Promise<boolean> {
+  const { object } = await cdp.send<{ object: { objectId?: string } }>('DOM.resolveNode', { backendNodeId }, sessionId);
+  try {
+    const { result } = await cdp.send<{ result: { value?: boolean } }>('Runtime.callFunctionOn', {
+      objectId: object.objectId,
+      functionDeclaration: `function () {
+        if (this.disabled || (this.getAttribute && this.getAttribute('aria-disabled') === 'true')) return false;
+        if (typeof this.click === 'function') this.click();
+        else this.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, composed: true }));
+        return true;
+      }`,
+      returnByValue: true,
+    }, sessionId);
+    return result.value !== false;
+  } finally {
+    await cdp.send('Runtime.releaseObject', { objectId: object.objectId }, sessionId).catch(() => {});
+  }
+}
+
 export async function hoverAtCoords(
   cdp: CDPClient,
   sessionId: string,

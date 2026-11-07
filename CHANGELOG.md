@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- `browser click` with a ref or `--text` says when the mouse did not land. Before pressing, it asks the page what sits at the element's centre; if something else covers it, the element is clicked through the DOM and the output names the cover: `Clicked (div#veil "Accept cookies" covers button "Buy", so it was clicked through the DOM)`. After pressing, a click that never reached the element is repeated through the DOM and says `the mouse click did not reach button "Buy"`. A disabled element exits 1 with `button "Buy" is disabled; nothing was clicked.` Every click used to print `Clicked`, even when nothing happened, and an agent on saucedemo.com spent 9 turns finding out.
+- `browser text` reads lazy parts of a page first. A rendered `include-fragment` (GitHub's release assets and similar) is scrolled into view until it loads, for at most 4 s, and the scroll position is put back. A part still loading after that is reported on stderr (`1 part is still loading after 4 s; run \`browser text\` again to read it.`). The assets list used to read `Loading`, and `--grep` for a file name missed.
+- `browser text` and `browser evaluate` retry once, after 500 ms, when they arrive between a navigation and the new document (`Cannot find default execution context`), which happened right after `browser start`.
+- The browser skill's `evaluate --file -` example fetches other pages with one `Promise.all(urls.map(…))` expression. Agents copied an `async` function shape instead, which Claude Code refuses ("Contains brace with quote character").
+
 ## 0.2.1
 
 - `browser show` into native Arc uses an agent window when no other Arc window is visible. It skipped the recorded agent window and every retired one, so once the owner was working in one, every `show` failed with `"via": "none"` and "No visible Arc window shows a Space of Arc profile". Another visible window is still preferred, so a task's window is left alone whenever there is a choice (`pickShowSpace`).

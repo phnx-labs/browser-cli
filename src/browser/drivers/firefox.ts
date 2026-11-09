@@ -195,15 +195,18 @@ export function firefoxExitedError(profile: Pick<BrowserProfile, 'name'>, binary
 }
 
 function isSnapFirefox(binary: string): boolean {
+  if (binary.startsWith('/snap/')) return true;
+  let fd: number | undefined;
   try {
     if (fs.realpathSync(binary).startsWith('/snap/')) return true;
-    const fd = fs.openSync(binary, 'r');
+    fd = fs.openSync(binary, 'r');
     const head = Buffer.alloc(4096);
     const n = fs.readSync(fd, head, 0, head.length, 0);
-    fs.closeSync(fd);
     return head.subarray(0, 2).toString() === '#!' && head.subarray(0, n).toString().includes('/snap/bin/firefox');
   } catch {
     return false;
+  } finally {
+    if (fd !== undefined) fs.closeSync(fd);
   }
 }
 

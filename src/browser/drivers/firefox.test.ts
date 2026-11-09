@@ -79,13 +79,35 @@ describe('firefoxAttachRequiredError', () => {
 });
 
 describe('firefoxExitedError', () => {
-  it('names the binary that exited and the profile it could not open, not a rival Firefox', () => {
-    const err = firefoxExitedError({ name: 'firefox-default' }, '/usr/bin/firefox', '/home/u/.config/mozilla/firefox/abc.default');
+  it('names the binary that exited and the profile it could not open', () => {
+    const err = firefoxExitedError({ name: 'firefox-default' }, '/opt/ff/firefox', '/home/u/.config/mozilla/firefox/abc.default');
     expect(err.message).toContain('exited right after launch');
-    expect(err.message).toContain('/usr/bin/firefox');
+    expect(err.message).toContain('/opt/ff/firefox');
     expect(err.message).toContain('/home/u/.config/mozilla/firefox/abc.default');
-    expect(err.message).not.toContain('already running');
   });
+
+  it.skipIf(process.platform === 'win32')('is what connectFirefox raises when the launched binary exits at once', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ff-exit-'));
+    const binary = path.join(dir, 'firefox');
+    fs.writeFileSync(binary, '#!/bin/sh\nexit 1\n', { mode: 0o755 });
+    const profileDir = path.join(dir, 'abc.default');
+    fs.mkdirSync(profileDir);
+    const profile: BrowserProfile = {
+      name: 'firefox-exits',
+      browser: 'firefox',
+      binary,
+      endpoints: { bidi: { target: 'firefox-bidi://127.0.0.1:9679' } },
+      defaultEndpoint: 'bidi',
+      userDataDir: profileDir,
+      firefox: { profileName: 'abc', iniPath: path.join(dir, 'profiles.ini'), isDefault: false },
+    };
+    try {
+      await expect(connectFirefox(profile, 'firefox-exits@local' as ConnectionKey, 9679, { profileDir, headless: true }))
+        .rejects.toThrow(/exited right after launch[\s\S]*binary: {2}.*firefox/);
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  }, 30_000);
 });
 
 describe('FirefoxBiDiClient.connect', () => {

@@ -174,17 +174,18 @@ export function findBrowserPath(browserType: BrowserType, customBinary?: string)
     throw new Error(`Unsupported platform: ${platform}`);
   }
 
-  // PATH wins over the standard install paths: the browser `browser` launches is
-  // the one the user's shell runs, e.g. a Firefox in ~/.local/bin over snap's.
+  // On Linux each basename names one browser, so PATH wins (a ~/.local Firefox over snap's). macOS
+  // and Windows share or case-fold basenames (chrome.exe, Arc), so their install paths win there.
   const candidates = platformPaths[browserType] || [];
   const onPath = findOnPath(candidates.map((p) => path.basename(p)));
-  if (onPath) return resolveBrowserBinary(onPath);
+  if (onPath && platform === 'linux') return resolveBrowserBinary(onPath);
 
   for (const p of candidates) {
     if (fs.existsSync(p)) {
       return resolveBrowserBinary(p);
     }
   }
+  if (onPath) return resolveBrowserBinary(onPath);
 
   if (browserType === 'comet' && platform === 'linux') {
     throw new Error('Browser "comet" is not available on Linux (Comet ships macOS and Windows builds only). Use chrome, chromium, brave, or edge on this platform.');

@@ -4,6 +4,7 @@
  */
 import { spawn, type ChildProcess } from 'node:child_process';
 import * as fs from 'node:fs';
+import * as os from 'node:os';
 import * as path from 'node:path';
 import WSWebSocket from 'ws';
 import { findBrowserPath } from '../chrome.js';
@@ -177,14 +178,19 @@ export function firefoxAttachRequiredError(
   );
 }
 
-/** No lock held this profile before launch, so an early exit means `binary` could not open it. */
+/** A Firefox that `browser` launched exited before it opened WebDriver BiDi. */
 export function firefoxExitedError(profile: Pick<BrowserProfile, 'name'>, binary: string, profileDir: string): Error {
+  const snap = os.platform() === 'linux' && (binary.startsWith('/snap/') || binary === '/usr/bin/firefox');
   return new Error(
     `Firefox for profile "${profile.name}" exited right after launch, before opening WebDriver BiDi.\n` +
       `  binary:  ${binary}\n` +
       `  profile: ${profileDir}\n` +
-      `Run that binary with --profile on that directory to see why. A snap Firefox cannot open a ` +
-      `profile under a hidden folder such as ~/.config; put the Firefox that owns this profile first on PATH.`,
+      `Run that binary with --profile on that directory to see why: it may not be able to open the profile, ` +
+      `or another Firefox may have taken it.` +
+      (snap
+        ? ` A snap Firefox cannot open a profile under a hidden folder such as ~/.config; put the Firefox ` +
+          `that owns this profile first on PATH, or set it as the profile's binary.`
+        : ''),
   );
 }
 

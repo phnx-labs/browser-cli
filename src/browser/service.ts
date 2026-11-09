@@ -1667,7 +1667,7 @@ export class BrowserService {
 
   async loadLazyParts(taskId: string, tabHint: string | undefined): Promise<number> {
     const ask = async (expression: string): Promise<unknown> => {
-      let timer: ReturnType<typeof globalThis.setTimeout> | undefined;
+      let timer: ReturnType<typeof setTimeout> | undefined;
       const late = new Promise<never>((_, fail) => { timer = setTimeout(() => fail(new Error('The page did not answer within 2 s.')), 2000); });
       try {
         return await Promise.race([this.evaluate(taskId, tabHint, expression), late]);
@@ -2527,11 +2527,11 @@ export class BrowserService {
     await this.loadSettled(conn, sessionId, opts, async () => {
       const sent = conn.cdp.send('Page.navigate', { url }, sessionId) as Promise<{ loaderId?: string; errorText?: string }>;
       sent.catch(() => undefined);
-      let timer: ReturnType<typeof globalThis.setTimeout> | undefined;
+      let timer: ReturnType<typeof setTimeout> | undefined;
       const timedOut = new Promise<undefined>((resolve) => { timer = setTimeout(() => resolve(undefined), BrowserService.NAVIGATE_TIMEOUT_MS); });
       const answer = await Promise.race([sent, timedOut]).finally(() => clearTimeout(timer));
       if (!answer) {
-        await conn.cdp.send('Page.stopLoading', {}, sessionId);
+        await conn.cdp.send('Page.stopLoading', {}, sessionId).catch(() => {});
         throw new Error(actionable(
           `Could not open ${url}: no response within ${BrowserService.NAVIGATE_TIMEOUT_MS / 1000} s.`,
           'Next: check the address and that this machine can reach it.',

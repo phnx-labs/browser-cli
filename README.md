@@ -36,7 +36,7 @@ Firefox connects through a WebDriver BiDi endpoint ([profiles](docs/guide/profil
 Or let your agent set it up. Paste this into Claude Code, Codex, Cursor or any agent with a shell:
 
 ```text
-Set up browser-cli so you can use my web browser: https://github.com/phnx-labs/browser-cli
+Set up Browser CLI so you can use my web browser: https://github.com/phnx-labs/browser-cli
 
 1. Install the CLI: npm install -g @phnx-labs/browser-cli (needs Node 22.5 or newer), then check it with: browser --version
 2. Install its skill once, the way that fits you:

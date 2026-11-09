@@ -1,5 +1,3 @@
-// Drives a real Chromium through BrowserService to prove `upload` takes an ordinary absolute
-// file: the page receives it under its own name and content, and Chrome only sees a staged copy.
 import { strict as assert } from 'node:assert';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';

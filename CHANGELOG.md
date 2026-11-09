@@ -3,6 +3,7 @@
 ## Unreleased
 
 - `browser console`, `browser errors`, `browser requests` and `browser responsebody` capture again on Chrome, Brave, Edge, Comet and other Chromium browsers. Since the first open-source release they returned `No console logs`, `No errors` and `No requests captured`, and `responsebody` timed out, even on a page that logged, threw and fetched every half second: their listeners read the session id from the event's `params`, where Chrome never puts it, so every event was dropped. They now read it where Chrome sends it, as the screencast and dialog listeners already did. Firefox and native Arc are unchanged.
+- `browser upload -f <file>` uploads an ordinary file. It refused every file outside its internal staging folder with `Stage files via 'browser upload-stage <path>' first.`, and `browser upload-stage` was never a command, so no file could be uploaded from the CLI. `upload` now copies each file into a new private folder under `~/.agents/browser/cache/uploads/` itself and hands Chrome that copy, so the page still never reads your live file. The page now receives the file under its own name; staged copies used to get random names such as `292fda02c084c0af.txt`. A relative path is still refused with `Upload path must be absolute`, and a directory with `Upload path is not a file`.
 
 ## 0.2.6
 

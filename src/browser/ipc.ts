@@ -642,15 +642,6 @@ export class BrowserIPCServer {
   }
 
   private async handleRequest(request: IPCRequest): Promise<IPCResponse> {
-    if ((request.action as string) === 'upload-stage') {
-      const source = (request as IPCRequest & { source?: string }).source;
-      if (!source) {
-        return { ok: false, error: 'Source required' };
-      }
-      const result = this.service.stageUpload(source);
-      return { ok: true, path: result.path };
-    }
-
     // Task-scoped actions: resolve identity / create / refuse once here.
     if (PAGE_RESOLVE_VERBS.has(request.action) || CLOSE_VERBS.has(request.action)) {
       const tb = performance.now();

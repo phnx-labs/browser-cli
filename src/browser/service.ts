@@ -75,7 +75,6 @@ import {
 } from './arc-dom.js';
 import {
   detectUploadPattern,
-  stageUploadFile,
   uploadToDropTarget,
   uploadToFileInput,
   uploadViaFileChooser,
@@ -2935,10 +2934,6 @@ export class BrowserService {
       await uploadToDropTarget(conn.cdp, sessionId, node.backendNodeId, files);
     }
     return { mode: resolved };
-  }
-
-  stageUpload(source: string): { path: string } {
-    return { path: stageUploadFile(source) };
   }
 
   /** Return status for a bare profile name or all live profiles, falling back to disk when no live

@@ -1,6 +1,6 @@
 # Getting started
 
-Browser CLI is one command, `browser`, that an agent runs from its shell to drive Chromium-family browsers, Firefox and Arc.
+browser-cli is one command, `browser`, that an agent runs from its shell to drive Chromium-family browsers, Firefox and Arc.
 
 ## Install
 

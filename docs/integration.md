@@ -1,15 +1,15 @@
-# Browser CLI and Agents CLI integration contract
+# browser-cli ↔ agents-cli integration contract
 
-Browser CLI is a standalone binary. It has **no runtime dependency on
-Agents CLI**: it never imports it, never spawns `agents`, and never reads the
-fleet device registry or the session database. Everything Agents CLI knows and
-Browser CLI needs crosses one of the four interfaces below.
+browser-cli is a standalone binary. It has **no runtime dependency on
+agents-cli**: it never imports it, never spawns `agents`, and never reads the
+fleet device registry or the session database. Everything agents-cli knows and
+browser-cli needs crosses one of the four interfaces below.
 
-Changing a shape here is a breaking change for the Agents CLI adapter.
+Changing a shape here is a breaking change for the agents-cli adapter.
 
 ## 1. Inherited context FD: agents to browser
 
-Agents CLI resolves the SSH target and session identity,
+agents-cli resolves the SSH target and session identity,
 then hands them over as **one JSON document on an inherited file descriptor**.
 
 ```
@@ -51,7 +51,7 @@ It never reads the agents fleet registry.
 ## 2. Event FD: browser to agents
 
 Every action emits one NDJSON record. When the parent passes an fd, records go
-there; otherwise they go to Browser CLI's own ledger.
+there; otherwise they go to browser-cli's own ledger.
 
 ```
 BROWSER_EVENTS_FD=<n>
@@ -80,17 +80,17 @@ Writes are best-effort and never block a verb. Payloads are metadata only.
 
 | Concern | Owner |
 | --- | --- |
-| Fleet device registry, device auth, tailnet addressing | Agents CLI |
-| `--device` to SSH target | Agents CLI (via context) or Browser CLI (`~/.ssh/config`) |
-| Remote-control consent | the receiving device's own `local/settings.yaml`, read by Browser CLI there; `context.remoteControl` grants nothing |
-| Profile declarations, chrome-data, task index | Browser CLI |
-| CDP / BiDi / Arc drivers and the IPC service | Browser CLI |
-| Fleet session DB, cross-machine session history | Agents CLI |
-| Local action ledger and `browser sessions` | Browser CLI |
+| Fleet device registry, device auth, tailnet addressing | agents-cli |
+| `--device` to SSH target | agents-cli (via context) or browser-cli (`~/.ssh/config`) |
+| Remote-control consent | the receiving device's own `local/settings.yaml`, read by browser-cli there; `context.remoteControl` grants nothing |
+| Profile declarations, chrome-data, task index | browser-cli |
+| CDP / BiDi / Arc drivers and the IPC service | browser-cli |
+| Fleet session DB, cross-machine session history | agents-cli |
+| Local action ledger and `browser sessions` | browser-cli |
 
 ## 4. State on disk
 
-Browser CLI keeps its own state under `~/.agents/browser/` (or `$AGENTS_HOME/browser/`):
+browser-cli keeps its own state under `~/.agents/browser/` (or `$AGENTS_HOME/browser/`):
 
 | Path | Meaning |
 | --- | --- |
@@ -103,7 +103,7 @@ Browser CLI keeps its own state under `~/.agents/browser/` (or `$AGENTS_HOME/bro
 | `data/history.db` | task summaries, 365 days |
 | `logs/actions/YYYY-MM-DD.jsonl`, `logs/daemon.jsonl` | action ledger and service log |
 
-Settings it shares with Agents CLI stay in Agents CLI's files:
+Settings it shares with agents-cli stay in agents-cli's files:
 
 | Path | Keys |
 | --- | --- |

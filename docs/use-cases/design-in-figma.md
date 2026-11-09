@@ -4,7 +4,7 @@
 
 Canvas apps have few clickable elements to list, so the agent works the way a person does: keyboard shortcuts, clicks at a position, and the properties panel by label.
 
-The task, in a browser signed in to Figma: build a one-screen mobile landing page inspired by Apple, with a black iPhone frame, a white headline "Browser CLI", a gray subheading and a blue pill-shaped "Get started" button. A sample of the 63 turns:
+The task, in a browser signed in to Figma: build a one-screen mobile landing page inspired by Apple, with a black iPhone frame, a white headline "browser-cli", a gray subheading and a blue pill-shaped "Get started" button. A sample of the 63 turns:
 
 ```sh
 browser click --at 700,300            # the canvas

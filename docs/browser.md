@@ -1,4 +1,4 @@
-# Using Browser CLI
+# Using browser-cli
 
 This guide is now split into pages:
 

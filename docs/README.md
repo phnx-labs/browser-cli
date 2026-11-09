@@ -1,4 +1,4 @@
-# Browser CLI docs
+# browser-cli docs
 
 **Use cases**, each with a recorded run: [all](use-cases/README.md)
 

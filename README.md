@@ -1,6 +1,6 @@
 <div align="center">
 
-# Browser CLI
+# browser-cli
 
 **Run several coding agents in your own signed-in browser at once. Each one works in its own tabs.**<br>
 Chrome, Arc, Brave, Edge, Comet or Firefox, on this machine or another one over SSH.
@@ -36,7 +36,7 @@ Firefox connects through a WebDriver BiDi endpoint ([profiles](docs/guide/profil
 Or let your agent set it up. Paste this into Claude Code, Codex, Cursor or any agent with a shell:
 
 ```text
-Set up Browser CLI so you can use my web browser: https://github.com/phnx-labs/browser-cli
+Set up browser-cli so you can use my web browser: https://github.com/phnx-labs/browser-cli
 
 1. Install the CLI: npm install -g @phnx-labs/browser-cli (needs Node 22.5 or newer), then check it with: browser --version
 2. Install its skill once, the way that fits you:
@@ -218,22 +218,22 @@ In canvas apps the agent works the way a person does: shortcuts, clicks at a pos
 </tr>
 </table>
 
-Each clip is a real run recorded with Browser CLI, sped up; the page for each shows the task, the commands and what came back.
+Each clip is a real run recorded with browser-cli, sped up; the page for each shows the task, the commands and what came back.
 
 ## Benchmark
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/benchmark-dark.svg">
-  <img src="docs/assets/benchmark-light.svg" alt="Turns, seconds and tokens per task for Browser CLI and three other browser tools over 8 tasks on 2026-11-07; Browser CLI is fastest at 17.1 s, browser-harness takes the fewest turns (5.6) and tokens (82k)" width="100%">
+  <img src="docs/assets/benchmark-light.svg" alt="Turns, seconds and tokens per task for browser-cli and three other browser tools over 8 tasks on 2026-11-07; browser-cli is fastest at 17.1 s, browser-harness takes the fewest turns (5.6) and tokens (82k)" width="100%">
 </picture>
 
-- **Browser CLI 0.2.3 was the fastest and cheapest of the four:** 17.1 s and $0.047 per task, against 19.7 s and $0.058 for Browser Use and 20.4 s and $0.050 for browser-harness.
-- **browser-harness took the fewest turns and tokens:** 5.56 turns and 82k tokens per task, against 5.69 and 91k for Browser Use and 5.88 and 89k for Browser CLI.
+- **browser-cli 0.2.3 was the fastest and cheapest of the four:** 17.1 s and $0.047 per task, against 19.7 s and $0.058 for Browser Use and 20.4 s and $0.050 for browser-harness.
+- **browser-harness took the fewest turns and tokens:** 5.56 turns and 82k tokens per task, against 5.69 and 91k for Browser Use and 5.88 and 89k for browser-cli.
 - **agent-browser took about 2.5 times the turns and 3 times the tokens.** Part of that is the benchmark's rules: Claude Code refused 36 of its commands (16 of them its skill's `S=$(agent-browser session id …)` line, most of the rest other shell assignments and pipes), because only the tool's own command is allowed in Bash.
 - **All 16 runs correct** for every tool.
 - **Earlier runs, from 2026-10-19,** including Browser Use's own Browser Use Bench v2.1, used a script that is not in this repository: [archive](docs/benchmarks/archive-2026-10-19.md).
 
-Run on 2026-11-07 on Linux arm64 with Chrome for Testing 153.0.8010.36: [Browser CLI 0.2.3](https://www.npmjs.com/package/@phnx-labs/browser-cli/v/0.2.3), [Browser Use 0.13.14](https://pypi.org/project/browser-use/0.13.14/), [browser-harness 0.1.13](https://pypi.org/project/browser-harness/0.1.13/), [agent-browser 0.41.2](https://www.npmjs.com/package/agent-browser/v/0.41.2). Browserbase `browse` was not in this run; its 2026-10-19 numbers are in the [archive](docs/benchmarks/archive-2026-10-19.md). Each run's record (grade, answer, turns, seconds, tokens, cost) is in [`bench/results/2026-11-07/`](bench/results/2026-11-07/); the transcripts are not. [`bench/`](bench/README.md) reruns it.
+Run on 2026-11-07 on Linux arm64 with Chrome for Testing 153.0.8010.36: [browser-cli 0.2.3](https://www.npmjs.com/package/@phnx-labs/browser-cli/v/0.2.3), [Browser Use 0.13.14](https://pypi.org/project/browser-use/0.13.14/), [browser-harness 0.1.13](https://pypi.org/project/browser-harness/0.1.13/), [agent-browser 0.41.2](https://www.npmjs.com/package/agent-browser/v/0.41.2). Browserbase `browse` was not in this run; its 2026-10-19 numbers are in the [archive](docs/benchmarks/archive-2026-10-19.md). Each run's record (grade, answer, turns, seconds, tokens, cost) is in [`bench/results/2026-11-07/`](bench/results/2026-11-07/); the transcripts are not. [`bench/`](bench/README.md) reruns it.
 
 <details>
 <summary>Method and per-task results</summary>
@@ -242,7 +242,7 @@ Claude Sonnet 5.5 ran each task headless in Claude Code 2.1.301 with one tool an
 
 Each cell gives the two runs' turns, their mean seconds and their mean tokens; tokens count input, including cached context, plus output. Wall-clock time is mostly the model thinking between turns, so it varies more between runs than turns and tokens do. With two runs per task, read single rows as a direction.
 
-| Task | <img src="docs/assets/logos/browser-cli.png" width="16" height="16" alt="Browser CLI logo"> Browser CLI | <img src="docs/assets/logos/browser-use.png" width="16" height="16" alt="Browser Use logo"> browser-harness | <img src="docs/assets/logos/browser-use.png" width="16" height="16" alt="Browser Use logo"> Browser Use | <img src="docs/assets/logos/agent-browser.png" width="16" height="16" alt="agent-browser logo"> agent-browser |
+| Task | <img src="docs/assets/logos/browser-cli.png" width="16" height="16" alt="browser-cli logo"> browser-cli | <img src="docs/assets/logos/browser-use.png" width="16" height="16" alt="Browser Use logo"> browser-harness | <img src="docs/assets/logos/browser-use.png" width="16" height="16" alt="Browser Use logo"> Browser Use | <img src="docs/assets/logos/agent-browser.png" width="16" height="16" alt="agent-browser logo"> agent-browser |
 | --- | --- | --- | --- | --- |
 | Shop: cheapest five-star Mystery book across pages | 5 / 5 turns, 14 s, 67k | 4 / 4 turns, 12 s, 52k | 4 / 5 turns, 13 s, 64k | 7 / 10 turns, 22 s, 133k |
 | Form: pizza order with radios, checkboxes and a time input | 5 / 5 turns, 14 s, 67k | 5 / 5 turns, 15 s, 72k | 5 / 5 turns, 13 s, 76k | 13 / 12 turns, 27 s, 240k |
@@ -276,17 +276,17 @@ We ran three Claude Code agents at once in one browser, each told to "work only 
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/crossed-tabs-dark.svg">
-  <img src="docs/assets/crossed-tabs-light.svg" alt="Agent runs whose output showed another agent's tab, out of 6: Browser CLI 0, browser-harness 6, Browser Use 4, agent-browser 6" width="100%">
+  <img src="docs/assets/crossed-tabs-light.svg" alt="Agent runs whose output showed another agent's tab, out of 6: browser-cli 0, browser-harness 6, Browser Use 4, agent-browser 6" width="100%">
 </picture>
 
 | Tool | Tasks solved | Agent runs whose output showed another agent's tab | Time for all three |
 | --- | --- | --- | --- |
-| <img src="docs/assets/logos/browser-cli.png" width="16" height="16" alt="Browser CLI logo"> **Browser CLI 0.2.3** | **6 / 6** | **0 / 6** | 86 s, 80 s |
+| <img src="docs/assets/logos/browser-cli.png" width="16" height="16" alt="browser-cli logo"> **browser-cli 0.2.3** | **6 / 6** | **0 / 6** | 86 s, 80 s |
 | <img src="docs/assets/logos/browser-use.png" width="16" height="16" alt="Browser Use logo"> browser-harness 0.1.13 | 6 / 6 | 6 / 6: `list_tabs()` lists every agent's tab | 28 s, 26 s |
 | <img src="docs/assets/logos/browser-use.png" width="16" height="16" alt="Browser Use logo"> Browser Use 0.13.14 | 6 / 6 | 4 / 6: the same `list_tabs()` | 30 s, 38 s |
 | <img src="docs/assets/logos/agent-browser.png" width="16" height="16" alt="agent-browser logo"> agent-browser 0.41.2 | 6 / 6 | 6 / 6: `tab` lists every agent's tab, even with `--session` | 64 s, 44 s |
 
-Browser CLI was the slowest here. Its checkout agent took 80 to 86 s at 6 turns, against 20 s for the same task run alone, and the form agent 54 to 55 s against 14 s; the records do not show where that time went.
+browser-cli was the slowest here. Its checkout agent took 80 to 86 s at 6 turns, against 20 s for the same task run alone, and the form agent 54 to 55 s against 14 s; the records do not show where that time went.
 
 browser-harness documents the limit itself: "Two agents that switch tabs and act simultaneously can race" ([SKILL.md](https://github.com/browser-use/browser-harness/blob/b41bfb643e6c0f5a879b389615dcd1ee8c6bc165/SKILL.md?plain=1#L72-L73)). agent-browser ran without its opt-in `--pin-tab`. Browserbase `browse` was not in this run; its 2026-10-19 result (5 / 6) is in the [archive](docs/benchmarks/archive-2026-10-19.md#several-agents-one-browser).
 
@@ -296,7 +296,7 @@ Every cell links to the line in that tool's own docs or source it comes from, re
 
 | Tool | Several agents in one browser | Another machine | Your signed-in browser |
 | --- | --- | --- | --- |
-| <img src="docs/assets/logos/browser-cli.png" width="16" height="16" alt="Browser CLI logo"> **Browser CLI** | **each task owns its tabs** ([above](#several-agents-one-browser)) | **over SSH** (`start --device`), Chromium-family | yes, any profile you create ([profiles](docs/guide/profiles.md)) |
+| <img src="docs/assets/logos/browser-cli.png" width="16" height="16" alt="browser-cli logo"> **browser-cli** | **each task owns its tabs** ([above](#several-agents-one-browser)) | **over SSH** (`start --device`), Chromium-family | yes, any profile you create ([profiles](docs/guide/profiles.md)) |
 | <img src="docs/assets/logos/browser-use.png" width="16" height="16" alt="Browser Use logo"> browser-harness | one current tab per daemon; "two agents … can race" ([SKILL.md](https://github.com/browser-use/browser-harness/blob/b41bfb643e6c0f5a879b389615dcd1ee8c6bc165/SKILL.md?plain=1#L67-L80)) | any CDP URL ([daemon.py](https://github.com/browser-use/browser-harness/blob/b41bfb643e6c0f5a879b389615dcd1ee8c6bc165/src/browser_harness/daemon.py#L264-L270)) | attaches after Chrome's Allow dialog ([README](https://github.com/browser-use/browser-harness/blob/b41bfb643e6c0f5a879b389615dcd1ee8c6bc165/README.md?plain=1#L50)) |
 | <img src="docs/assets/logos/agent-browser.png" width="16" height="16" alt="agent-browser logo"> agent-browser | separate browser per `--session`; in one shared Chrome, opt-in `--pin-tab` ([sessions](https://github.com/vercel-labs/agent-browser/blob/d44f6989bf5e9a9a1c6dd6d97175f8c33b138eca/docs/content/docs/sessions.mdx?plain=1#L73-L84)) | any `ws(s)://` CDP URL ([cdp-mode](https://github.com/vercel-labs/agent-browser/blob/d44f6989bf5e9a9a1c6dd6d97175f8c33b138eca/docs/content/docs/cdp-mode.mdx?plain=1#L25-L34)) | copies your profile, or attaches ([sessions](https://github.com/vercel-labs/agent-browser/blob/d44f6989bf5e9a9a1c6dd6d97175f8c33b138eca/docs/content/docs/sessions.mdx?plain=1#L88)) |
 | <img src="docs/assets/logos/browserbase.png" width="16" height="16" alt="Browserbase logo"> Browserbase `browse` | separate browser per `--session` ([README](https://github.com/browserbase/stagehand/blob/310957518a931c1a84c5968b13282cc30acd1be9/packages/cli/README.md?plain=1#L48)) | any CDP URL ([README](https://github.com/browserbase/stagehand/blob/310957518a931c1a84c5968b13282cc30acd1be9/packages/cli/README.md?plain=1#L62)) | `--auto-connect` to local Chrome ([README](https://github.com/browserbase/stagehand/blob/310957518a931c1a84c5968b13282cc30acd1be9/packages/cli/README.md?plain=1#L61)) |
@@ -310,7 +310,7 @@ Others reach further elsewhere: agent-browser also drives Safari and the iOS Sim
 
 ## Remote browsers
 
-First run `browser remote-control on` on the other machine, with Browser CLI installed there; remote control is off by default. Then:
+First run `browser remote-control on` on the other machine, with browser-cli installed there; remote control is off by default. Then:
 
 ```sh
 browser start --device box --profile work    # box is a Host in ~/.ssh/config
@@ -333,4 +333,4 @@ One kept-alive SSH connection carries the session. Remote control is Chromium-fa
 - [Benchmarks](docs/benchmarks/README.md) and [`bench/`](bench/README.md)
 - [Development](docs/development.md), [Contributing](CONTRIBUTING.md), [Security](SECURITY.md)
 
-Browser CLI is built by [Phoenix](https://phoenix.so/browser-cli?ref=github) ([why we open-sourced it](https://phoenix.so/blog/browser-cli?ref=github)). Apache-2.0.
+browser-cli is built by [Phoenix](https://phoenix.so/browser-cli?ref=github) ([why we open-sourced it](https://phoenix.so/blog/browser-cli?ref=github)). Apache-2.0.

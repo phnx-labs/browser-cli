@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Something Browser CLI does wrong
+about: Something browser-cli does wrong
 labels: bug
 ---
 

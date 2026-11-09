@@ -1,6 +1,6 @@
 # State and migration
 
-Browser CLI keeps its state under `~/.agents/browser/` (or `$AGENTS_HOME/browser/`). Offered profiles sync in `profiles/<device>.yaml`; only that device writes its file. Private profile declarations use the same name-to-configuration map in `local/profiles.yaml` and override this machine's offered declarations. Remote-control consent lives in `local/settings.yaml`, outside fleet sync. Runtime sockets and locks use `run/`, captures and browser caches use `cache/`, kept sign-ins use `logins/`, task history uses `data/`, and logs use `logs/`.
+browser-cli keeps its state under `~/.agents/browser/` (or `$AGENTS_HOME/browser/`). Offered profiles sync in `profiles/<device>.yaml`; only that device writes its file. Private profile declarations use the same name-to-configuration map in `local/profiles.yaml` and override this machine's offered declarations. Remote-control consent lives in `local/settings.yaml`, outside fleet sync. Runtime sockets and locks use `run/`, captures and browser caches use `cache/`, kept sign-ins use `logins/`, task history uses `data/`, and logs use `logs/`.
 
 ## Migrating older layouts
 
@@ -22,4 +22,4 @@ Before running a command, the CLI or service moves older folders into this layou
 - An old service that cannot be identified or stopped is left running; status and configuration remain available, but driving is blocked until it is stopped and the new service is restarted.
 - Offered profiles are also written to the older device file (`~/.agents/devices/<machine>/agents.yaml`) for machines still on older versions; the new profile files take precedence when both exist.
 
-On the first task listing, Browser CLI adopts task summaries from the older Agents history database, read-only; `browser sessions migrate [--from /path/to/sessions.db] --json` repeats the import safely.
+On the first task listing, browser-cli adopts task summaries from the older Agents history database, read-only; `browser sessions migrate [--from /path/to/sessions.db] --json` repeats the import safely.

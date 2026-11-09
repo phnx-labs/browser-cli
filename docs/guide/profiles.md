@@ -11,7 +11,7 @@ browser profiles logins                                  # signed-in sites and a
 browser profiles logins --json
 ```
 
-- **Firefox** profiles are not created with `profiles create`. Browser CLI reads Firefox's own `profiles.ini` and lists each profile in `browser profiles list`, ready to use.
+- **Firefox** profiles are not created with `profiles create`. browser-cli reads Firefox's own `profiles.ini` and lists each profile in `browser profiles list`, ready to use.
 - **Comet and Arc** attach to the browser you already have open and signed in. Create a Comet profile with `--attach-only`; Arc profiles always attach, one per Arc Space.
 - **Separate profiles keep logins apart.** Each profile has its own cookies, so an agent working in `work` cannot reach what you are signed into in `personal`.
 

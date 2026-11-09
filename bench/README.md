@@ -1,6 +1,6 @@
 # bench
 
-Reruns the 2026-11-07 [benchmarks](../docs/benchmarks/README.md): eight graded web tasks and the several-agents test, for Browser CLI and the three other tools in the README's chart.
+Reruns the 2026-11-07 [benchmarks](../docs/benchmarks/README.md): eight graded web tasks and the several-agents test, for browser-cli and the three other tools in the README's chart.
 
 The [2026-10-19 runs](../docs/benchmarks/archive-2026-10-19.md) were measured with an earlier script that is not in this repository. This one follows the same method, with its task prompts written down in [`tasks.json`](tasks.json), so its numbers compare with each other, not with those runs.
 
@@ -17,7 +17,7 @@ bun bench/run.ts summary               # tables from bench/results/<date>/
 How a run works:
 
 - Claude Code runs headless (`claude -p`, Claude Sonnet 5.5 unless `BENCH_MODEL` says otherwise) with the tool's own shipped skill as its only project skill, only the tool's command allowed in Bash plus the Skill tool, no file writes, web fetch or sub-agents, and no user settings files, plugins or MCP servers (`--setting-sources project --strict-mcp-config`). Each result records the skills, tools and permission denials Claude Code reported, so a run where the skill did not load shows it.
-- Every run gets a fresh headless Chrome for Testing 153 with its own user-data-dir, each tool runs with an empty HOME (Claude Code keeps yours, for its sign-in), and every tool attaches to it over CDP: Browser CLI through an `--attach-only` profile, Browser Use and browser-harness through `BU_CDP_URL`, agent-browser through `AGENT_BROWSER_CDP`. Browser CLI runs from this checkout's `dist/` build, never an installed `browser`.
+- Every run gets a fresh headless Chrome for Testing 153 with its own user-data-dir, each tool runs with an empty HOME (Claude Code keeps yours, for its sign-in), and every tool attaches to it over CDP: browser-cli through an `--attach-only` profile, Browser Use and browser-harness through `BU_CDP_URL`, agent-browser through `AGENT_BROWSER_CDP`. browser-cli runs from this checkout's `dist/` build, never an installed `browser`.
 - Chrome starts with `--disable-renderer-backgrounding --disable-backgrounding-occluded-windows --disable-background-timer-throttling`. Without them, headless Chrome 153 on Linux never loads a tab opened behind another, and every tool stalls on it alike.
 - Each answer is graded from the pages the agent left open and from its final message, against ground truth the grader reads from the live site at grading time ([`bench/grade.ts`](grade.ts)); Demoblaze's total is fixed at 1180, the price of the two phones. Two tasks are graded only by where they ended: the pizza order by the form fields httpbin echoes back, the Saucedemo checkout by its order-complete page being open, which does not show whether the products were sorted first.
 - Turns, tokens (input including cached context, plus output) and cost are Claude Code's own `result` numbers; seconds are the wall time of the `claude` process. Each run writes one JSON under `bench/results/<date>/`; transcripts stay in the run directory (`/tmp/bcb` by default) because they hold local paths.

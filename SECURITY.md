@@ -2,7 +2,7 @@
 
 ## Reporting a vulnerability
 
-Email **contact@phoenix.so** with "Browser CLI security" in the subject. Please do
+Email **contact@phoenix.so** with "browser-cli security" in the subject. Please do
 not open a public issue, pull request or discussion for a vulnerability.
 
 Include the version (`browser --version`), your operating system and browser,
@@ -19,7 +19,7 @@ Only the latest published version is supported; check it with
 
 ## Threat model
 
-- **It acts as you.** Browser CLI drives a browser profile that may be signed
+- **It acts as you.** browser-cli drives a browser profile that may be signed
   in to your accounts. Anything that can run `browser` as your user can read
   and act on every site that profile can reach. Give agents a dedicated
   profile when they should not see your personal accounts.
@@ -30,12 +30,12 @@ Only the latest published version is supported; check it with
 - **Remote control is off until you turn it on.** A `browser` command sent
   from another machine (`start --device`, or through agents-cli) is refused
   unless you ran `browser remote-control on` on the machine whose browser it
-  would drive. This is consent for commands that Browser CLI or agents-cli
+  would drive. This is consent for commands that browser-cli or agents-cli
   forwards, not access control: anyone who can log in to that machine as you
   can run `browser` there directly. Remote commands travel over your own SSH
   configuration, or over an HTTPS relay only when you set `BROWSER_RELAY_URL`
   and `BROWSER_RELAY_TOKEN`.
-- **No telemetry.** Browser CLI reports nothing to us or to any other service.
+- **No telemetry.** browser-cli reports nothing to us or to any other service.
   Its network traffic goes to the browsers and machines you point it at, with
   one exception: the first time a recording needs ffmpeg and finds none, it
   installs ffmpeg with the system package manager (brew, winget, apt and
@@ -49,12 +49,12 @@ Only the latest published version is supported; check it with
   (`logs/`, URLs without query strings or fragments). Treat the folder as
   sensitive: captures and browser data can hold page content and cookies.
 - **Credentials.** `browser type --secret <bundle>/<KEY>` types a value read
-  from the `secrets` tool without printing it; Browser CLI stores no passwords
+  from the `secrets` tool without printing it; browser-cli stores no passwords
   of its own.
 
 ## What is in scope
 
-Browser CLI drives browsers that are signed in as you, so these matter most:
+browser-cli drives browsers that are signed in as you, so these matter most:
 
 - The local IPC service and anything that lets another local user or process
   drive your browser or read its pages, cookies or captures.

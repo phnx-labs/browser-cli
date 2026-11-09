@@ -53,4 +53,13 @@ describe('findOnPath', () => {
       expect(findBrowserPath('edge')).toBe(path.join(dir, 'microsoft-edge'));
     },
   );
+
+  it.skipIf(process.platform !== 'linux' || !fs.existsSync('/usr/bin/firefox'))(
+    'prefers the Firefox on PATH over the system one, as the shell would',
+    () => {
+      fs.writeFileSync(path.join(dir, 'firefox'), '\x7fELF', { mode: 0o755 });
+      process.env.PATH = [dir, '/usr/bin'].join(path.delimiter);
+      expect(findBrowserPath('firefox')).toBe(path.join(dir, 'firefox'));
+    },
+  );
 });

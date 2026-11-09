@@ -15,7 +15,7 @@ Chrome, Arc, Brave, Edge, Comet or Firefox, on this machine or another one over 
 
 </div>
 
-`browser` is one command an agent calls from its shell to drive the Chrome, Arc, Brave, Edge, Comet or Firefox profile you already use, on this machine or on another one over SSH. Every `browser start` opens a task that owns its tabs, so Claude Code, Codex and Cursor can work in the same signed-in browser at once without reading, typing into or closing each other's pages.
+`browser` is one command an agent calls from its shell to drive your browser: the Comet, Arc and Firefox profiles you already use, or a Chrome, Brave or Edge profile you sign into once, on this machine or on another one over SSH. Every `browser start` opens a task that owns its tabs, so Claude Code, Codex and Cursor can work in the same signed-in browser at once without reading, typing into or closing each other's pages.
 
 <p align="center">
   <img src="docs/assets/three-agents.gif" alt="Three Claude Code agents work at once in one Brave window, each in its own tab: one finds the cheapest mystery book, one fills a pizza order form, one checks out two items. Each pane shows the agent's current browser command, then its answer." width="100%">

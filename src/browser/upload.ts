@@ -14,23 +14,36 @@ export function getUploadStagingDir(): string {
   return path.join(getBrowserRuntimeDir(), 'uploads');
 }
 
-function stageUploadFiles(files: string[]): string[] {
+export function stageUploadFiles(files: string[]): { dir: string; files: string[] } {
   if (!files || files.length === 0) {
     throw new Error('At least one file path is required');
   }
-  const stagingDir = getUploadStagingDir();
-  fs.mkdirSync(stagingDir, { recursive: true, mode: 0o700 });
-  fs.chmodSync(stagingDir, 0o700);
-  return files.map((source) => {
+  const sources = files.map((source) => {
     if (!path.isAbsolute(source)) throw new Error(`Upload path must be absolute: ${source}`);
     if (!fs.existsSync(source)) throw new Error(`File not found: ${source}`);
     const resolvedSource = fs.realpathSync(source);
     if (!fs.statSync(resolvedSource).isFile()) throw new Error(`Upload path is not a file: ${source}`);
-    const dir = fs.mkdtempSync(path.join(stagingDir, 'u-'));
-    const staged = path.join(dir, path.basename(source));
-    fs.copyFileSync(resolvedSource, staged);
-    return staged;
+    return resolvedSource;
   });
+  const stagingDir = getUploadStagingDir();
+  fs.mkdirSync(stagingDir, { recursive: true, mode: 0o700 });
+  fs.chmodSync(stagingDir, 0o700);
+  const dir = fs.mkdtempSync(path.join(stagingDir, 'u-'));
+  try {
+    return {
+      dir,
+      files: sources.map((resolvedSource, i) => {
+        const slot = path.join(dir, String(i));
+        fs.mkdirSync(slot, { mode: 0o700 });
+        const staged = path.join(slot, path.basename(files[i]!));
+        fs.copyFileSync(resolvedSource, staged);
+        return staged;
+      }),
+    };
+  } catch (error) {
+    fs.rmSync(dir, { recursive: true, force: true });
+    throw error;
+  }
 }
 
 const RESOLVE_FILE_INPUT_FN = `(function() {
@@ -72,7 +85,6 @@ export async function uploadToFileInput(
   backendNodeId: number,
   files: string[]
 ): Promise<void> {
-  files = stageUploadFiles(files);
 
   const resolvedId = await resolveActualFileInput(cdp, sessionId, backendNodeId);
   await cdp.send(
@@ -159,7 +171,6 @@ export async function uploadToDropTarget(
   backendNodeId: number,
   files: string[]
 ): Promise<void> {
-  files = stageUploadFiles(files);
 
   const payload = files.map((p) => ({
     name: path.basename(p),
@@ -208,7 +219,6 @@ export async function uploadViaFileChooser(
   files: string[],
   timeoutMs = 5000
 ): Promise<void> {
-  files = stageUploadFiles(files);
 
   await cdp.send('Page.enable', {}, sessionId);
   await cdp.send(

@@ -1,8 +1,10 @@
 import { strict as assert } from 'node:assert';
+import { existsSync, readdirSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { BrowserService } from '../service.js';
 import { CDPClient } from '../cdp.js';
+import { getUploadStagingDir } from '../upload.js';
 
 const directory = process.env.AGENTS_HOME!;
 const server: ReturnType<typeof Bun.serve> = Bun.serve({
@@ -45,8 +47,13 @@ try {
     await Bun.sleep(50);
   }
   const ref = Number(/"Attachment" \[ref=(\d+)\]/.exec(listing)![1]);
+  const staged = () => existsSync(getUploadStagingDir()) ? readdirSync(getUploadStagingDir()) : [];
   await assert.rejects(service.upload('upload', ['report.txt'], { ref }), /must be absolute/);
+  assert.deepEqual(staged(), [], 'a refused upload keeps no copy');
+  assert.equal((await service.upload('upload', [source], { ref, mode: 'drop' })).mode, 'drop');
+  assert.deepEqual(staged(), [], 'a drop has read its file, so its copy is gone');
   assert.equal((await service.upload('upload', [source], { ref })).mode, 'input');
+  assert.equal(staged().length, 1, 'an input keeps its copy for the page to submit');
 
   let text = '';
   for (let attempt = 0; attempt < 100 && !text.startsWith('report.txt:'); attempt++) {
@@ -54,7 +61,9 @@ try {
     await Bun.sleep(25);
   }
   assert.match(text, /^report\.txt:hello upload — /);
-  console.log('upload: absolute file accepted under its own name; relative path refused');
+  await service.stop('upload');
+  assert.deepEqual(staged(), [], 'done removes the task\'s copies');
+  console.log('upload: absolute file accepted under its own name; relative path refused; copies removed');
 } finally {
   clearTimeout(deadline);
   await cdp.close();

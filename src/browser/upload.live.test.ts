@@ -17,7 +17,7 @@ test.skipIf(!chrome)('upload: an absolute file outside the staging folder reache
     ]);
     expect(error).toBe('');
     expect(code).toBe(0);
-    expect(output.trim()).toBe('upload: absolute file accepted under its own name; relative path refused');
+    expect(output.trim()).toBe('upload: absolute file accepted under its own name; relative path refused; copies removed');
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }

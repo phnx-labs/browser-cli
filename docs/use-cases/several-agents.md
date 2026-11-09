@@ -20,4 +20,4 @@ Tab "f9060fe5" not found
 - Tasks whose agent has exited, or that sat unused for 30 minutes, are closed every five minutes. `browser prune` runs that now.
 - Tasks open as tabs of one window. From 0.2.7, a task whose tab is not the selected one can still be recorded.
 
-The three-agent run and how other tools compare are in the [README](../../README.md#several-agents-one-browser) and the [benchmarks](../benchmarks/README.md#several-agents-one-browser).
+The three-agent run is measured in the [benchmarks](../benchmarks/README.md#several-agents-one-browser), and other tools are compared in [How it compares](../comparison.md).

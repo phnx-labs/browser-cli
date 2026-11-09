@@ -29,6 +29,6 @@
 - [Agents CLI integration](integration.md)
 - [State and migration](state-and-migration.md)
 
-**Benchmarks**: [2026-11-07 run](benchmarks/README.md), [how to rerun](../bench/README.md), [2026-10-19 archive](benchmarks/archive-2026-10-19.md)
+**Benchmarks**: [2026-11-07 run](benchmarks/README.md), [how browser-cli compares](comparison.md), [how to rerun](../bench/README.md), [2026-10-19 archive](benchmarks/archive-2026-10-19.md)
 
 **Contributing**: [Development](development.md), [Contributing](../CONTRIBUTING.md), [Security](../SECURITY.md)

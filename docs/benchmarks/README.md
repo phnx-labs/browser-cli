@@ -52,7 +52,7 @@ browser-harness and Browser Use showed other agents' tabs through `list_tabs()`,
 
 ## How it compares
 
-The README's comparison table comes from reading each tool's own docs and source, not from runs. Each cell links to the line it comes from, pinned to the commit read on 2026-11-07 (Claude in Chrome's docs are live pages, quoted as of that day).
+The comparison of browser-cli with other tools comes from reading each tool's own docs and source, not from runs: [How it compares](../comparison.md), with a source link in every cell, pinned to the commit read on 2026-11-07 (Claude in Chrome's docs are live pages, quoted as of that day).
 
 
 Earlier runs, from 2026-10-19, used a script that is not in this repository: [archive](archive-2026-10-19.md).

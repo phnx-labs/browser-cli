@@ -9,7 +9,7 @@ Chrome, Arc, Brave, Edge, Comet or Firefox, on this machine or another one over 
 [![CI](https://img.shields.io/github/actions/workflow/status/phnx-labs/browser-cli/test.yml?branch=main&style=flat-square&label=tests&labelColor=0d1117)](https://github.com/phnx-labs/browser-cli/actions/workflows/test.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-555?style=flat-square&labelColor=0d1117)](LICENSE)
 
-[Install](#install) · [Features](#features) · [Remote browsers](#remote-browsers) · [Benchmark](#benchmark) · [How it compares](#how-it-compares) · [FAQ](#faq) · [Docs](#docs)
+[Install](#install) · [Features](#features) · [Benchmark](#benchmark) · [How it compares](#how-it-compares) · [FAQ](#faq) · [Docs](#docs)
 
 [phoenix.so/browser-cli](https://phoenix.so/browser-cli?ref=github) · [Why we open-sourced it](https://phoenix.so/blog/browser-cli?ref=github)
 
@@ -221,17 +221,6 @@ In canvas apps the agent works the way a person does: shortcuts, clicks at a pos
 Each clip is a real run, sped up. Its page shows the task, the commands and what came back.
 
 **Also in the box:** `console` and `errors` read a tab's logs, `requests --format har` and `responsebody` read its network traffic, `evaluate` runs JavaScript in the page, `upload` fills file inputs and drop targets, and `stream` keeps one process open for many commands. Every command is in the [reference](docs/command-index.md).
-
-## Remote browsers
-
-Drive the browser on another machine over SSH. Turn it on once on that machine with `browser remote-control on` (it is off by default), then:
-
-```sh
-browser start --device box --profile work    # box is a Host in ~/.ssh/config
-browser navigate https://example.com         # later commands follow the task there
-```
-
-One kept-alive SSH connection carries the task. More in [Remote browsers](docs/guide/remote.md).
 
 ## Benchmark
 

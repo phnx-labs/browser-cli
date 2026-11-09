@@ -16,8 +16,8 @@ or `release/**`. It contains the HTML reference plus Markdown and JSON indexes.
 Tests and `scripts/release.sh` check the committed files; commit regenerated
 `docs/` with command changes.
 
-Browse the generated [command reference](docs/command-reference.html) or the
-[command index](docs/command-index.md) for arguments, options, examples and notes.
+Browse the generated [command reference](command-reference.html) or the
+[command index](command-index.md) for arguments, options, examples and notes.
 
 ## Build, test and release
 

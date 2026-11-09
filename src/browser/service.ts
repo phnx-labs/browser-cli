@@ -3546,7 +3546,7 @@ export class BrowserService {
       if (!this.networkRequests.has(taskId)) this.networkRequests.set(taskId, []);
       const reqs = this.networkRequests.get(taskId)!;
       reqs.push(req);
-      if (reqs.length > 500) reqs.shift();
+      if (reqs.length > 500) requestMap.delete(reqs.shift()!.id);
     });
 
     conn.cdp.on('Network.responseReceived', (params: any, eventSessionId?: string) => {

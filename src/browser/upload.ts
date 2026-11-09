@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { createHash } from 'crypto';
 import type { CDPClient } from './cdp.js';
 import { clickAtCoords } from './input.js';
 import { getBrowserRuntimeDir } from './profiles.js';
@@ -15,7 +16,7 @@ export function getUploadStagingDir(): string {
 }
 
 export function uploadTaskDir(taskName: string): string {
-  return path.join(getUploadStagingDir(), 't-' + Buffer.from(taskName, 'utf8').toString('hex'));
+  return path.join(getUploadStagingDir(), 't-' + createHash('sha256').update(taskName, 'utf8').digest('hex'));
 }
 
 export function stageUploadFiles(taskName: string, files: string[]): { dir: string; files: string[] } {

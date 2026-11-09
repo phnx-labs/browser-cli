@@ -63,7 +63,7 @@ try {
   assert.match(text, /^report\.txt:hello upload — /);
   const keep = join(getUploadStagingDir(), '..', 'keep');
   writeFileSync(keep, 'runtime file');
-  for (const name of ['..', '.', '']) await new BrowserService().stop(name);
+  for (const name of ['..', '.', '', 'x'.repeat(300)]) await new BrowserService().stop(name);
   assert.ok(existsSync(keep), 'stopping a task named .. never reaches outside the staging folder');
   assert.equal(staged().length, 1, 'stopping a task named . or an empty name keeps other tasks\' copies');
   await new BrowserService().stop('upload');

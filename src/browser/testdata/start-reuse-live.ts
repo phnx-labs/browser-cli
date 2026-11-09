@@ -10,7 +10,7 @@ import { createProfile } from '../profiles.js';
 
 const directory = process.env.AGENTS_HOME!;
 const browser = Bun.spawn([
-  process.argv[2]!, '--headless', '--remote-debugging-port=0',
+  process.argv[2]!, '--headless', '--password-store=basic', '--remote-debugging-port=0',
   `--user-data-dir=${join(directory, 'chrome')}`, 'about:blank',
 ], { stdout: 'ignore', stderr: 'ignore' });
 const deadline = setTimeout(() => { browser.kill(); process.exit(2); }, 25_000);
@@ -108,8 +108,10 @@ try {
   await assert.rejects(service.text(list.task, undefined, { css: 'table' }), /No element matches "table"/);
   await assert.rejects(service.text(list.task, undefined, { css: 'li[' }), /Invalid CSS selector "li\["/);
 
-  const refused = 'http://127.0.0.1:1/';
-  const failed = /Could not open http:\/\/127\.0\.0\.1:1\/: net::ERR_CONNECTION_REFUSED\./;
+  const closed = Bun.serve({ port: 0, fetch: () => new Response() });
+  const refused = `http://127.0.0.1:${closed.port}/`;
+  closed.stop(true);
+  const failed = new RegExp(`Could not open ${refused}: net::ERR_CONNECTION_REFUSED\\.`);
   await assert.rejects(service.navigate(list.task, refused, undefined, { wait: true }), failed, 'navigate reports the net error');
   await assert.rejects(service.navigate(list.task, refused), failed, 'navigate --no-wait reports it too');
   await assert.rejects(service.start('reuse', { url: refused, sessionId: 'agent-h' }), failed, 'start --url reports it');

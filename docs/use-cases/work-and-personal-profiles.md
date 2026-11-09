@@ -8,12 +8,12 @@ From the recorded run, on a Linux machine with two Brave profiles:
 
 ```console
 $ browser profiles create personal --browser brave --headless
-Added "personal" on yosemite-s0 (port 9223).
+Added "personal" on box (port 9223).
 $ browser profiles list
   NAME      BROWSER  WHERE        ENDPOINTS
 -------------------------------------------
-* work      brave    yosemite-s0  cdp://127.0.0.1:9222
-  personal  brave    yosemite-s0  cdp://127.0.0.1:9223
+* work      brave    box          cdp://127.0.0.1:9222
+  personal  brave    box          cdp://127.0.0.1:9223
 
 * = this machine's default profile (work) — what a bare `browser start` uses.
 ```

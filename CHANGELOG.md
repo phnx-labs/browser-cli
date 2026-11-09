@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- `browser console`, `browser errors`, `browser requests` and `browser responsebody` capture again on Chrome, Brave, Edge, Comet and other Chromium browsers. Since the first open-source release they returned `No console logs`, `No errors` and `No requests captured`, and `responsebody` timed out, even on a page that logged, threw and fetched every half second: their listeners read the session id from the event's `params`, where Chrome never puts it, so every event was dropped. They now read it where Chrome sends it, as the screencast and dialog listeners already did. Firefox and native Arc are unchanged.
+
 ## 0.2.6
 
 - `browser navigate` and `browser start --url` on Chrome, Brave, Edge and other Chromium browsers exit 1 when the page does not load, and never print `Navigated` for it. An address that never answers stops after 30 s, the default `browser wait` already uses, with `Could not open http://10.255.255.1/: no response within 30 s.`, and a tab that was already open stays on the page it showed (a new one stays blank); before, `navigate` waited out the operating system's connect timeout (188 s on Linux), printed `Navigated … to http://10.255.255.1/` and exited 0 on Chrome's error page. A page Chrome cannot load names the cause, such as `Could not open http://nonexistent.invalid/: net::ERR_NAME_NOT_RESOLVED.`; `start --url` used to report that page as opened too. Any other error Chrome reports for the navigation now fails it too, such as `net::ERR_HTTP_RESPONSE_CODE_FAILURE` for an error status with an empty body. A navigation that becomes a download still succeeds. When `start --url` fails, its task and tab stay, so `browser navigate` can retry in them. `browser tab add` and `browser show` still open a failing URL without an error. Firefox and native Arc are unchanged.

@@ -88,6 +88,15 @@ describe('forwardedCommandArgv', () => {
     expect(forwardedCommandArgv(['screenshot', '-fo', '/tmp/a.png'], shot, ['output'])).toEqual(['screenshot', '-f']);
   });
 
+  test('drops a positional argument by name and keeps the command words and option values', () => {
+    const pdf = program.command('pdf [output]').option('--task <name>').option('--device <name>');
+    expect(forwardedCommandArgv(['browser', 'pdf', 'out.pdf', '--device', 'hub'], pdf, ['device', 'output']))
+      .toEqual(['browser', 'pdf']);
+    expect(forwardedCommandArgv(['pdf', '--task', 'out.pdf', 'out.pdf'], pdf, ['output'])).toEqual(['pdf', '--task', 'out.pdf']);
+    expect(forwardedCommandArgv(['pdf', 'pdf', '--task', 't'], pdf, ['output'])).toEqual(['pdf', '--task', 't']);
+    expect(forwardedCommandArgv(['pdf', 'keep.pdf'], pdf, ['device'])).toEqual(['pdf', 'keep.pdf']);
+  });
+
   test('leaves everything after -- literal and inserts before it', () => {
     expect(forwardedCommandArgv(['type', '1', '--', '--device', 'x'], type, ['device'], ['--task', 't']))
       .toEqual(['type', '1', '--task', 't', '--', '--device', 'x']);

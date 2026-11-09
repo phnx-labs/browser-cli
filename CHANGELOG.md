@@ -3,6 +3,7 @@
 ## Unreleased
 
 - `browser console`, `browser errors`, `browser requests` and `browser responsebody` capture again on Chrome, Brave, Edge, Comet and other Chromium browsers. Since the first open-source release they returned `No console logs`, `No errors` and `No requests captured`, and `responsebody` timed out, even on a page that logged, threw and fetched every half second: their listeners read the session id from the event's `params`, where Chrome never puts it, so every event was dropped. They now read it where Chrome sends it, as the screencast and dialog listeners already did. Firefox and native Arc are unchanged.
+- `browser pdf <output>` saves to the path you give it. It always saved under the task's `sessions/<task>/` folder and printed that path, whatever path you passed, relative or absolute, while `screenshot -o` honored its path. The PDF is now copied to the requested path, relative to where you ran the command, the same way `screenshot -o` does. Run against another machine with `--device`, the PDF is copied back to that path on this machine. With no path, it still saves under the task and prints the `Tip: auto-saving to …` line.
 
 ## 0.2.6
 

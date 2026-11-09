@@ -33,6 +33,22 @@ browser use work
 
 Firefox connects through a WebDriver BiDi endpoint ([guide](docs/browser.md#profiles-and-endpoints)). npm needs Node 22.5 or newer; `browser` itself is a compiled binary for macOS, Linux and Windows. In Claude Code the skill also installs as a plugin: `/plugin marketplace add phnx-labs/browser-cli`, then `/plugin install browser@browser-cli`.
 
+Or let your agent set it up. Paste this into Claude Code, Codex, Cursor or any agent with a shell:
+
+```text
+Set up browser-cli so you can use my web browser: https://github.com/phnx-labs/browser-cli
+
+1. Install the CLI: npm install -g @phnx-labs/browser-cli (needs Node 22.5 or newer), then check it with: browser --version
+2. Install its skill once, the way that fits you:
+   - Claude Code: claude plugin marketplace add phnx-labs/browser-cli, then claude plugin install browser@browser-cli
+   - Codex, Cursor, OpenCode or another agent: npx skills add phnx-labs/browser-cli -g -y -a <your agent's name, such as codex or cursor>
+   Then read the skill now, before you use the browser: browser skills get
+3. Make a browser profile: browser profiles create work --browser chrome (use brave, edge, arc or comet instead if I said I use one of those), then: browser use work. It is a profile of its own and starts signed out, so tell me I can sign in once, in the window it opens, to the sites I want you to use.
+4. Try it: browser start --url https://news.ycombinator.com --snapshot, then browser done. Tell me the title of the top story.
+
+Run browser <command> --help before guessing at a flag.
+```
+
 ## Quick start
 
 ```console

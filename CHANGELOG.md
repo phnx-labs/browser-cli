@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- `browser navigate` and `browser start --url` on Chrome, Brave, Edge and other Chromium browsers exit 1 when the page does not load, and never print `Navigated` for it. An address that never answers stops after 30 s, the default `browser wait` already uses, with `Could not open http://10.255.255.1/: no response within 30 s.`, and the tab is left where it was; before, `navigate` waited out the operating system's connect timeout (188 s on Linux), printed `Navigated … to http://10.255.255.1/` and exited 0 on Chrome's error page. A page Chrome cannot load names the cause, such as `Could not open http://nonexistent.invalid/: net::ERR_NAME_NOT_RESOLVED.`; `start --url` used to report that page as opened too. A navigation that becomes a download still succeeds. Firefox and native Arc are unchanged.
+
 ## 0.2.5
 
 - On Linux, a browser is looked up on `PATH` before its standard install paths, so a second install earlier on `PATH` now wins for every browser type. On a box with snap Firefox and a Firefox unpacked into `~/.local/bin`, 0.2.4 launched the snap one, which cannot open a profile under `~/.config`, exited at once, and was reported as `A Firefox is already running on this profile directory`. Now the `~/.local` Firefox starts. macOS and Windows still prefer the standard install paths and use `PATH` only when none exists. On Linux, when a Firefox that `browser` launched exits before opening WebDriver BiDi and no other Firefox holds the profile, the error says so and names the binary and the profile directory; the snap hint appears only for a snap Firefox.

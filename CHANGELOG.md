@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- A browser is looked up on `PATH` before its standard install paths, so `browser` launches the same browser your shell runs. On a Linux box with snap Firefox and a Firefox unpacked into `~/.local`, 0.2.4 launched the snap one, which cannot open a profile under `~/.config`, exited at once, and was reported as `A Firefox is already running on this profile directory`. Now the `~/.local` Firefox starts. When a launched Firefox does exit before opening WebDriver BiDi, the error says so and names the binary and the profile directory.
+- On Linux, a browser is looked up on `PATH` before its standard install paths, so a second install earlier on `PATH` now wins for every browser type. On a box with snap Firefox and a Firefox unpacked into `~/.local/bin`, 0.2.4 launched the snap one, which cannot open a profile under `~/.config`, exited at once, and was reported as `A Firefox is already running on this profile directory`. Now the `~/.local` Firefox starts. macOS and Windows still prefer the standard install paths and use `PATH` only when none exists. When a Firefox that `browser` launched exits before opening WebDriver BiDi, the error says so and names the binary and the profile directory.
 
 ## 0.2.4
 

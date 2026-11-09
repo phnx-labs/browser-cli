@@ -284,7 +284,7 @@ async function pullRemoteFile(device: string, remotePath: string, localPath: str
   const copied = copyFromHost(host, remotePath, path.resolve(localPath));
   if (copied.status !== 0) {
     throw new Error(
-      `Failed to copy screenshot from ${device}:${remotePath}: ${(copied.stderr || copied.stdout || '').trim()}`,
+      `Failed to copy file from ${device}:${remotePath}: ${(copied.stderr || copied.stdout || '').trim()}`,
     );
   }
 }

@@ -597,6 +597,8 @@ export class BrowserService {
   private static readonly ATTACH_RETRY_MS = 5 * 60_000;
   /** `--snapshot`: how long a navigation an action started may take to load before the snapshot describes the page as-is. */
   private static readonly SNAPSHOT_LOAD_TIMEOUT_MS = 3_000;
+  /** `Page.navigate` answers only once a page commits or fails, minutes for an address that never answers; `wait`'s default. */
+  private static readonly NAVIGATE_TIMEOUT_MS = 30_000;
   /** `--snapshot`: how long after a click/type/press to watch for a navigation to begin. */
   private static readonly SNAPSHOT_NAVIGATION_GRACE_MS = 150;
   /** `--snapshot`, no navigation: the DOM must be still for this long before the listing is taken. */
@@ -886,7 +888,7 @@ export class BrowserService {
     } else if (opts.url && conn.backend !== 'arc-native' && conn.backend !== 'bidi' && !conn.electron && conn.browserType !== 'arc') {
       const adopted = opts.fresh ? undefined : await this.adoptTabShowing(conn, opts.url);
       const targetId =
-        adopted ?? (await this.createPageTarget(conn, { url: opts.url })).targetId;
+        adopted ?? (await this.createPageTarget(conn, { url: 'about:blank' })).targetId;
       const shortId = generateShortId();
       task.tabs[shortId] = targetId;
       task.currentTabId = shortId;
@@ -896,7 +898,8 @@ export class BrowserService {
       firstOpen = { tabId: shortId, created: !adopted, refreshed: false };
       // Like every action, start returns on the page it opened, so a chained
       // `browser click --text …` does not search a document still loading.
-      if (opts.url !== 'about:blank') await this.waitForDocument(conn, task, shortId);
+      if (adopted) await this.waitForDocument(conn, task, shortId);
+      else if (opts.url !== 'about:blank') await this.openUrl(conn, await this.getSessionId(conn, targetId), opts.url, { wait: true });
     } else if (opts.url && (conn.backend === 'arc-native' || conn.electron || conn.browserType === 'arc')) {
       // Electron and Arc must reuse an existing target; carry navigate's actual result instead of
       // claiming a new tab.
@@ -1232,7 +1235,6 @@ export class BrowserService {
       this.navigateLocked(conn, task, url, opts),
     );
     if (opts.snapshot) return { ...result, snapshot: result.snapshot ?? (await this.snapshotPage(conn, task, result.tabId)) };
-    if (opts.wait) await this.waitForDocument(conn, task, result.tabId);
     return result;
   }
 
@@ -1265,19 +1267,17 @@ export class BrowserService {
       return opts.snapshot ? { ...result, snapshot: await this.snapshotPage(conn, task, reopened.tabId, { settled: true }) } : result;
     }
 
-    // If we have a current tab, navigate in it (reuse)
     const currentShortId = task.currentTabId;
     if (currentShortId && task.tabs[currentShortId]) {
       const cdpTargetId = task.tabs[currentShortId];
       const sessionId = await this.getSessionId(conn, cdpTargetId);
-      await this.loadSettled(conn, sessionId, opts, () => conn.cdp.send('Page.navigate', { url }, sessionId));
+      await this.openUrl(conn, sessionId, url, opts);
       await this.saveTaskState(task.profile, conn.tasks);
       emit('browser.navigate', { profile: parseConnectionKey(task.profile).profile, task: task.name, url, tabId: currentShortId, created: false });
       const result = { tabId: currentShortId, url, created: false, refreshed: false };
       return opts.snapshot ? { ...result, snapshot: await this.snapshotPage(conn, task, currentShortId, { settled: true }) } : result;
     }
 
-    // No current tab - create one
     if (conn.electron) {
       const cdpTargetId = conn.windowId;
       if (!cdpTargetId) {
@@ -1285,7 +1285,7 @@ export class BrowserService {
       }
       const shortId = generateShortId();
       const sessionId = await this.getSessionId(conn, cdpTargetId);
-      await this.loadSettled(conn, sessionId, opts, () => conn.cdp.send('Page.navigate', { url }, sessionId));
+      await this.openUrl(conn, sessionId, url, opts);
       task.tabs[shortId] = cdpTargetId;
       task.currentTabId = shortId;
       await this.saveTaskState(task.profile, conn.tasks);
@@ -1309,7 +1309,7 @@ export class BrowserService {
         task.borrowedTabs = [...(task.borrowedTabs ?? []), shortId];
         task.currentTabId = shortId;
         try {
-          await this.loadSettled(conn, sessionId, opts, () => conn.cdp.send('Page.navigate', { url }, sessionId));
+          await this.openUrl(conn, sessionId, url, opts);
         } catch (err) {
           // Release the claim we took optimistically, so a failed navigate does
           // not leave the task holding a tab it never drove.
@@ -1334,13 +1334,14 @@ export class BrowserService {
     }
 
     // Chrome: create new tab
-    const result = await this.createPageTarget(conn, { url });
+    const result = await this.createPageTarget(conn, { url: 'about:blank' });
 
     const shortId = generateShortId();
     task.tabs[shortId] = result.targetId;
     task.currentTabId = shortId;
     this.invalidateTargetCache(conn);
     await this.saveTaskState(task.profile, conn.tasks);
+    await this.openUrl(conn, await this.getSessionId(conn, result.targetId), url, opts);
 
     emit('browser.navigate', { profile: parseConnectionKey(task.profile).profile, task: task.name, url, tabId: shortId, created: true });
     return { tabId: shortId, url, created: true, refreshed: false };
@@ -1666,7 +1667,7 @@ export class BrowserService {
 
   async loadLazyParts(taskId: string, tabHint: string | undefined): Promise<number> {
     const ask = async (expression: string): Promise<unknown> => {
-      let timer: ReturnType<typeof setTimeout> | undefined;
+      let timer: ReturnType<typeof globalThis.setTimeout> | undefined;
       const late = new Promise<never>((_, fail) => { timer = setTimeout(() => fail(new Error('The page did not answer within 2 s.')), 2000); });
       try {
         return await Promise.race([this.evaluate(taskId, tabHint, expression), late]);
@@ -2520,6 +2521,28 @@ export class BrowserService {
     } finally {
       settle.dispose();
     }
+  }
+
+  private async openUrl(conn: CdpProfileConnection, sessionId: string, url: string, opts: ActionOpts): Promise<void> {
+    await this.loadSettled(conn, sessionId, opts, async () => {
+      const sent = conn.cdp.send('Page.navigate', { url }, sessionId) as Promise<{ loaderId?: string; errorText?: string }>;
+      sent.catch(() => undefined);
+      let timer: ReturnType<typeof globalThis.setTimeout> | undefined;
+      const timedOut = new Promise<undefined>((resolve) => { timer = setTimeout(() => resolve(undefined), BrowserService.NAVIGATE_TIMEOUT_MS); });
+      const answer = await Promise.race([sent, timedOut]).finally(() => clearTimeout(timer));
+      if (!answer) {
+        await conn.cdp.send('Page.stopLoading', {}, sessionId);
+        throw new Error(actionable(
+          `Could not open ${url}: no response within ${BrowserService.NAVIGATE_TIMEOUT_MS / 1000} s.`,
+          'Next: check the address and that this machine can reach it.',
+        ));
+      }
+      // A download, or a navigation the page replaced, ends as ERR_ABORTED without failing.
+      if (answer.errorText && answer.errorText !== 'net::ERR_ABORTED') {
+        throw new Error(actionable(`Could not open ${url}: ${answer.errorText}.`, 'Next: check the address and that this machine can reach it.'));
+      }
+      return answer;
+    });
   }
 
   /** After an action: settle (`--wait`, `--snapshot`), and for `--snapshot` list the page. */

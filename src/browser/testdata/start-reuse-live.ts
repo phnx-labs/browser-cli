@@ -108,7 +108,14 @@ try {
   await assert.rejects(service.text(list.task, undefined, { css: 'table' }), /No element matches "table"/);
   await assert.rejects(service.text(list.task, undefined, { css: 'li[' }), /Invalid CSS selector "li\["/);
 
-  for (const s of [first, other, named, pair[0], empty, drawn, form, list]) await service.done(s.task);
+  const refused = 'http://127.0.0.1:1/';
+  const failed = /Could not open http:\/\/127\.0\.0\.1:1\/: net::ERR_CONNECTION_REFUSED\./;
+  await assert.rejects(service.navigate(list.task, refused, undefined, { wait: true }), failed, 'navigate reports the net error');
+  await assert.rejects(service.navigate(list.task, refused), failed, 'navigate --no-wait reports it too');
+  await assert.rejects(service.start('reuse', { url: refused, sessionId: 'agent-h' }), failed, 'start --url reports it');
+  const failedStart = await service.start('reuse', { sessionId: 'agent-h' });
+
+  for (const s of [first, other, named, pair[0], empty, drawn, form, list, failedStart]) await service.done(s.task);
   console.log('start settles; a second start goes on in the session task');
 } finally {
   clearTimeout(deadline);

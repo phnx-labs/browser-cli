@@ -13,6 +13,21 @@ The README's chart and several-agents table. One machine, one session, with [`be
 
 Every run's record is in [`bench/results/2026-11-07/`](../../bench/results/2026-11-07/), with `summary.md` as `bun bench/run.ts summary` printed it. Local paths are replaced with `~` and `<run>`, and the `skills`, `plugins` and `tools` lists are left out because they list the runner's own Claude Code install; in every run the first skill listed was the tool's own. Transcripts are not included.
 
+### The eight tasks
+
+Each agent got one of these prompts. The exact wording of every prompt is in [`bench/tasks.json`](../../bench/tasks.json).
+
+| Task | Site | What the agent was asked |
+| --- | --- | --- |
+| books | [Books to Scrape](https://books.toscrape.com) | Find the cheapest five-star book in the Mystery category, across every page, and give its title and price |
+| pizza | [httpbin forms](https://httpbin.org/forms/post) | Fill in and submit a pizza order: name, phone, email, size Large, two toppings, delivery time 19:45, instructions |
+| bun | [GitHub](https://github.com/oven-sh/bun/releases) | Open Bun's latest release and give its tag, its number of assets and the size of `bun-linux-x64.zip` |
+| saucedemo | [Sauce Demo](https://www.saucedemo.com) | Log in, sort by price, add two named products to the cart and check out until the order is complete |
+| laptops | [Web Scraper test site](https://webscraper.io/test-sites/e-commerce/static/computers/laptops) | Look through every page of laptops and give the most expensive one's name and price |
+| demoblaze | [Demoblaze](https://www.demoblaze.com) | Add two named phones to the cart, place the order with test details, and give the order's Id and amount |
+| instagram | [Instagram](https://www.instagram.com/nasa/) | Open NASA's public profile and give the account's name and follower count |
+| wikipedia | [Wikipedia](https://en.wikipedia.org) | Find which country won the 2022 FIFA World Cup, then give the population of its capital |
+
 ### Eight graded web tasks
 
 | Tool | Correct | Turns/task | Seconds/task | Tokens/task | Cost/task |
@@ -28,14 +43,14 @@ Per task, both runs correct for every tool; mean turns and seconds:
 
 | Task | browser-cli | browser-harness | Browser Use | agent-browser |
 |---|---|---|---|---|
-| books | 5.0 turns, 14 s | 4.0 turns, 12 s | 4.5 turns, 13 s | 8.5 turns, 22 s |
-| pizza | 5.0 turns, 14 s | 5.0 turns, 15 s | 5.0 turns, 13 s | 12.5 turns, 27 s |
-| bun | 4.0 turns, 11 s | 8.0 turns, 28 s | 6.5 turns, 22 s | 14.5 turns, 37 s |
-| saucedemo | 6.0 turns, 20 s | 6.5 turns, 25 s | 7.0 turns, 24 s | 25.5 turns, 71 s |
-| laptops | 5.5 turns, 18 s | 5.0 turns, 20 s | 5.5 turns, 21 s | 22.5 turns, 46 s |
-| demoblaze | 9.0 turns, 30 s | 6.5 turns, 34 s | 7.5 turns, 40 s | 16.5 turns, 44 s |
-| instagram | 4.5 turns, 10 s | 4.0 turns, 16 s | 4.5 turns, 12 s | 8.0 turns, 18 s |
-| wikipedia | 8.0 turns, 20 s | 5.5 turns, 14 s | 5.0 turns, 13 s | 10.0 turns, 22 s |
+| books (cheapest Mystery book) | 5.0 turns, 14 s | 4.0 turns, 12 s | 4.5 turns, 13 s | 8.5 turns, 22 s |
+| pizza (order form) | 5.0 turns, 14 s | 5.0 turns, 15 s | 5.0 turns, 13 s | 12.5 turns, 27 s |
+| bun (GitHub release) | 4.0 turns, 11 s | 8.0 turns, 28 s | 6.5 turns, 22 s | 14.5 turns, 37 s |
+| saucedemo (log in and check out) | 6.0 turns, 20 s | 6.5 turns, 25 s | 7.0 turns, 24 s | 25.5 turns, 71 s |
+| laptops (most expensive laptop) | 5.5 turns, 18 s | 5.0 turns, 20 s | 5.5 turns, 21 s | 22.5 turns, 46 s |
+| demoblaze (place an order) | 9.0 turns, 30 s | 6.5 turns, 34 s | 7.5 turns, 40 s | 16.5 turns, 44 s |
+| instagram (profile followers) | 4.5 turns, 10 s | 4.0 turns, 16 s | 4.5 turns, 12 s | 8.0 turns, 18 s |
+| wikipedia (World Cup capital) | 8.0 turns, 20 s | 5.5 turns, 14 s | 5.0 turns, 13 s | 10.0 turns, 22 s |
 
 ### Several agents, one browser
 

@@ -87,6 +87,11 @@ describe('firefoxExitedError', () => {
     expect(err.message).not.toContain('snap');
   });
 
+  it.skipIf(process.platform !== 'linux')('gives the snap hint for the snap entry point, which resolves to /usr/bin/snap', () => {
+    const err = firefoxExitedError({ name: 'firefox-default' }, '/snap/bin/firefox', '/home/u/.config/mozilla/firefox/abc.default');
+    expect(err.message).toContain('A snap Firefox cannot open a profile under a hidden folder');
+  });
+
   it.skipIf(process.platform === 'win32')('is raised on Linux when the launched binary exits at once; elsewhere the profile is assumed held', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ff-exit-'));
     const binary = path.join(dir, 'firefox');

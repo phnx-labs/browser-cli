@@ -14,7 +14,11 @@ export function getUploadStagingDir(): string {
   return path.join(getBrowserRuntimeDir(), 'uploads');
 }
 
-export function stageUploadFiles(files: string[]): { dir: string; files: string[] } {
+export function uploadTaskDir(taskName: string): string {
+  return path.join(getUploadStagingDir(), encodeURIComponent(taskName));
+}
+
+export function stageUploadFiles(taskName: string, files: string[]): { dir: string; files: string[] } {
   if (!files || files.length === 0) {
     throw new Error('At least one file path is required');
   }
@@ -28,7 +32,9 @@ export function stageUploadFiles(files: string[]): { dir: string; files: string[
   const stagingDir = getUploadStagingDir();
   fs.mkdirSync(stagingDir, { recursive: true, mode: 0o700 });
   fs.chmodSync(stagingDir, 0o700);
-  const dir = fs.mkdtempSync(path.join(stagingDir, 'u-'));
+  const taskDir = uploadTaskDir(taskName);
+  fs.mkdirSync(taskDir, { recursive: true, mode: 0o700 });
+  const dir = fs.mkdtempSync(path.join(taskDir, 'u-'));
   try {
     return {
       dir,
@@ -85,7 +91,6 @@ export async function uploadToFileInput(
   backendNodeId: number,
   files: string[]
 ): Promise<void> {
-
   const resolvedId = await resolveActualFileInput(cdp, sessionId, backendNodeId);
   await cdp.send(
     'DOM.setFileInputFiles',
@@ -171,7 +176,6 @@ export async function uploadToDropTarget(
   backendNodeId: number,
   files: string[]
 ): Promise<void> {
-
   const payload = files.map((p) => ({
     name: path.basename(p),
     type: mimeFromExt(p),
@@ -219,7 +223,6 @@ export async function uploadViaFileChooser(
   files: string[],
   timeoutMs = 5000
 ): Promise<void> {
-
   await cdp.send('Page.enable', {}, sessionId);
   await cdp.send(
     'Page.setInterceptFileChooserDialog',

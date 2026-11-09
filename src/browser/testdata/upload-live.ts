@@ -4,7 +4,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { BrowserService } from '../service.js';
 import { CDPClient } from '../cdp.js';
-import { getUploadStagingDir } from '../upload.js';
+import { uploadTaskDir } from '../upload.js';
 
 const directory = process.env.AGENTS_HOME!;
 const server: ReturnType<typeof Bun.serve> = Bun.serve({
@@ -47,7 +47,7 @@ try {
     await Bun.sleep(50);
   }
   const ref = Number(/"Attachment" \[ref=(\d+)\]/.exec(listing)![1]);
-  const staged = () => existsSync(getUploadStagingDir()) ? readdirSync(getUploadStagingDir()) : [];
+  const staged = () => existsSync(uploadTaskDir('upload')) ? readdirSync(uploadTaskDir('upload')) : [];
   await assert.rejects(service.upload('upload', ['report.txt'], { ref }), /must be absolute/);
   assert.deepEqual(staged(), [], 'a refused upload keeps no copy');
   assert.equal((await service.upload('upload', [source], { ref, mode: 'drop' })).mode, 'drop');
@@ -61,6 +61,10 @@ try {
     await Bun.sleep(25);
   }
   assert.match(text, /^report\.txt:hello upload — /);
+  await new BrowserService().stop('upload');
+  assert.deepEqual(staged(), [], 'a restarted service still removes the task\'s copies when it closes the task');
+  await service.upload('upload', [source], { ref });
+  assert.equal(staged().length, 1);
   await service.stop('upload');
   assert.deepEqual(staged(), [], 'done removes the task\'s copies');
   console.log('upload: absolute file accepted under its own name; relative path refused; copies removed');

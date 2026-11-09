@@ -268,7 +268,7 @@ Details: [SECURITY.md](SECURITY.md).
 
 ## Docs
 
-| | |
+| For | Read |
 | --- | --- |
 | **Start** | [Getting started](docs/guide/getting-started.md) · [Command reference](docs/command-index.md) |
 | **Use cases** | [All ten, with recorded runs](docs/use-cases/README.md) |

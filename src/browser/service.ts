@@ -3434,8 +3434,8 @@ export class BrowserService {
     }
     this.enabledSessions.get(sessionId)!.add('Runtime');
 
-    conn.cdp.on('Runtime.consoleAPICalled', (params: any) => {
-      if (params.sessionId !== sessionId) return;
+    conn.cdp.on('Runtime.consoleAPICalled', (params: any, eventSessionId?: string) => {
+      if (eventSessionId !== sessionId) return;
       const taskId = this.findTaskBySession(conn, sessionId);
       if (!taskId) return;
 
@@ -3453,8 +3453,8 @@ export class BrowserService {
       if (logs.length > 1000) logs.shift();
     });
 
-    conn.cdp.on('Runtime.exceptionThrown', (params: any) => {
-      if (params.sessionId !== sessionId) return;
+    conn.cdp.on('Runtime.exceptionThrown', (params: any, eventSessionId?: string) => {
+      if (eventSessionId !== sessionId) return;
       const taskId = this.findTaskBySession(conn, sessionId);
       if (!taskId) return;
 
@@ -3533,8 +3533,8 @@ export class BrowserService {
 
     const requestMap = new Map<string, import('./types.js').NetworkRequest>();
 
-    conn.cdp.on('Network.requestWillBeSent', (params: any) => {
-      if (params.sessionId !== sessionId) return;
+    conn.cdp.on('Network.requestWillBeSent', (params: any, eventSessionId?: string) => {
+      if (eventSessionId !== sessionId) return;
       const req: import('./types.js').NetworkRequest = {
         id: params.requestId,
         url: params.request.url,
@@ -3549,8 +3549,8 @@ export class BrowserService {
       if (reqs.length > 500) reqs.shift();
     });
 
-    conn.cdp.on('Network.responseReceived', (params: any) => {
-      if (params.sessionId !== sessionId) return;
+    conn.cdp.on('Network.responseReceived', (params: any, eventSessionId?: string) => {
+      if (eventSessionId !== sessionId) return;
       const req = requestMap.get(params.requestId);
       if (req) {
         req.status = params.response.status;

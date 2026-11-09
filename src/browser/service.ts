@@ -76,6 +76,7 @@ import {
 import {
   detectUploadPattern,
   stageUploadFiles,
+  uploadTaskDir,
   uploadToDropTarget,
   uploadToFileInput,
   uploadViaFileChooser,
@@ -578,7 +579,6 @@ export class BrowserService {
   private forkingProfiles = new Set<string>();
 
   // Per-task storage for console, errors, network, downloads
-  private uploadDirs = new Map<string, string[]>();
   private consoleLogs = new Map<string, import('./types.js').ConsoleEntry[]>();
   private pageErrors = new Map<string, import('./types.js').ErrorEntry[]>();
   private networkRequests = new Map<string, import('./types.js').NetworkRequest[]>();
@@ -1056,6 +1056,7 @@ export class BrowserService {
   }
 
   async stop(taskName: string): Promise<{ ok: boolean; profile?: string }> {
+    this.removeUploadDirs(taskName);
     // Rehydrate from tasks.json when the daemon restarted and lost RAM state.
     try {
       await this.findTask(taskName);
@@ -2936,7 +2937,7 @@ export class BrowserService {
 
   private async withStagedUpload(taskName: string, files: string[], keepUntilDone: boolean,
     upload: (staged: string[]) => Promise<void>): Promise<void> {
-    const staged = stageUploadFiles(files);
+    const staged = stageUploadFiles(taskName, files);
     try {
       await upload(staged.files);
     } catch (error) {
@@ -2944,12 +2945,10 @@ export class BrowserService {
       throw error;
     }
     if (!keepUntilDone) fs.rmSync(staged.dir, { recursive: true, force: true });
-    else this.uploadDirs.set(taskName, [...(this.uploadDirs.get(taskName) ?? []), staged.dir]);
   }
 
   private removeUploadDirs(taskName: string): void {
-    for (const dir of this.uploadDirs.get(taskName) ?? []) fs.rmSync(dir, { recursive: true, force: true });
-    this.uploadDirs.delete(taskName);
+    fs.rmSync(uploadTaskDir(taskName), { recursive: true, force: true });
   }
 
   /** Return status for a bare profile name or all live profiles, falling back to disk when no live

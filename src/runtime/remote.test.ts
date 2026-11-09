@@ -95,6 +95,10 @@ describe('forwardedCommandArgv', () => {
     expect(forwardedCommandArgv(['pdf', '--task', 'out.pdf', 'out.pdf'], pdf, ['output'])).toEqual(['pdf', '--task', 'out.pdf']);
     expect(forwardedCommandArgv(['pdf', 'pdf', '--task', 't'], pdf, ['output'])).toEqual(['pdf', '--task', 't']);
     expect(forwardedCommandArgv(['pdf', 'keep.pdf'], pdf, ['device'])).toEqual(['pdf', 'keep.pdf']);
+    const navigate = program.command('navigate [url]').alias('goto').option('--device <name>');
+    expect(forwardedCommandArgv(['browser', 'navigate', 'browser', '--device', 'h'], navigate, ['device', 'url']))
+      .toEqual(['browser', 'navigate']);
+    expect(forwardedCommandArgv(['browser', 'goto', 'navigate'], navigate, ['device'])).toEqual(['browser', 'goto', 'navigate']);
   });
 
   test('leaves everything after -- literal and inserts before it', () => {

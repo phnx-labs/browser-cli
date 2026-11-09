@@ -1,10 +1,10 @@
 import { strict as assert } from 'node:assert';
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, writeFileSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { BrowserService } from '../service.js';
 import { CDPClient } from '../cdp.js';
-import { uploadTaskDir } from '../upload.js';
+import { getUploadStagingDir, uploadTaskDir } from '../upload.js';
 
 const directory = process.env.AGENTS_HOME!;
 const server: ReturnType<typeof Bun.serve> = Bun.serve({
@@ -61,6 +61,11 @@ try {
     await Bun.sleep(25);
   }
   assert.match(text, /^report\.txt:hello upload — /);
+  const keep = join(getUploadStagingDir(), '..', 'keep');
+  writeFileSync(keep, 'runtime file');
+  for (const name of ['..', '.', '']) await new BrowserService().stop(name);
+  assert.ok(existsSync(keep), 'stopping a task named .. never reaches outside the staging folder');
+  assert.equal(staged().length, 1, 'stopping a task named . or an empty name keeps other tasks\' copies');
   await new BrowserService().stop('upload');
   assert.deepEqual(staged(), [], 'a restarted service still removes the task\'s copies when it closes the task');
   await service.upload('upload', [source], { ref });

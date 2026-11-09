@@ -15,7 +15,7 @@ export function getUploadStagingDir(): string {
 }
 
 export function uploadTaskDir(taskName: string): string {
-  return path.join(getUploadStagingDir(), encodeURIComponent(taskName));
+  return path.join(getUploadStagingDir(), 't-' + Buffer.from(taskName, 'utf8').toString('hex'));
 }
 
 export function stageUploadFiles(taskName: string, files: string[]): { dir: string; files: string[] } {

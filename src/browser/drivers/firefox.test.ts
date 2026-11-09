@@ -84,9 +84,10 @@ describe('firefoxExitedError', () => {
     expect(err.message).toContain('exited right after launch');
     expect(err.message).toContain('/opt/ff/firefox');
     expect(err.message).toContain('/home/u/.config/mozilla/firefox/abc.default');
+    expect(err.message).not.toContain('snap');
   });
 
-  it.skipIf(process.platform === 'win32')('is what connectFirefox raises when the launched binary exits at once', async () => {
+  it.skipIf(process.platform === 'win32')('is raised on Linux when the launched binary exits at once; elsewhere the profile is assumed held', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ff-exit-'));
     const binary = path.join(dir, 'firefox');
     fs.writeFileSync(binary, '#!/bin/sh\nexit 1\n', { mode: 0o755 });
@@ -102,8 +103,9 @@ describe('firefoxExitedError', () => {
       firefox: { profileName: 'abc', iniPath: path.join(dir, 'profiles.ini'), isDefault: false },
     };
     try {
+      const expected = process.platform === 'linux' ? /exited right after launch[\s\S]*binary: {2}.*firefox/ : /already running/;
       await expect(connectFirefox(profile, 'firefox-exits@local' as ConnectionKey, 9679, { profileDir, headless: true }))
-        .rejects.toThrow(/exited right after launch[\s\S]*binary: {2}.*firefox/);
+        .rejects.toThrow(expected);
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
     }

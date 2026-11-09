@@ -180,7 +180,7 @@ export function firefoxAttachRequiredError(
 
 /** A Firefox that `browser` launched exited before it opened WebDriver BiDi. */
 export function firefoxExitedError(profile: Pick<BrowserProfile, 'name'>, binary: string, profileDir: string): Error {
-  const snap = os.platform() === 'linux' && (binary.startsWith('/snap/') || binary === '/usr/bin/firefox');
+  const snap = os.platform() === 'linux' && isSnapFirefox(binary);
   return new Error(
     `Firefox for profile "${profile.name}" exited right after launch, before opening WebDriver BiDi.\n` +
       `  binary:  ${binary}\n` +
@@ -192,6 +192,19 @@ export function firefoxExitedError(profile: Pick<BrowserProfile, 'name'>, binary
           `that owns this profile first on PATH, or set it as the profile's binary.`
         : ''),
   );
+}
+
+function isSnapFirefox(binary: string): boolean {
+  try {
+    if (fs.realpathSync(binary).startsWith('/snap/')) return true;
+    const fd = fs.openSync(binary, 'r');
+    const head = Buffer.alloc(4096);
+    const n = fs.readSync(fd, head, 0, head.length, 0);
+    fs.closeSync(fd);
+    return head.subarray(0, 2).toString() === '#!' && head.subarray(0, n).toString().includes('/snap/bin/firefox');
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -265,6 +278,9 @@ export async function connectFirefox(
 
   for (let i = 0; i < BIDI_CONNECT_ATTEMPTS; i++) {
     if (pid && !isProcessAlive(pid) && i > 4) {
+      if (os.platform() !== 'linux' || firefoxHoldsProfile(profileDir)) {
+        throw firefoxAttachRequiredError(profile, port, profileDir);
+      }
       throw firefoxExitedError(profile, binary, profileDir);
     }
     const session = await tryOpenSession(port);

@@ -1,4 +1,3 @@
-// `browser pdf <output>` saved under sessions/<task>/ whatever path it was given.
 import { strict as assert } from 'node:assert';
 import { mkdirSync, readFileSync, realpathSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';

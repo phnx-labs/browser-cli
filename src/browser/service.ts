@@ -1208,7 +1208,11 @@ export class BrowserService {
         continue;
       }
       for (const task of conn.tasks.values()) {
-        if (this.recordings.has(task.name)) await this.recordStop(task.name).catch(() => {});
+        if (this.recordings.has(task.name)) {
+          await this.recordStop(task.name).catch((error) => {
+            emit('browser.record_stop_failed', { task: task.name, error: error instanceof Error ? error.message : String(error) });
+          });
+        }
       }
       conn.cdp.close();
       killChrome(conn.pid);
@@ -1938,6 +1942,7 @@ export class BrowserService {
     durationTimer: NodeJS.Timeout;
     sizeCheckInterval: NodeJS.Timeout;
     stopReason?: 'manual' | 'duration-cap' | 'size-cap';
+    stopping?: Promise<{ path: string; bytes: number; durationMs: number; reason: string }>;
   }>();
 
   async recordStart(
@@ -2161,90 +2166,86 @@ export class BrowserService {
     if (!rec) {
       throw new Error(`Task "${taskId}" is not currently recording`);
     }
-    if (rec.stopReason) {
-      // Already stopping (e.g. size-cap fired while user also called stop).
-      // Wait for in-flight finalize.
-      while (this.recordings.has(taskId)) {
-        await new Promise((r) => setTimeout(r, 25));
-      }
-    }
+    if (rec.stopping) return rec.stopping;
     rec.stopReason = reason;
+    rec.stopping = (async () => {
+      clearTimeout(rec.durationTimer);
+      clearInterval(rec.sizeCheckInterval);
+      clearInterval(rec.framePump);
+      rec.conn.cdp.off('Page.screencastFrame', rec.frameHandler);
 
-    clearTimeout(rec.durationTimer);
-    clearInterval(rec.sizeCheckInterval);
-    clearInterval(rec.framePump);
-    rec.conn.cdp.off('Page.screencastFrame', rec.frameHandler);
-
-    try {
-      await rec.conn.cdp.send('Page.stopScreencast', {}, rec.sessionId);
-      await rec.conn.cdp.send('Emulation.setFocusEmulationEnabled', { enabled: false }, rec.sessionId);
-    } catch {
-      // session may already be gone
-    }
-
-    // Close ffmpeg stdin so it flushes the output file cleanly, and observe how
-    // it exits. A non-zero exit means the encode failed — the recording must
-    // NOT be reported as success. If ffmpeg hangs, KILL it (don't just abandon
-    // the promise, which leaked the process) and treat the recording as failed.
-    const finalize = await new Promise<{ code: number | null; timedOut: boolean }>((resolve) => {
-      let done = false;
-      const settle = (r: { code: number | null; timedOut: boolean }) => {
-        if (done) return;
-        done = true;
-        clearTimeout(timer);
-        resolve(r);
-      };
-      const timer = setTimeout(() => {
-        try { rec.ffmpeg.kill('SIGKILL'); } catch { /* already gone */ }
-        settle({ code: null, timedOut: true });
-      }, 5000);
-      rec.ffmpeg.once('exit', (code) => settle({ code, timedOut: false }));
       try {
-        rec.ffmpeg.stdin?.end();
+        await rec.conn.cdp.send('Page.stopScreencast', {}, rec.sessionId);
       } catch {
-        // stdin already closed; wait for exit or the hard timeout above.
+        // session may already be gone
       }
-    });
+      await rec.conn.cdp.send('Emulation.setFocusEmulationEnabled', { enabled: false }, rec.sessionId).catch(() => undefined);
 
-    const durationMs = Date.now() - rec.startedAt;
-    // Drop the recording from the map before any throw, so a failed stop
-    // doesn't wedge the task in a permanent "already recording" state.
-    this.recordings.delete(taskId);
+      // Close ffmpeg stdin so it flushes the output file cleanly, and observe how
+      // it exits. A non-zero exit means the encode failed — the recording must
+      // NOT be reported as success. If ffmpeg hangs, KILL it (don't just abandon
+      // the promise, which leaked the process) and treat the recording as failed.
+      const finalize = await new Promise<{ code: number | null; timedOut: boolean }>((resolve) => {
+        let done = false;
+        const settle = (r: { code: number | null; timedOut: boolean }) => {
+          if (done) return;
+          done = true;
+          clearTimeout(timer);
+          resolve(r);
+        };
+        const timer = setTimeout(() => {
+          try { rec.ffmpeg.kill('SIGKILL'); } catch { /* already gone */ }
+          settle({ code: null, timedOut: true });
+        }, 5000);
+        rec.ffmpeg.once('exit', (code) => settle({ code, timedOut: false }));
+        try {
+          rec.ffmpeg.stdin?.end();
+        } catch {
+          // stdin already closed; wait for exit or the hard timeout above.
+        }
+      });
 
-    if (finalize.timedOut) {
-      throw new Error(
-        `ffmpeg did not exit within 5s while finalizing the recording; killed it. ` +
-          `The recording at ${rec.outputPath} is incomplete.`
-      );
-    }
-    if (finalize.code !== 0) {
-      const err = rec.ffmpegStderr().trim();
-      throw new Error(
-        `ffmpeg exited abnormally (code ${finalize.code}) while finalizing the recording at ` +
-          `${rec.outputPath}; the file is likely corrupt or empty.` +
-          (err ? ` ffmpeg: ${err.slice(-800)}` : '')
-      );
-    }
+      const durationMs = Date.now() - rec.startedAt;
+      // Drop the recording from the map before any throw, so a failed stop
+      // doesn't wedge the task in a permanent "already recording" state.
+      this.recordings.delete(taskId);
 
-    const encoderError = rec.encoderError?.();
-    if (encoderError) {
-      throw new Error(
-        `ffmpeg stopped accepting recording frames at ${rec.outputPath}: ${encoderError.message}`
-      );
-    }
+      if (finalize.timedOut) {
+        throw new Error(
+          `ffmpeg did not exit within 5s while finalizing the recording; killed it. ` +
+            `The recording at ${rec.outputPath} is incomplete.`
+        );
+      }
+      if (finalize.code !== 0) {
+        const err = rec.ffmpegStderr().trim();
+        throw new Error(
+          `ffmpeg exited abnormally (code ${finalize.code}) while finalizing the recording at ` +
+            `${rec.outputPath}; the file is likely corrupt or empty.` +
+            (err ? ` ffmpeg: ${err.slice(-800)}` : '')
+        );
+      }
 
-    if (rec.frameCount === 0) {
-      throw new Error(`Chrome delivered no frames for the recording at ${rec.outputPath}; the output is empty.`);
-    }
+      const encoderError = rec.encoderError?.();
+      if (encoderError) {
+        throw new Error(
+          `ffmpeg stopped accepting recording frames at ${rec.outputPath}: ${encoderError.message}`
+        );
+      }
 
-    let bytes = 0;
-    try {
-      const st = await fs.promises.stat(rec.outputPath);
-      bytes = st.size;
-    } catch {
-      // ffmpeg exited 0 but the file is missing — still a failed recording.
-    }
-    return { path: rec.outputPath, bytes, durationMs, reason };
+      if (rec.frameCount === 0) {
+        throw new Error(`Chrome delivered no frames for the recording at ${rec.outputPath}; the output is empty.`);
+      }
+
+      let bytes = 0;
+      try {
+        const st = await fs.promises.stat(rec.outputPath);
+        bytes = st.size;
+      } catch {
+        // ffmpeg exited 0 but the file is missing — still a failed recording.
+      }
+      return { path: rec.outputPath, bytes, durationMs, reason };
+    })();
+    return rec.stopping;
   }
 
   async recordStatus(taskId: string): Promise<{ recording: boolean; path?: string; elapsedMs?: number }> {

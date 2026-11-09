@@ -43,7 +43,10 @@ try {
     await Bun.sleep(400);
   }
   const frames = recording.frameCount;
-  const stopped = await service.recordStop('one');
+  const raceStarted = Date.now();
+  const [stopped, again] = await Promise.all([service.recordStop('one'), service.recordStop('one', 'duration-cap')]);
+  assert.deepEqual(again, stopped, 'a stop that races another one shares its result');
+  assert.ok(Date.now() - raceStarted < 4000, 'a racing stop does not wait out the 5 s ffmpeg timeout');
   assert.ok(stopped.bytes > 0, 'the background recording has content');
   const distinct = new Set<string>();
   const probe = Bun.spawnSync(['ffmpeg', '-v', 'error', '-i', stopped.path, '-vf', 'scale=8:8', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-']);

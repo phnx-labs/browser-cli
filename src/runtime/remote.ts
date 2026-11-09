@@ -109,6 +109,10 @@ export function forwardedCommandArgv(argv: string[], command: Command, drop: str
   for (let c: Command | null = command; c; c = c.parent) options.push(...c.options);
   const find = (flag: string) => options.find((o) => o.short === flag || o.long === flag);
   const maybeOption = (word: string) => word.length > 1 && word[0] === '-';
+  const path: string[][] = [];
+  for (let c: Command | null = command; c; c = c.parent) path.unshift([c.name(), ...c.aliases()]);
+  let pathIndex = 0;
+  let argIndex = 0;
   const out: string[] = [];
   const pending = [...argv];
   let variadic: Option | undefined;
@@ -135,6 +139,19 @@ export function forwardedCommandArgv(argv: string[], command: Command, drop: str
     if (!option && /^--[^=]+=/.test(word)) {
       const long = find(word.slice(0, word.indexOf('=')));
       if (long && (long.required || long.optional)) option = long;
+    }
+    if (!option && !maybeOption(word)) {
+      const level = path.findIndex((names, i) => i >= pathIndex && names.includes(word));
+      if (argIndex === 0 && level >= 0) {
+        pathIndex = level + 1;
+        out.push(word);
+        continue;
+      }
+      const argument = command.registeredArguments[Math.min(argIndex, command.registeredArguments.length - 1)];
+      const isArgument = argIndex < command.registeredArguments.length || argument?.variadic;
+      argIndex++;
+      if (!(isArgument && argument && drop.includes(argument.name()))) out.push(word);
+      continue;
     }
     if (!option || !drop.includes(option.name())) out.push(...words);
   }

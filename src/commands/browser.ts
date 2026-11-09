@@ -1721,7 +1721,7 @@ function registerTaskCommands(browser: Command): void {
     // routes it — a taskless `done` must never blindly stop a hub task.
     if (!route.task && isTerminalBrowserVerb(top)) return;
 
-    const outputPath = top === 'screenshot' ? opts.output : undefined;
+    const outputPath = top === 'screenshot' ? opts.output : top === 'pdf' ? actionCommand.args[0] : undefined;
     // The far side gets no stdin, so a piped script travels as the expression.
     const stdinScript = top === 'evaluate' && (opts as { file?: string }).file === '-' ? readStdinScript() : undefined;
     const forwarded = browserForwardedArgv(
@@ -1741,7 +1741,7 @@ function registerTaskCommands(browser: Command): void {
         .map((line) => line.trim())
         .find((line) => line.length > 0);
       if (!remotePath) {
-        console.error(`Remote screenshot on ${route.device} produced no path.`);
+        console.error(`Remote ${top} on ${route.device} produced no path.`);
         process.exit(1);
       }
       try {
@@ -2643,12 +2643,13 @@ function registerTaskCommands(browser: Command): void {
         process.exit(1);
       }
 
-      console.log(response.path);
+      const savedPath = response.path ? honorScreenshotOutput(output, response.path) : response.path;
+      console.log(savedPath);
       const size = humanizeBytes(response.bytes);
-      console.error(`Saved PDF to ${response.path} (${size})`);
+      console.error(`Saved PDF to ${savedPath} (${size})`);
 
-      if (!output && response.path) {
-        const dir = path.dirname(response.path);
+      if (!output && savedPath) {
+        const dir = path.dirname(savedPath);
         console.error(`Tip: auto-saving to ${dir}. Pass a path argument to choose one.`);
       }
     });

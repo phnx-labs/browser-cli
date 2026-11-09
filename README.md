@@ -9,7 +9,7 @@ Chrome, Arc, Brave, Edge, Comet or Firefox, on this machine or another one over 
 [![CI](https://img.shields.io/github/actions/workflow/status/phnx-labs/browser-cli/test.yml?branch=main&style=flat-square&label=tests&labelColor=0d1117)](https://github.com/phnx-labs/browser-cli/actions/workflows/test.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-555?style=flat-square&labelColor=0d1117)](LICENSE)
 
-[Install](#install) · [Features](#features) · [Benchmark](#benchmark) · [How it compares](#how-it-compares) · [Docs](#docs)
+[Install](#install) · [Features](#features) · [Remote browsers](#remote-browsers) · [Benchmark](#benchmark) · [How it compares](#how-it-compares) · [Docs](#docs)
 
 [phoenix.so/browser-cli](https://phoenix.so/browser-cli?ref=github) · [Why we open-sourced it](https://phoenix.so/blog/browser-cli?ref=github)
 
@@ -220,6 +220,17 @@ In canvas apps the agent works the way a person does: shortcuts, clicks at a pos
 
 Each clip is a real run recorded with browser-cli, sped up; the page for each shows the task, the commands and what came back.
 
+## Remote browsers
+
+Drive the browser on another machine over SSH. Turn it on once on that machine with `browser remote-control on` (it is off by default), then:
+
+```sh
+browser start --device box --profile work    # box is a Host in ~/.ssh/config
+browser navigate https://example.com         # later commands follow the task there
+```
+
+Chromium-family browsers only; Firefox and Arc run on the local machine. More in [Remote browsers](docs/guide/remote.md).
+
 ## Benchmark
 
 Four browser tools on eight web tasks, Claude Sonnet 5.5 in Claude Code, 2 runs per task, 2026-11-07:
@@ -246,17 +257,17 @@ Method, per-task results and the run records: [Benchmarks](docs/benchmarks/READM
 
 | Tool | Several agents in one browser | Another machine | Your signed-in browser |
 | --- | --- | --- | --- |
-| **browser-cli** | Each task owns its tabs | Over SSH | Yes, any profile |
-| [browser-harness](https://github.com/browser-use/browser-harness) | One current tab; agents can race | Any CDP URL | Yes, after Chrome's Allow dialog |
-| [agent-browser](https://agent-browser.dev) | A browser per session, or opt-in `--pin-tab` | Any CDP URL | Copies or attaches to your profile |
-| [Browserbase `browse`](https://github.com/browserbase/stagehand/tree/main/packages/cli) | A browser per session | Any CDP URL | `--auto-connect` to local Chrome |
-| [Playwright CLI](https://github.com/microsoft/playwright-cli) | A browser per session | CDP URL or Playwright server | After Chrome's toggle, or the extension |
-| [Playwright MCP](https://github.com/microsoft/playwright-mcp) | A tab group per client (extension) | CDP URL or Playwright server | Through the extension |
-| [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp) | Any session can close any page | Any CDP URL | After an Allow dialog, Chrome 144+ |
-| [Claude in Chrome](https://code.claude.com/docs/en/chrome) | A tab group per session | Not documented | Yes, through the extension |
-| [Playwriter](https://playwriter.dev) | Tabs shared across sessions | `playwriter serve` over a LAN or tunnel | Yes, through the extension |
+| **browser-cli** | [Each task owns its tabs](docs/use-cases/several-agents.md) | [Over SSH](docs/guide/remote.md) | [Yes, any profile](docs/guide/profiles.md) |
+| [browser-harness](https://github.com/browser-use/browser-harness) | [One current tab; agents can race](https://github.com/browser-use/browser-harness/blob/b41bfb643e6c0f5a879b389615dcd1ee8c6bc165/SKILL.md?plain=1#L67-L80) | [Any CDP URL](https://github.com/browser-use/browser-harness/blob/b41bfb643e6c0f5a879b389615dcd1ee8c6bc165/src/browser_harness/daemon.py#L264-L270) | [Yes, after Chrome's Allow dialog](https://github.com/browser-use/browser-harness/blob/b41bfb643e6c0f5a879b389615dcd1ee8c6bc165/README.md?plain=1#L50) |
+| [agent-browser](https://agent-browser.dev) | [A browser per session, or opt-in `--pin-tab`](https://github.com/vercel-labs/agent-browser/blob/d44f6989bf5e9a9a1c6dd6d97175f8c33b138eca/docs/content/docs/sessions.mdx?plain=1#L73-L84) | [Any CDP URL](https://github.com/vercel-labs/agent-browser/blob/d44f6989bf5e9a9a1c6dd6d97175f8c33b138eca/docs/content/docs/cdp-mode.mdx?plain=1#L25-L34) | [Copies or attaches to your profile](https://github.com/vercel-labs/agent-browser/blob/d44f6989bf5e9a9a1c6dd6d97175f8c33b138eca/docs/content/docs/sessions.mdx?plain=1#L88) |
+| [Browserbase `browse`](https://github.com/browserbase/stagehand/tree/main/packages/cli) | [A browser per session](https://github.com/browserbase/stagehand/blob/310957518a931c1a84c5968b13282cc30acd1be9/packages/cli/README.md?plain=1#L48) | [Any CDP URL](https://github.com/browserbase/stagehand/blob/310957518a931c1a84c5968b13282cc30acd1be9/packages/cli/README.md?plain=1#L62) | [`--auto-connect` to local Chrome](https://github.com/browserbase/stagehand/blob/310957518a931c1a84c5968b13282cc30acd1be9/packages/cli/README.md?plain=1#L61) |
+| [Playwright CLI](https://github.com/microsoft/playwright-cli) | [A browser per session](https://github.com/microsoft/playwright-cli/blob/4bc00fb7fa5b4329f2fb53ac4743a066c2c664e8/skills/playwright-cli/references/session-management.md?plain=1#L22-L30) | [CDP URL or Playwright server](https://github.com/microsoft/playwright-cli/blob/4bc00fb7fa5b4329f2fb53ac4743a066c2c664e8/README.md?plain=1#L488-L505) | [After Chrome's toggle, or the extension](https://github.com/microsoft/playwright-cli/blob/4bc00fb7fa5b4329f2fb53ac4743a066c2c664e8/skills/playwright-cli/references/session-management.md?plain=1#L116) |
+| [Playwright MCP](https://github.com/microsoft/playwright-mcp) | [A tab group per client (extension)](https://github.com/microsoft/playwright/blob/07c7069cdbb1f5c7331d3f4d2abd864dcfde745a/packages/extension/README.md?plain=1#L41-L43) | [CDP URL or Playwright server](https://github.com/microsoft/playwright-mcp/blob/404be8eb89abecff77a55152b6d843d140c78372/README.md?plain=1#L416-L417) | [Through the extension](https://github.com/microsoft/playwright/blob/07c7069cdbb1f5c7331d3f4d2abd864dcfde745a/packages/extension/README.md?plain=1#L5) |
+| [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp) | [Any session can close any page](https://github.com/ChromeDevTools/chrome-devtools-mcp/blob/0b37364dc0a88a804c6d73d3335e776adc7f33c4/src/McpContext.ts#L606-L613) | [Any CDP URL](https://github.com/ChromeDevTools/chrome-devtools-mcp/blob/0b37364dc0a88a804c6d73d3335e776adc7f33c4/docs/configuration.md?plain=1#L72-L81) | [After an Allow dialog, Chrome 144+](https://github.com/ChromeDevTools/chrome-devtools-mcp/blob/0b37364dc0a88a804c6d73d3335e776adc7f33c4/docs/configuration.md?plain=1#L67-L68) |
+| [Claude in Chrome](https://code.claude.com/docs/en/chrome) | [A tab group per session](https://code.claude.com/docs/en/chrome) | Not documented | [Yes, through the extension](https://code.claude.com/docs/en/chrome) |
+| [Playwriter](https://playwriter.dev) | [Tabs shared across sessions](https://github.com/remorses/playwriter/blob/2cae912a9c1e68ae2b74fcaef9efd79b6d7d432f/website/src/pages/docs/sessions.mdx?plain=1#L46-L48) | [`playwriter serve` over a LAN or tunnel](https://github.com/remorses/playwriter/blob/2cae912a9c1e68ae2b74fcaef9efd79b6d7d432f/README.md?plain=1#L345-L363) | [Yes, through the extension](https://github.com/remorses/playwriter/blob/2cae912a9c1e68ae2b74fcaef9efd79b6d7d432f/README.md?plain=1#L299) |
 
-Each cell is sourced from that tool's own docs or code, read on 2026-11-07: [sources](docs/comparison.md).
+Each cell links to the line in that tool's own docs or code it comes from, read on 2026-11-07; the same table is in [docs/comparison.md](docs/comparison.md).
 
 ## Security and privacy
 

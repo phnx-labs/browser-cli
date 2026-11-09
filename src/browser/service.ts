@@ -1066,6 +1066,11 @@ export class BrowserService {
       if (task) {
         // Map key may be task.name, not the caller-supplied handle.
         const mapKey = this.taskMapKey(conn, task) ?? taskName;
+        if (this.recordings.has(task.name)) {
+          await this.recordStop(task.name).catch((error) => {
+            emit('browser.record_stop_failed', { task: task.name, error: error instanceof Error ? error.message : String(error) });
+          });
+        }
         // Get domains from tabs before closing (for history)
         const domains = new Set<string>();
 
@@ -1201,6 +1206,9 @@ export class BrowserService {
         this.connections.delete(key);
         clearProfileRuntime(key);
         continue;
+      }
+      for (const task of conn.tasks.values()) {
+        if (this.recordings.has(task.name)) await this.recordStop(task.name).catch(() => {});
       }
       conn.cdp.close();
       killChrome(conn.pid);
@@ -1937,12 +1945,11 @@ export class BrowserService {
     tabHint?: string,
     opts: { fps?: number; duration?: number; maxMb?: number } = {}
   ): Promise<{ path: string; fps: number; durationCapSec: number; maxMb: number }> {
-    if (this.recordings.has(taskId)) {
-      throw new Error(`Task "${taskId}" is already recording. Call record stop first.`);
-    }
-
     const { conn, task, key: runtimeKey } = await this.findTask(taskId);
     requireCdp(conn, 'recording');
+    if (this.recordings.has(task.name)) {
+      throw new Error(`Task "${task.name}" is already recording. Call record stop first.`);
+    }
     const shortId = tabHint ? await this.resolveTabHint(conn, task, tabHint) : this.resolveCurrentTab(task);
     const cdpTargetId = this.getCdpTargetId(task, shortId);
     const target = await this.getTarget(conn, cdpTargetId);
@@ -2057,6 +2064,7 @@ export class BrowserService {
 
     try {
       await this.enablePageForSession(conn, sessionId);
+      await conn.cdp.send('Emulation.setFocusEmulationEnabled', { enabled: true }, sessionId);
       await conn.cdp.send(
         'Page.startScreencast',
         {
@@ -2089,6 +2097,7 @@ export class BrowserService {
       conn.cdp.off('Page.screencastFrame', frameHandler);
       clearInterval(framePump);
       try { await conn.cdp.send('Page.stopScreencast', {}, sessionId); } catch { /* session may be gone */ }
+      await conn.cdp.send('Emulation.setFocusEmulationEnabled', { enabled: false }, sessionId).catch(() => {});
       try { ffmpeg.stdin?.end(); } catch { /* process may already be gone */ }
       await new Promise<void>((resolve) => {
         if (ffmpeg.exitCode !== null) return resolve();
@@ -2123,20 +2132,20 @@ export class BrowserService {
       frameHandler,
       framePump,
       durationTimer: setTimeout(() => {
-        this.recordStop(taskId, 'duration-cap').catch(() => {});
+        this.recordStop(task.name, 'duration-cap').catch(() => {});
       }, durationMs),
       sizeCheckInterval: setInterval(async () => {
         try {
           const st = await fs.promises.stat(outputPath);
           if (st.size >= maxBytes) {
-            await this.recordStop(taskId, 'size-cap');
+            await this.recordStop(task.name, 'size-cap');
           }
         } catch {
           // File may not exist yet
         }
       }, 1000),
     };
-    this.recordings.set(taskId, state);
+    this.recordings.set(task.name, state);
 
     return { path: outputPath, fps, durationCapSec: durationSec, maxMb };
   }
@@ -2147,6 +2156,7 @@ export class BrowserService {
   ): Promise<{ path: string; bytes: number; durationMs: number; reason: string }> {
     const activeTask = await this.findTask(taskId).catch(() => undefined);
     if (activeTask) requireCdp(activeTask.conn, 'recording');
+    taskId = activeTask?.task.name ?? taskId;
     const rec = this.recordings.get(taskId);
     if (!rec) {
       throw new Error(`Task "${taskId}" is not currently recording`);
@@ -2167,6 +2177,7 @@ export class BrowserService {
 
     try {
       await rec.conn.cdp.send('Page.stopScreencast', {}, rec.sessionId);
+      await rec.conn.cdp.send('Emulation.setFocusEmulationEnabled', { enabled: false }, rec.sessionId);
     } catch {
       // session may already be gone
     }
@@ -2241,7 +2252,7 @@ export class BrowserService {
     // recording.
     const live = this.findTaskByHandle(taskId) ?? await this.findTask(taskId).catch(() => undefined);
     if (live && (live.conn.backend === 'arc-native' || live.conn.backend === 'bidi')) return { recording: false };
-    const rec = this.recordings.get(taskId);
+    const rec = this.recordings.get(live?.task.name ?? taskId);
     if (!rec) return { recording: false };
     return { recording: true, path: rec.outputPath, elapsedMs: Date.now() - rec.startedAt };
   }

@@ -177,6 +177,17 @@ export function firefoxAttachRequiredError(
   );
 }
 
+/** No lock held this profile before launch, so an early exit means `binary` could not open it. */
+export function firefoxExitedError(profile: Pick<BrowserProfile, 'name'>, binary: string, profileDir: string): Error {
+  return new Error(
+    `Firefox for profile "${profile.name}" exited right after launch, before opening WebDriver BiDi.\n` +
+      `  binary:  ${binary}\n` +
+      `  profile: ${profileDir}\n` +
+      `Run that binary with --profile on that directory to see why. A snap Firefox cannot open a ` +
+      `profile under a hidden folder such as ~/.config; put the Firefox that owns this profile first on PATH.`,
+  );
+}
+
 /**
  * Whether a live Firefox holds `profileDir`, via its `lock`/`.parentlock`/
  * `parent.lock`. A stale lock whose pid is dead never wedges launch.
@@ -247,11 +258,8 @@ export async function connectFirefox(
   });
 
   for (let i = 0; i < BIDI_CONNECT_ATTEMPTS; i++) {
-    // A Firefox handed the URL to an already-running instance exits almost
-    // immediately without ever opening the port — detect that and fail loud
-    // rather than waiting out the full timeout.
     if (pid && !isProcessAlive(pid) && i > 4) {
-      throw firefoxAttachRequiredError(profile, port, profileDir);
+      throw firefoxExitedError(profile, binary, profileDir);
     }
     const session = await tryOpenSession(port);
     if (session) {

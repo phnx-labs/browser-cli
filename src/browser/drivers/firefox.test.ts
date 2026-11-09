@@ -6,6 +6,7 @@ import {
   deserializeBidi,
   FirefoxCapabilityError,
   firefoxAttachRequiredError,
+  firefoxExitedError,
   connectFirefox,
   FirefoxBiDiClient,
   bidiCreateTab,
@@ -74,6 +75,16 @@ describe('firefoxAttachRequiredError', () => {
     expect(err.message).toContain('--remote-debugging-port 9652');
     expect(err.message).toContain('/home/u/.mozilla/firefox/abc.default');
     expect(err.message).toContain('single-instance');
+  });
+});
+
+describe('firefoxExitedError', () => {
+  it('names the binary that exited and the profile it could not open, not a rival Firefox', () => {
+    const err = firefoxExitedError({ name: 'firefox-default' }, '/usr/bin/firefox', '/home/u/.config/mozilla/firefox/abc.default');
+    expect(err.message).toContain('exited right after launch');
+    expect(err.message).toContain('/usr/bin/firefox');
+    expect(err.message).toContain('/home/u/.config/mozilla/firefox/abc.default');
+    expect(err.message).not.toContain('already running');
   });
 });
 

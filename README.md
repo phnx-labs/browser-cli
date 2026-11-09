@@ -43,7 +43,7 @@ Set up browser-cli so you can use my web browser: https://github.com/phnx-labs/b
    - Claude Code: claude plugin marketplace add phnx-labs/browser-cli, then claude plugin install browser@browser-cli
    - Codex, Cursor, OpenCode or another agent: npx skills add phnx-labs/browser-cli -g -y -a <your agent's name, such as codex or cursor>
    Then read the skill now, before you use the browser: browser skills get
-3. Make a browser profile: browser profiles create work --browser chrome (use brave, edge, arc or comet instead if I said I use one of those), then: browser use work. It is a profile of its own and starts signed out, so tell me I can sign in once, in the window it opens, to the sites I want you to use.
+3. Set up the browser profile I asked for (this one setup step is the exception to the skill's rule against creating profiles): browser profiles create work --browser chrome, or brave or edge if I use one of those, then: browser use work. That profile starts signed out, so tell me I can sign in once, in the window it opens, to the sites I want you to use. If I use Arc, create it with --browser arc; for Comet add --attach-only. Both attach to the browser I already have open and signed in.
 4. Try it: browser start --url https://news.ycombinator.com --snapshot, then browser done. Tell me the title of the top story.
 
 Run browser <command> --help before guessing at a flag.

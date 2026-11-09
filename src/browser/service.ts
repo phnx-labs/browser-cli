@@ -75,7 +75,8 @@ import {
 } from './arc-dom.js';
 import {
   detectUploadPattern,
-  stageUploadFile,
+  stageUploadFiles,
+  uploadTaskDir,
   uploadToDropTarget,
   uploadToFileInput,
   uploadViaFileChooser,
@@ -1055,6 +1056,7 @@ export class BrowserService {
   }
 
   async stop(taskName: string): Promise<{ ok: boolean; profile?: string }> {
+    this.removeUploadDirs(taskName);
     // Rehydrate from tasks.json when the daemon restarted and lost RAM state.
     try {
       await this.findTask(taskName);
@@ -1071,6 +1073,7 @@ export class BrowserService {
             emit('browser.record_stop_failed', { task: task.name, error: error instanceof Error ? error.message : String(error) });
           });
         }
+        this.removeUploadDirs(task.name);
         // Get domains from tabs before closing (for history)
         const domains = new Set<string>();
 
@@ -1214,6 +1217,7 @@ export class BrowserService {
           });
         }
       }
+      for (const task of conn.tasks.values()) this.removeUploadDirs(task.name);
       conn.cdp.close();
       killChrome(conn.pid);
       conn.cleanup?.();
@@ -2914,13 +2918,8 @@ export class BrowserService {
       const node = nodeMap.get(ref);
       if (!node) throw new Error(`Ref ${ref} not found`);
       refuseCrossSiteUpload(node, ref);
-      await uploadViaFileChooser(
-        conn.cdp,
-        sessionId,
-        { node, nodeMap },
-        files,
-        options.timeout
-      );
+      await this.withStagedUpload(task.name, files, true, (staged) =>
+        uploadViaFileChooser(conn.cdp, sessionId, { node, nodeMap }, staged, options.timeout));
       return { mode: 'chooser' };
     }
 
@@ -2941,16 +2940,27 @@ export class BrowserService {
       resolved = await detectUploadPattern(conn.cdp, sessionId, node.backendNodeId);
     }
 
-    if (resolved === 'input') {
-      await uploadToFileInput(conn.cdp, sessionId, node.backendNodeId, files);
-    } else {
-      await uploadToDropTarget(conn.cdp, sessionId, node.backendNodeId, files);
-    }
+    const backendNodeId = node.backendNodeId;
+    await this.withStagedUpload(task.name, files, resolved === 'input', (staged) => resolved === 'input'
+      ? uploadToFileInput(conn.cdp, sessionId, backendNodeId, staged)
+      : uploadToDropTarget(conn.cdp, sessionId, backendNodeId, staged));
     return { mode: resolved };
   }
 
-  stageUpload(source: string): { path: string } {
-    return { path: stageUploadFile(source) };
+  private async withStagedUpload(taskName: string, files: string[], keepUntilDone: boolean,
+    upload: (staged: string[]) => Promise<void>): Promise<void> {
+    const staged = stageUploadFiles(taskName, files);
+    try {
+      await upload(staged.files);
+    } catch (error) {
+      fs.rmSync(staged.dir, { recursive: true, force: true });
+      throw error;
+    }
+    if (!keepUntilDone) fs.rmSync(staged.dir, { recursive: true, force: true });
+  }
+
+  private removeUploadDirs(taskName: string): void {
+    fs.rmSync(uploadTaskDir(taskName), { recursive: true, force: true });
   }
 
   /** Return status for a bare profile name or all live profiles, falling back to disk when no live

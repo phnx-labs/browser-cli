@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { randomBytes } from 'crypto';
+import { createHash } from 'crypto';
 import type { CDPClient } from './cdp.js';
 import { clickAtCoords } from './input.js';
 import { getBrowserRuntimeDir } from './profiles.js';
@@ -15,26 +15,42 @@ export function getUploadStagingDir(): string {
   return path.join(getBrowserRuntimeDir(), 'uploads');
 }
 
-export function stageUploadFile(source: string): string {
-  if (!path.isAbsolute(source)) {
-    throw new Error(`upload-stage: source path must be absolute: ${source}`);
-  }
-  const resolvedSource = fs.realpathSync(source);
-  const stat = fs.statSync(resolvedSource);
-  if (!stat.isFile()) {
-    throw new Error(`upload-stage: source path is not a file: ${source}`);
-  }
+export function uploadTaskDir(taskName: string): string {
+  return path.join(getUploadStagingDir(), 't-' + createHash('sha256').update(taskName, 'utf8').digest('hex'));
+}
 
+export function stageUploadFiles(taskName: string, files: string[]): { dir: string; files: string[] } {
+  if (!files || files.length === 0) {
+    throw new Error('At least one file path is required');
+  }
+  const sources = files.map((source) => {
+    if (!path.isAbsolute(source)) throw new Error(`Upload path must be absolute: ${source}`);
+    if (!fs.existsSync(source)) throw new Error(`File not found: ${source}`);
+    const resolvedSource = fs.realpathSync(source);
+    if (!fs.statSync(resolvedSource).isFile()) throw new Error(`Upload path is not a file: ${source}`);
+    return resolvedSource;
+  });
   const stagingDir = getUploadStagingDir();
   fs.mkdirSync(stagingDir, { recursive: true, mode: 0o700 });
   fs.chmodSync(stagingDir, 0o700);
-
-  const stagedPath = path.join(
-    stagingDir,
-    `${randomBytes(8).toString('hex')}${path.extname(source)}`
-  );
-  fs.copyFileSync(resolvedSource, stagedPath);
-  return stagedPath;
+  const taskDir = uploadTaskDir(taskName);
+  fs.mkdirSync(taskDir, { recursive: true, mode: 0o700 });
+  const dir = fs.mkdtempSync(path.join(taskDir, 'u-'));
+  try {
+    return {
+      dir,
+      files: sources.map((resolvedSource, i) => {
+        const slot = path.join(dir, String(i));
+        fs.mkdirSync(slot, { mode: 0o700 });
+        const staged = path.join(slot, path.basename(files[i]!));
+        fs.copyFileSync(resolvedSource, staged);
+        return staged;
+      }),
+    };
+  } catch (error) {
+    fs.rmSync(dir, { recursive: true, force: true });
+    throw error;
+  }
 }
 
 const RESOLVE_FILE_INPUT_FN = `(function() {
@@ -76,8 +92,6 @@ export async function uploadToFileInput(
   backendNodeId: number,
   files: string[]
 ): Promise<void> {
-  validateFiles(files);
-
   const resolvedId = await resolveActualFileInput(cdp, sessionId, backendNodeId);
   await cdp.send(
     'DOM.setFileInputFiles',
@@ -163,8 +177,6 @@ export async function uploadToDropTarget(
   backendNodeId: number,
   files: string[]
 ): Promise<void> {
-  validateFiles(files);
-
   const payload = files.map((p) => ({
     name: path.basename(p),
     type: mimeFromExt(p),
@@ -212,8 +224,6 @@ export async function uploadViaFileChooser(
   files: string[],
   timeoutMs = 5000
 ): Promise<void> {
-  validateFiles(files);
-
   await cdp.send('Page.enable', {}, sessionId);
   await cdp.send(
     'Page.setInterceptFileChooserDialog',
@@ -280,37 +290,6 @@ export async function uploadViaFileChooser(
       sessionId
     ).catch(() => {});
   }
-}
-
-function validateFiles(files: string[]): void {
-  if (!files || files.length === 0) {
-    throw new Error('At least one file path is required');
-  }
-  const stagingDir = getUploadStagingDir();
-  fs.mkdirSync(stagingDir, { recursive: true, mode: 0o700 });
-  fs.chmodSync(stagingDir, 0o700);
-  const resolvedStagingDir = fs.realpathSync(stagingDir);
-
-  for (const f of files) {
-    if (!path.isAbsolute(f)) {
-      throw new Error(`Upload path must be absolute: ${f}`);
-    }
-    if (!fs.existsSync(f)) {
-      throw new Error(`File not found: ${f}`);
-    }
-    const resolvedFile = fs.realpathSync(f);
-    if (!isPathInside(resolvedFile, resolvedStagingDir)) {
-      throw new Error(
-        `upload: path ${f} is outside the upload staging directory ${stagingDir}. ` +
-          `Stage files via 'browser upload-stage <path>' first.`
-      );
-    }
-  }
-}
-
-function isPathInside(candidate: string, dir: string): boolean {
-  const rel = path.relative(dir, candidate);
-  return rel === '' || (!!rel && !rel.startsWith('..') && !path.isAbsolute(rel));
 }
 
 const MIME_BY_EXT: Record<string, string> = {

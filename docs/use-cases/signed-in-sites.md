@@ -19,6 +19,6 @@ Its answer: saved, with Employee Id 0803.
 
 - The agent never handles the password. Sign in yourself, once, in the window the profile opens.
 - An agent with `browser` can do anything that profile can. Give agents a dedicated profile when they should not reach your personal accounts.
-- To attach to a browser you already have open and signed in, create Comet profiles with `--attach-only`; Arc profiles always attach.
+- To work in a browser you already have open and signed in, such as Comet, create the profile with `--attach-only` and start that browser with remote debugging; Arc profiles always attach.
 
 More: [Profiles](../guide/profiles.md).

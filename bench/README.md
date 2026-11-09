@@ -2,9 +2,9 @@
 
 Reruns the 2026-11-07 [benchmarks](../docs/benchmarks/README.md): eight graded web tasks and the several-agents test, for browser-cli and the three other tools in the README's chart.
 
-The [2026-10-19 runs](../docs/benchmarks/archive-2026-10-19.md) were measured with an earlier script that is not in this repository. This one follows the same method, with its task prompts written down in [`tasks.json`](tasks.json), so its numbers compare with each other, not with those runs.
+It follows the method of the [2026-10-19 runs](../docs/benchmarks/archive-2026-10-19.md), with every task prompt written down in [`tasks.json`](tasks.json). Those runs used an earlier script, so compare numbers within one date, not across dates.
 
-It needs Linux, Bun, uv (it installs Python 3.12 for the Python tools), Node with npm and npx, and a signed-in `claude`. It runs the four tools in the README's chart; Browserbase `browse` and Browser Use Bench v2.1 are not in it, and its tool versions are the ones `bench/setup.sh` pins.
+It needs Linux, Bun, uv (it installs Python 3.12 for the Python tools), Node with npm and npx, and a signed-in `claude`. It runs the four tools in the README's chart at the versions `bench/setup.sh` pins (`BROWSER_USE_VERSION`, `BROWSER_HARNESS_VERSION`, `AGENT_BROWSER_VERSION` and `CHROME_VERSION` override them).
 
 ```bash
 bash bench/setup.sh                    # installs dependencies, builds browser-cli into dist/, installs the other tools and Chrome for Testing into bench/.work, runs `check`

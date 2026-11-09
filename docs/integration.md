@@ -50,8 +50,8 @@ It never reads the agents fleet registry.
 
 ## 2. Event FD: browser to agents
 
-Every action emits one NDJSON record. When the parent passes an fd, records go
-there; otherwise they go to browser-cli's own ledger.
+Every request to the service emits one NDJSON record. When the parent passes an fd,
+records go there as well as to browser-cli's own ledger (`logs/actions/`).
 
 ```
 BROWSER_EVENTS_FD=<n>
@@ -67,6 +67,8 @@ BROWSER_EVENTS_FD=<n>
   "task": "a1b2c3d4",
   "profile": "work",
   "url": "https://example.com",
+  "ok": true,
+  "ms": 412,
   "host": "laptop",
   "sessionId": "…",
   "launchId": "…",
@@ -109,6 +111,8 @@ Settings it shares with agents-cli stay in agents-cli's files:
 | --- | --- |
 | `~/.agents/devices/<machine>/agents.yaml` `config:` | `defaultBrowserProfile`, `browserViewer`, `browserTaskIdleMinutes` |
 | `~/.agents/agents.yaml` `config.defaultBrowserDevice` | fleet browser hub |
+
+A dotted name older builds wrote into the device `config:` (`browser.profile`) is still read when the stored key is absent, and setting a value replaces it.
 
 Older layouts (`~/.agents/.cache/browser/`, `~/.agents/.cache/helpers/browser/`, `~/.agents/.history/browser-profiles/`, `~/.agents/.history/browser/`) are moved into the paths above the first time a command runs: see [State and migration](state-and-migration.md).
 

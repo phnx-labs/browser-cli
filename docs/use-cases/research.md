@@ -4,7 +4,7 @@
 
 Search, open the source and pull out what matters. `text --grep` keeps only the matching lines and `text --css` returns fields by selector, so reading a long paper costs few tokens.
 
-The task given to Claude Code: search arXiv for recent papers on web-browsing agent benchmarks, open the most relevant one, and report its title, first author, date and headline result. The commands it ran:
+The task given to Claude Code: search arXiv for recent papers on web-browsing agent benchmarks, open the most relevant one, and report its title, first author, date and headline result. Commands from the run:
 
 ```sh
 browser navigate "https://arxiv.org/search/?query=web+browsing+agents+benchmark&searchtype=all&order=-announced_date_first"

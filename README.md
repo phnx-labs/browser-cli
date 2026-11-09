@@ -9,7 +9,7 @@ Chrome, Arc, Brave, Edge, Comet or Firefox, on this machine or another one over 
 [![CI](https://img.shields.io/github/actions/workflow/status/phnx-labs/browser-cli/test.yml?branch=main&style=flat-square&label=tests&labelColor=0d1117)](https://github.com/phnx-labs/browser-cli/actions/workflows/test.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-555?style=flat-square&labelColor=0d1117)](LICENSE)
 
-[Install](#install) · [Features](#features) · [Remote browsers](#remote-browsers) · [Benchmark](#benchmark) · [How it compares](#how-it-compares) · [Docs](#docs)
+[Install](#install) · [Features](#features) · [Remote browsers](#remote-browsers) · [Benchmark](#benchmark) · [How it compares](#how-it-compares) · [FAQ](#faq) · [Docs](#docs)
 
 [phoenix.so/browser-cli](https://phoenix.so/browser-cli?ref=github) · [Why we open-sourced it](https://phoenix.so/blog/browser-cli?ref=github)
 
@@ -87,7 +87,7 @@ Install the CLI and its skill, create a profile for the browser you already use,
 
 </td>
 <td width="50%">
-  <a href="docs/use-cases/set-up-in-a-minute.md"><picture><source srcset="docs/assets/readme-features/set-up-in-a-minute.webp" type="image/webp"><img src="docs/assets/readme-features/set-up-in-a-minute.poster.jpg" alt="A terminal creates a Brave profile, makes it the default, opens Hacker News with its elements listed and clicks "new"" width="100%" /></picture></a>
+  <a href="docs/use-cases/set-up-in-a-minute.md"><picture><source srcset="docs/assets/readme-features/set-up-in-a-minute.webp" type="image/webp"><img src="docs/assets/readme-features/set-up-in-a-minute.poster.jpg" alt="A terminal creates a Brave profile, makes it the default, opens Hacker News with its elements listed and clicks &quot;new&quot;" width="100%" /></picture></a>
 </td>
 </tr>
 <tr>
@@ -165,7 +165,7 @@ Recordings, PDFs and screenshots are saved per task, and `browser sessions` list
 
 ### Fill forms and check out
 
-Type into fields by their label, pick options and click by name. Each action waits for the page to settle, so steps chain.
+Type into fields by their label, pick options and click by name. In Chromium-family browsers each action waits for the page to settle, so steps chain.
 
 [Docs →](docs/use-cases/fill-forms-and-check-out.md)
 
@@ -218,7 +218,9 @@ In canvas apps the agent works the way a person does: shortcuts, clicks at a pos
 </tr>
 </table>
 
-Each clip is a real run recorded with browser-cli, sped up; the page for each shows the task, the commands and what came back.
+Each clip is a real run, sped up. Its page shows the task, the commands and what came back.
+
+**Also in the box:** `console` and `errors` read a tab's logs, `requests --format har` and `responsebody` read its network traffic, `evaluate` runs JavaScript in the page, `upload` fills file inputs and drop targets, and `stream` keeps one process open for many commands. Every command is in the [reference](docs/command-index.md).
 
 ## Remote browsers
 
@@ -229,7 +231,7 @@ browser start --device box --profile work    # box is a Host in ~/.ssh/config
 browser navigate https://example.com         # later commands follow the task there
 ```
 
-Chromium-family browsers only; Firefox and Arc run on the local machine. More in [Remote browsers](docs/guide/remote.md).
+One kept-alive SSH connection carries the task. More in [Remote browsers](docs/guide/remote.md).
 
 ## Benchmark
 
@@ -241,7 +243,7 @@ Four browser tools on eight web tasks, Claude Sonnet 5.5 in Claude Code, 2 runs 
 </picture>
 
 - **Fastest and cheapest:** browser-cli 0.2.3 took 17.1 s and $0.047 per task, against 19.7 s and $0.058 for Browser Use and 20.4 s and $0.050 for browser-harness.
-- **Fewest turns and tokens:** browser-harness, at 5.6 turns and 82k tokens per task; browser-cli took 5.9 and 89k.
+- **Close on turns and tokens:** browser-cli took 5.9 turns and 89k tokens per task; browser-harness took the fewest, 5.6 and 82k.
 - **Every tool answered all 16 runs correctly.**
 
 <picture>
@@ -265,17 +267,29 @@ Method, per-task results and the run records: [Benchmarks](docs/benchmarks/READM
 | [Playwright MCP](https://github.com/microsoft/playwright-mcp) | A tab group per client (extension) | CDP URL or Playwright server | Through the extension |
 | [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp) | Any session can close any page | Any CDP URL | After an Allow dialog, Chrome 144+ |
 | [Claude in Chrome](https://code.claude.com/docs/en/chrome) | [A tab group per session](https://code.claude.com/docs/en/chrome) | Not documented | [Yes, through the extension](https://code.claude.com/docs/en/chrome) |
-| [Playwriter](https://playwriter.dev) | [Tabs shared across sessions](https://playwriter.dev/docs/sessions) | [`playwriter serve` over a LAN or tunnel](https://playwriter.dev/docs/remote-access) | [Yes, through the extension](https://playwriter.dev/docs/installation) |
+| [Playwriter](https://playwriter.dev) | [Tabs shared across sessions](https://playwriter.dev/docs/sessions) | [`playwriter serve` over a LAN or tunnel](https://playwriter.dev/docs/remote-access) | [Yes, through the extension](https://playwriter.dev) |
 
 Read from each tool's own docs and code on 2026-11-07. The source for every cell is in [docs/comparison.md](docs/comparison.md).
 
 ## Security and privacy
 
-- **An agent with `browser` acts as you.** It can read and click anything your signed-in profile can. Give it a dedicated profile when it should not see your personal accounts. There is no URL allowlist yet.
-- **Nothing leaves your machine.** No telemetry. The one exception: the first recording on a machine without ffmpeg installs it.
+- **An agent with `browser` acts as you.** It can read and click anything your signed-in profile can. Give it a dedicated profile, signed in only to the sites it needs, when it should not see your personal accounts.
+- **No telemetry.** `browser` talks only to the browsers and machines you point it at. The one exception: the first recording on a machine without ffmpeg installs it.
 - **Remote control is off by default.** Another machine can drive this browser only after `browser remote-control on`.
 
 Details: [SECURITY.md](SECURITY.md).
+
+## FAQ
+
+- [Why a CLI instead of an MCP server, or plain Playwright?](https://github.com/phnx-labs/browser-cli/discussions/56)
+- [How many tokens does browsing cost?](https://github.com/phnx-labs/browser-cli/discussions/57)
+- [Can a web page trick my agent?](https://github.com/phnx-labs/browser-cli/discussions/55)
+- [Will sites block it, or show CAPTCHAs?](https://github.com/phnx-labs/browser-cli/discussions/40)
+- [Does it handle iframes, date pickers, dialogs and canvas apps?](https://github.com/phnx-labs/browser-cli/discussions/61)
+- [Does it work headless, in CI or in Docker?](https://github.com/phnx-labs/browser-cli/discussions/43)
+- [Is it free?](https://github.com/phnx-labs/browser-cli/discussions/33) Yes: Apache-2.0, no account, and it runs on your machine.
+
+Every question: [Discussions → Q&A](https://github.com/phnx-labs/browser-cli/discussions/categories/q-a). Ideas and what you built are welcome there too.
 
 ## Docs
 

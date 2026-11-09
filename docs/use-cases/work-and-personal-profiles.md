@@ -11,17 +11,24 @@ $ browser profiles create personal --browser brave --headless
 Added "personal" on yosemite-s0 (port 9223).
 $ browser profiles list
   NAME      BROWSER  WHERE        ENDPOINTS
+-------------------------------------------
 * work      brave    yosemite-s0  cdp://127.0.0.1:9222
   personal  brave    yosemite-s0  cdp://127.0.0.1:9223
+
+* = this machine's default profile (work) — what a bare `browser start` uses.
 ```
 
 After signing in on `work` (`browser type Username …`, `browser type Password …`, `browser click --text Login`), the same protected page opens for one and not the other:
 
 ```console
 $ browser start --profile work --task w2 --url https://the-internet.herokuapp.com/secure && browser text --task w2
+w2
 The Internet — https://the-internet.herokuapp.com/secure
+...
 $ browser start --profile personal --task p --url https://the-internet.herokuapp.com/secure && browser text --task p
+p
 The Internet — https://the-internet.herokuapp.com/login
+...
 ```
 
 - `browser use <name>` picks the profile a bare `browser start` uses; `--profile` picks one per task.

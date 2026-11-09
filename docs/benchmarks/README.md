@@ -63,11 +63,10 @@ Three Claude Code agents at once in one browser (books, pizza, saucedemo), each 
 | Browser Use 0.13.14 | 6/6 | 4/6 | 30, 38 |
 | agent-browser 0.41.2 | 6/6 | 6/6 | 64, 44 |
 
-browser-harness and Browser Use showed other agents' tabs through `list_tabs()`, agent-browser through `tab` and `snapshot`, with each agent on its own `--session`. browser-cli was the slowest of the four here: its saucedemo agent took 80 and 86 s at 6 turns, against 20 s alone, and its pizza agent 54 and 55 s against 14 s. The records hold per-agent seconds and turns, not where the time went.
+browser-harness and Browser Use showed other agents' tabs mostly through `list_tabs()`, agent-browser through `tab` and `snapshot`, with each agent on its own `--session`. browser-cli kept each agent to its own tabs in 4 to 6 turns, about what each task takes alone. Its trials took longer in wall time: the saucedemo agent took 80 and 86 s at 6 turns, against 20 s alone, and the pizza agent 54 and 55 s against 14 s. The records hold per-agent seconds and turns, not where the time went.
 
 ## How it compares
 
 The comparison of browser-cli with other tools comes from reading each tool's own docs and source, not from runs: [How it compares](../comparison.md), with a source link in every cell, pinned to the commit read on 2026-11-07 (Claude in Chrome's docs are live pages, quoted as of that day).
-
 
 Earlier runs, from 2026-10-19, used a script that is not in this repository: [archive](archive-2026-10-19.md).

@@ -21,15 +21,13 @@ browser screenshot -o shot.png
 browser done
 ```
 
-`start` launches (or attaches to) the browser for a profile and opens a **task**: a browsing context with its own tabs and captures. Page commands such as `navigate` and `screenshot` act on the caller's live task, or on the one `--task <name>` names. `done` closes the task's tabs. `browser stop --service` stops the background service.
+`start` launches (or attaches to) the browser for a profile and opens a **task**: a browsing context with its own tabs and captures. Page commands such as `navigate` and `screenshot` act on the caller's live task, or on the one `--task <name>` names, and open a task when there is none. `done` closes the task's tabs. `browser stop --service` stops the background service.
 
 Supported browsers:
 
 - Chrome, Brave, Edge, Chromium and Comet over the Chrome DevTools Protocol
 - Firefox 129 and newer over WebDriver BiDi
 - Arc on macOS, through Apple Events; a task opens in an Arc window of its own
-
-Safari is not supported.
 
 Run `browser --help` for every command and `browser <command> --help` for its options. The [command reference](../command-index.md) lists them all.
 

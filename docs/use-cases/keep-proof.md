@@ -4,7 +4,7 @@
 
 Video recordings, PDFs and screenshots are saved for each task, and `browser sessions` lists them, so you can check the work afterwards.
 
-The commands Claude Code ran:
+Commands from the run:
 
 ```sh
 browser record start

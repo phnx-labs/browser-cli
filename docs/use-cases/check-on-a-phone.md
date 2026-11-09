@@ -4,7 +4,7 @@
 
 Emulate a phone, tablet or any viewport, reload, and screenshot, to check the layout your users see.
 
-The commands Claude Code ran to check Books to Scrape on an iPhone 14:
+Commands from the run that checked Books to Scrape on an iPhone 14:
 
 ```sh
 browser set device "iPhone 14"
@@ -15,6 +15,6 @@ browser screenshot -o shots/iphone14.png
 Its answer: at 390 × 844 the category list sits above the books, and two books fit across a row.
 
 - `browser devices` lists the presets; `browser set viewport <width> <height>` sets any size.
-- Emulation applies to the task's tab; `screenshot` captures it at the device's pixel ratio.
+- `set device` applies to the task's tab, in Chrome, Brave, Edge and other Chromium-family profiles. Load the page after it, as the run did with `navigate`, so the site lays out for the phone; `screenshot` then captures it at the device's pixel ratio.
 
 More: [Driving a page](../guide/driving-a-page.md).

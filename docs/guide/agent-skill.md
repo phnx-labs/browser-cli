@@ -26,4 +26,4 @@ The skill lists no flags. Agents read `browser <command> --help` or `browser hel
 
 `browser start --url` prints the site guide whose file name matches the host (`app.slack.com` matches `references/sites/slack.md`), or whose frontmatter `domains:` list names it. `--no-skills` skips it. When the skill cannot be found, `start` still runs and prints a warning saying why.
 
-The binary sits in the package's `bin/` and reads `../skills`; when install scripts were skipped, the npm launcher passes the location as `BROWSER_SKILLS_DIR`. A development run of `dist/<platform>/browser` sets it by hand (`BROWSER_SKILLS_DIR=$PWD/skills`).
+The binary sits in the package's `bin/` and reads `../skills`; when install scripts were skipped, the npm launcher passes the location as `BROWSER_SKILLS_DIR`. A development run of `dist/<platform>-<arch>/browser` sets it by hand (`BROWSER_SKILLS_DIR=$PWD/skills`).

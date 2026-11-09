@@ -4,7 +4,7 @@
 
 Choose where downloads go, click the link, and wait until the file is on disk. The agent gets the real path back for its next step.
 
-The task: find a free full-size photo of Yosemite Valley on Unsplash, download it, open it and describe it. It ran in a normal desktop browser (Comet). The commands:
+The task: find a free full-size photo of Yosemite Valley on Unsplash, download it, open it and describe it. It ran in a normal desktop browser (Comet). Commands from the run:
 
 ```sh
 browser download --path …/downloads-img2
@@ -19,7 +19,7 @@ browser screenshot
 
 Its answer: `smithsonian-6Nt_6i0ir6c-unsplash.jpg`, 2.4 MB, 2984 × 2190 px, a Bierstadt painting of Yosemite Valley.
 
-- Without `browser download --path`, files go to the profile's downloads folder.
-- Unsplash refused the same steps in a headless browser ("Access Denied"); a normal, visible profile is the better choice for sites with bot checks.
+- `waitdownload` prints `Downloaded: <path>` once the file is complete. Without `browser download --path`, files go to the profile's downloads folder.
+- Sites with bot checks, such as Unsplash, work best in a normal, visible profile like the one this run used.
 
 More: [Driving a page](../guide/driving-a-page.md).

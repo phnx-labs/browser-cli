@@ -111,10 +111,10 @@ try {
   const closed = Bun.serve({ port: 0, fetch: () => new Response() });
   const refused = `http://127.0.0.1:${closed.port}/`;
   closed.stop(true);
-  const failed = new RegExp(`Could not open ${refused}: net::ERR_CONNECTION_REFUSED\\.`);
-  await assert.rejects(service.navigate(list.task, refused, undefined, { wait: true }), failed, 'navigate reports the net error');
-  await assert.rejects(service.navigate(list.task, refused), failed, 'navigate --no-wait reports it too');
-  await assert.rejects(service.start('reuse', { url: refused, sessionId: 'agent-h' }), failed, 'start --url reports it');
+  const failed = (url: string) => new RegExp(`Could not open ${url}: net::ERR_CONNECTION_REFUSED\\.`);
+  await assert.rejects(service.navigate(list.task, refused, undefined, { wait: true }), failed(refused), 'navigate reports the net error');
+  await assert.rejects(service.navigate(list.task, refused), failed(refused), 'navigate --no-wait reports it too');
+  await assert.rejects(service.start('reuse', { url: `${refused}start`, sessionId: 'agent-h' }), failed(`${refused}start`), 'start --url reports it');
   const failedStart = await service.start('reuse', { sessionId: 'agent-h' });
 
   for (const s of [first, other, named, pair[0], empty, drawn, form, list, failedStart]) await service.done(s.task);

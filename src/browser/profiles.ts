@@ -305,12 +305,12 @@ function parseEndpointPort(config: BrowserProfileConfig): number | undefined {
   return raw ? Number(raw) : undefined;
 }
 
-/** Return the native login identity, or undefined for profiles not pinned to a native store. */
 function editorWindowNameOf(profile: BrowserProfile): string | undefined {
   const target = Object.values(getEndpointPresets(profile)).find((preset) => preset.target.startsWith('editor:'))?.target;
   return target ? new URL(target).hostname.toLowerCase() : undefined;
 }
 
+/** Return the native login identity, or undefined for profiles not pinned to a native store. */
 export function nativeIdentity(profile: BrowserProfile): string | undefined {
   if (profile.arc) return `arc:${profile.arc.profileId}`;
   const editorName = editorWindowNameOf(profile);

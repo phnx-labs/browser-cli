@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.9
 
 - `browser text` puts the page's scroll position back when the page is too busy to answer while it loads lazy parts. If the first check scrolled an `include-fragment` into view and then timed out, the page was left scrolled to it.
 - The README opens with what the tool is for, and npm lists a description and keywords.

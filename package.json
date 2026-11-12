@@ -1,6 +1,6 @@
 {
   "name": "@phnx-labs/browser-cli",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "Let Claude Code, Codex and Cursor use your signed-in browser, several agents at once, each in its own tabs. Fastest of four tools in a published benchmark.",
   "keywords": ["browser", "browser-automation", "ai-agents", "coding-agents", "claude-code", "codex", "cursor", "agent-skills", "cdp", "chrome", "arc", "brave", "firefox", "webdriver-bidi", "cli"],
   "type": "module",
@@ -31,11 +31,11 @@
     "test": "bash scripts/test.sh"
   },
   "optionalDependencies": {
-    "@phnx-labs/browser-cli-darwin-arm64": "0.2.8",
-    "@phnx-labs/browser-cli-darwin-x64": "0.2.8",
-    "@phnx-labs/browser-cli-linux-arm64": "0.2.8",
-    "@phnx-labs/browser-cli-linux-x64": "0.2.8",
-    "@phnx-labs/browser-cli-win32-x64": "0.2.8"
+    "@phnx-labs/browser-cli-darwin-arm64": "0.2.9",
+    "@phnx-labs/browser-cli-darwin-x64": "0.2.9",
+    "@phnx-labs/browser-cli-linux-arm64": "0.2.9",
+    "@phnx-labs/browser-cli-linux-x64": "0.2.9",
+    "@phnx-labs/browser-cli-win32-x64": "0.2.9"
   },
   "devDependencies": {
     "@inquirer/prompts": "8.7.5",

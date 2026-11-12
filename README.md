@@ -19,9 +19,9 @@ Agents usually get a fresh browser that is signed in to nothing, so they stop at
 
 - **Your logins.** The agent works in a profile you already use, or one you sign into once.
 - **Several agents, no collisions.** Every `browser start` opens a task that owns its tabs, so agents sharing one browser don't read, type into or close each other's pages.
-- **Passwords stay on their site.** A password saved for `stripe.com` types only on stripe.com; on any other page it is refused and nothing is typed.
+- **Passwords stay on their site.** `browser type --secret stripe.com/PASSWORD` types a saved password the agent never sees, and a bundle named after a site types only on that site: on any other page it is refused and nothing is typed ([how](docs/use-cases/fill-forms-and-check-out.md)).
 
-**Measured, with every run published:** on eight web tasks in Claude Code, browser-cli was the fastest (17.1 s per task) and cheapest ($0.047) of four tools, against Browser Use, browser-harness and agent-browser. With three agents in one browser, none of its 6 runs saw another agent's tab; with the other three, 4 to 6 of 6 did. [Benchmark](#benchmark)
+**Measured, with every run published:** on eight web tasks in Claude Code (2026-11-07, browser-cli 0.2.3), browser-cli was the fastest (17.1 s per task) and cheapest ($0.047) of four tools, against Browser Use, browser-harness and agent-browser; browser-harness took slightly fewer turns. With three agents in one browser (rerun 2026-11-11, browser-cli 0.2.8), none of its 6 runs saw another agent's tab, against 4 to 6 of 6 for the other three, and it finished fastest. [Benchmark](#benchmark)
 
 <p align="center">
   <img src="docs/assets/three-agents.gif" alt="Three Claude Code agents work at once in one Brave window, each in its own tab: one finds the cheapest mystery book, one fills a pizza order form, one checks out two items. Each pane shows the agent's current browser command, then its answer." width="100%">

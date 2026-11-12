@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- `browser text` puts the page's scroll position back when the page is too busy to answer while it loads lazy parts. If the first check scrolled an `include-fragment` into view and then timed out, the page was left scrolled to it.
+- The README opens with what the tool is for, and npm lists a description and keywords.
+
 ## 0.2.8
 
 - `browser click` in a tab that is not the selected one takes 0.2 s again, not 10 s. Tasks open as tabs of one window, so when several agents share a browser every task but the newest is in the background, and Chrome holds each mouse move sent to a background tab for 5 s while delivering a press at once. Since 0.2.3 a click moved the mouse twice before pressing, so each click by every other agent waited 10 s, and in the 2026-11-07 several-agents test browser-cli took 83 s per trial against 27 to 54 s for the other tools. In a background tab the click now presses without the moves, and it is still a trusted mouse click. Without the moves, a background tab no longer checks whether the mouse reaches the element or whether hovering opens something over it; if the press does not land, the click reports it, as it already did for a swallowed click.

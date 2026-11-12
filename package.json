@@ -1,7 +1,8 @@
 {
   "name": "@phnx-labs/browser-cli",
   "version": "0.2.8",
-  "description": "Drive real browsers over CDP, WebDriver BiDi and native Arc",
+  "description": "Let Claude Code, Codex and Cursor use the browser you're signed into, several agents at once, each in its own tabs. Fastest and cheapest of four browser tools in a published benchmark.",
+  "keywords": ["browser", "browser-automation", "ai-agents", "coding-agents", "claude-code", "codex", "cursor", "agent-skills", "cdp", "chrome", "arc", "brave", "firefox", "webdriver-bidi", "cli"],
   "type": "module",
   "bin": {
     "browser": "bin/browser.cjs"

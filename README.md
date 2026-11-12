@@ -2,8 +2,8 @@
 
 # browser-cli
 
-**Run several coding agents in your own signed-in browser at once. Each one works in its own tabs.**<br>
-Chrome, Arc, Brave, Edge, Comet or Firefox, on this machine or another one over SSH.
+**Your coding agent can use the browser you're already signed into.**<br>
+Several agents at once, each in its own tabs. Chrome, Arc, Brave, Edge, Comet or Firefox, on this machine or another one over SSH.
 
 [![npm](https://img.shields.io/npm/v/@phnx-labs/browser-cli?style=flat-square&color=C9A962&labelColor=0d1117)](https://www.npmjs.com/package/@phnx-labs/browser-cli)
 [![CI](https://img.shields.io/github/actions/workflow/status/phnx-labs/browser-cli/test.yml?branch=main&style=flat-square&label=tests&labelColor=0d1117)](https://github.com/phnx-labs/browser-cli/actions/workflows/test.yml)
@@ -15,7 +15,9 @@ Chrome, Arc, Brave, Edge, Comet or Firefox, on this machine or another one over 
 
 </div>
 
-`browser` is one command an agent calls from its shell to drive your browser: the Comet, Arc and Firefox profiles you already use, or a Chrome, Brave or Edge profile you sign into once, on this machine or on another one over SSH. Every `browser start` opens a task that owns its tabs, so Claude Code, Codex and Cursor can work in the same signed-in browser at once without reading, typing into or closing each other's pages.
+Agents usually get a fresh browser that is signed in to nothing, so they stop at login pages and CAPTCHAs. `browser` is one command Claude Code, Codex or Cursor runs from its shell to read, click and type in your own browser instead: the Comet, Arc and Firefox profiles you already use, or a Chrome, Brave or Edge profile you sign into once. Every `browser start` opens a task that owns its tabs, so several agents can share that browser without reading, typing into or closing each other's pages, and a saved password types only into the site it belongs to.
+
+**Measured, with every run published:** on eight web tasks in Claude Code, browser-cli was the fastest (17.1 s per task) and cheapest ($0.047) of four tools, against Browser Use, browser-harness and agent-browser. With three agents in one browser, none of its 6 runs saw another agent's tab; with the other three, 4 to 6 of 6 did. [Benchmark](#benchmark)
 
 <p align="center">
   <img src="docs/assets/three-agents.gif" alt="Three Claude Code agents work at once in one Brave window, each in its own tab: one finds the cheapest mystery book, one fills a pizza order form, one checks out two items. Each pane shows the agent's current browser command, then its answer." width="100%">

@@ -103,12 +103,13 @@ try {
   assert.equal(await title(), 'clicks 1');
   results.push('hover opens a cover: clicked in the DOM instead, once');
 
-  await open(page('Busy', `<include-fragment src="/x">Loading</include-fragment>`));
+  await open(page('Busy', `<div style="height:3000px"></div><include-fragment src="/x">Loading</include-fragment>`));
   await service.evaluate('land', undefined, 'setTimeout(() => { const end = Date.now() + 2600; while (Date.now() < end); }, 50), 1');
   await Bun.sleep(100);
   assert.equal(await service.loadLazyParts('land', undefined), 0);
   await Bun.sleep(2600);
-  results.push('busy page: lazy step gives way');
+  assert.equal(await service.evaluate('land', undefined, 'scrollY'), 0);
+  results.push('busy page: lazy step gives way, scroll restored');
 
   refs = await open(page('Closed', `${count}<x-buy></x-buy><script>customElements.define('x-buy', class extends HTMLElement {
     constructor() { super(); const b = document.createElement('button'); b.textContent = 'Buy'; b.onclick = hit;

@@ -1692,8 +1692,9 @@ export class BrowserService {
       }
     };
     const step = async () => Number(await ask(LAZY_PARTS).catch(() => 0));
-    let left = await step();
-    if (!left) return 0;
+    const first = await ask(LAZY_PARTS).then(Number, () => undefined);
+    if (first === 0) return 0;
+    let left = first ?? 0;
     try {
       for (const deadline = Date.now() + 4000; left > 0 && Date.now() < deadline;) {
         await new Promise((r) => setTimeout(r, 150));

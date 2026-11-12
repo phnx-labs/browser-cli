@@ -128,6 +128,7 @@ import {
   selectArcTab,
 } from './drivers/arc.js';
 import { discoverArcProfiles } from './arc-discovery.js';
+import { resolveEditorWsUrl } from './editor-discovery.js';
 
 export type UploadMode = 'auto' | 'input' | 'drop' | 'chooser';
 
@@ -3914,12 +3915,12 @@ export class BrowserService {
   ): Promise<ProfileConnection> {
     const existingInfo = getRunningChromeInfo(key);
     const tunnelled = opts.persistRemote || target.startsWith('ssh:');
-    // Native Arc and Firefox BiDi speak their own transport, not CDP — never
+    // Native Arc, Firefox BiDi and editor windows speak their own transport — never
     // route them through the CDP reuse branch (which would probe /json/version
     // and wipe the runtime meta the Firefox driver wrote). connectEndpoint owns
     // their attach-or-launch decision.
     const nativeTransport =
-      target.startsWith('arc-native:') || target.startsWith('firefox-bidi:');
+      target.startsWith('arc-native:') || target.startsWith('firefox-bidi:') || target.startsWith('editor:');
 
     if (tunnelled) {
       // A leftover local chrome-data / pid file under this key is the
@@ -4052,6 +4053,31 @@ export class BrowserService {
         pid: 0,
         electron: profile.electron,
         browserType: profile.browser,
+        targetFilter: profile.targetFilter,
+        tasks: this.loadTaskState(key),
+        sessionCache: new Map(),
+      };
+    }
+
+    if (url.protocol === 'editor:') {
+      const wsUrl = resolveEditorWsUrl(url.hostname, profile.name);
+      const cdp = new CDPClient();
+      try {
+        await cdp.connect(wsUrl);
+      } catch {
+        throw new Error(
+          `The editor window behind profile "${profile.name}" did not accept the connection. ` +
+            `Reload that window, then run \`browser profiles list\`.`,
+        );
+      }
+      await this.enableDomains(cdp);
+      return {
+        backend: 'cdp',
+        cdp,
+        port: 0,
+        pid: 0,
+        electron: false,
+        browserType: 'editor',
         targetFilter: profile.targetFilter,
         tasks: this.loadTaskState(key),
         sessionCache: new Map(),

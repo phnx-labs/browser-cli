@@ -82,6 +82,10 @@ browser show ./report.html
 
 When the task's profile is an Arc profile, read `references/arc.md` first. Arc runs only synchronous JavaScript. The agent's tabs open in a separate Arc window of their own, and `browser screenshot` captures that window without bringing Arc forward.
 
+## Editor windows
+
+Each open VS Code or VSCodium window running the Agents extension is a profile in `browser profiles list`, named after the editor and its folder (`vscodium-my-app`, labeled `VSCodium window "my-app"`). Its pages open as tabs in that editor, next to the user's work, so the user can watch or do a step only a person can, such as a captcha. Use one only when the user or your instructions name it: `browser start --profile vscodium-my-app --url …`. Its tabs are the agent's own: they never include tabs the user opened in the editor. "The editor window … is no longer open" means that window closed or reloaded; run `browser profiles list` again.
+
 ## When something fails
 
 - `browser status` lists the service and running tasks.

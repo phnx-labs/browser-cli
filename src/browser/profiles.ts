@@ -20,6 +20,7 @@ import { findBrowserPath, isPortInUse } from './chrome.js';
 import { arcProfileRows, arcSupportDir, discoverArcProfiles } from './arc-discovery.js';
 import { discoverChromiumProfiles, discoverableChromiumBrowsers } from './chromium-discovery.js';
 import { firefoxDiscoveredProfiles, discoverFirefoxProfiles } from './firefox-discovery.js';
+import { discoverEditorWindows, editorWindowLabel } from './editor-discovery.js';
 
 export type { BrowserProfile } from './types.js';
 export {
@@ -251,6 +252,22 @@ export function discoverNativeProfiles(): DiscoveredProfiles {
   } else if (firefox.kind === 'invalid') {
     errors.firefox = `Cannot discover Firefox profiles: ${firefox.reason}`;
   }
+  const editors = discoverEditorWindows();
+  if (editors.ok) {
+    for (const w of editors.windows) {
+      profiles.push({
+        name: w.name,
+        label: editorWindowLabel(w),
+        browser: 'editor',
+        endpoints: { editor: { target: `editor://${w.id}` } },
+        defaultEndpoint: 'editor',
+        launchPolicy: 'attach-only',
+        devices: [machineId()],
+      });
+    }
+  } else {
+    errors.editor = `Cannot discover editor windows: ${editors.reason}`;
+  }
   return { profiles, errors };
 }
 
@@ -379,6 +396,14 @@ export function isProfileLaunchableHere(profile: BrowserProfile): boolean {
     return !!profile.arc && discoverNativeProfiles().profiles.some(
       (candidate) => candidate.arc?.profileId === profile.arc?.profileId,
     );
+  }
+  const editorTarget = Object.values(getEndpointPresets(profile)).find(
+    (preset) => preset.target.startsWith('editor:'),
+  )?.target;
+  if (editorTarget) {
+    const id = new URL(editorTarget).hostname;
+    const editors = discoverEditorWindows();
+    return editors.ok && editors.windows.some((w) => w.id.toLowerCase() === id);
   }
   const bidi = Object.values(getEndpointPresets(profile)).some(
     (preset) => preset.target.startsWith('firefox-bidi:'),

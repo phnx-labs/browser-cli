@@ -1,6 +1,6 @@
 export interface BrowserProfileConfig {
   description?: string;
-  browser: 'chrome' | 'comet' | 'chromium' | 'brave' | 'edge' | 'arc' | 'firefox' | 'custom';
+  browser: 'chrome' | 'comet' | 'chromium' | 'brave' | 'edge' | 'arc' | 'firefox' | 'editor' | 'custom';
   binary?: string;
   electron?: boolean;
   targetFilter?: string;

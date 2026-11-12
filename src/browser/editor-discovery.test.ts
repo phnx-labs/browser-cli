@@ -128,3 +128,34 @@ describe('editor rows in the profile store', () => {
     expect(isProfileLaunchableHere(row!)).toBe(false);
   });
 });
+
+describe('editor rows are discovered, never saved', () => {
+  it('using a window by name saves no alias, so it never goes stale', async () => {
+    process.env.AGENTS_HOME = dir;
+    const { persistDiscoveredProfile, getProfile } = await import('./profiles.js');
+    fs.mkdirSync(editorEndpointsDir(), { recursive: true });
+    write(editorEndpointsDir(), 'a.json', endpoint());
+    await persistDiscoveredProfile('vscodium-agi-ext');
+    expect(fs.existsSync(path.join(dir, 'browser', 'profiles'))).toBe(false);
+    expect(fs.existsSync(path.join(dir, 'browser', 'local', 'profiles.yaml'))).toBe(false);
+    expect((await getProfile('vscodium-agi-ext'))?.browser).toBe('editor');
+  });
+
+  it('prune leaves an open window alone', async () => {
+    process.env.AGENTS_HOME = dir;
+    const { buildProfilePrunePlan } = await import('./runtime-state.js');
+    fs.mkdirSync(editorEndpointsDir(), { recursive: true });
+    write(editorEndpointsDir(), 'a.json', endpoint());
+    const plan = await buildProfilePrunePlan();
+    expect(plan.candidates.some((c) => c.name === 'vscodium-agi-ext')).toBe(false);
+  });
+
+  it('a window whose id is upper case is still hostable here', async () => {
+    process.env.AGENTS_HOME = dir;
+    const { discoverNativeProfiles, isProfileLaunchableHere } = await import('./profiles.js');
+    fs.mkdirSync(editorEndpointsDir(), { recursive: true });
+    write(editorEndpointsDir(), 'a.json', endpoint({ id: '0B7C1E2A-1111-4C2B-9D1E-AAAAAAAAAAAA' }));
+    const row = discoverNativeProfiles().profiles.find((p) => p.browser === 'editor')!;
+    expect(isProfileLaunchableHere(row)).toBe(true);
+  });
+});

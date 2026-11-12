@@ -1168,7 +1168,7 @@ function registerProfilesCommands(browser: Command): void {
       if (isAttachOnlyProfile(profile)) {
         const why = profile.browser === 'arc' ? ' (Arc is always attach-only)' : '';
         console.log(`Launch policy: attach-only${why} — agents attach, never spawn a rival window`);
-        if (profile.browser !== 'arc') {
+        if (profile.browser !== 'arc' && profile.browser !== 'editor') {
           console.log(`User-data-dir: ${resolveProfileDataDir(profile)} (durable)`);
         }
       }
@@ -1431,6 +1431,14 @@ function registerProfilesCommands(browser: Command): void {
           console.log(`${marker}  ${c.label.padEnd(15)} ${c.detail}`);
         }
         process.exit(1);
+      }
+
+      if (profile.browser === 'editor') {
+        const open = isProfileLaunchableHere(profile);
+        checks.push({ label: 'editor window', ok: open, detail: open ? (profile.label ?? 'open') : 'not open on this machine; run `browser profiles list`' });
+        for (const check of checks) console.log(`${check.ok ? 'OK  ' : 'FAIL'}  ${check.label.padEnd(15)} ${check.detail}`);
+        if (!checks.every((check) => check.ok)) process.exit(1);
+        return;
       }
 
       if (profile.arc) {

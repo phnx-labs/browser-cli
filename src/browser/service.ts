@@ -2469,15 +2469,17 @@ export class BrowserService {
     if (!probe) throw new Error(`${label} is disabled; nothing was clicked.`);
     let asking: string | undefined;
     try {
-      for (const dx of [-1, 0]) await hoverAtCoords(conn.cdp, at.sessionId, at.x + dx, at.y);
-      if (!(await probe.moved())) {
-        await probe.landed();
-        return inDom(`the mouse is not reaching ${label} in this tab`);
-      }
-      const opened = await coverAt(conn.cdp, at.sessionId, id, at.x, at.y);
-      if (opened) {
-        await probe.landed();
-        return inDom(`${opened} covers ${label} once the mouse is over it`);
+      if (!(await probe.hidden())) {
+        for (const dx of [-1, 0]) await hoverAtCoords(conn.cdp, at.sessionId, at.x + dx, at.y);
+        if (!(await probe.moved())) {
+          await probe.landed();
+          return inDom(`the mouse is not reaching ${label} in this tab`);
+        }
+        const opened = await coverAt(conn.cdp, at.sessionId, id, at.x, at.y);
+        if (opened) {
+          await probe.landed();
+          return inDom(`${opened} covers ${label} once the mouse is over it`);
+        }
       }
       asking = await this.raceDialog(at.sessionId, clickAtCoords(conn.cdp, at.sessionId, at.x, at.y));
     } catch (error) {

@@ -44,6 +44,19 @@ try {
   assert.equal(await title(), 'clicks 1');
   results.push('plain: one mouse click');
 
+  refs = await open(page('Behind', `${count}<button onclick="if (event.isTrusted) hit()">Buy</button>`));
+  const front = await cdp.send('Target.createTarget', { url: 'about:blank' }) as { targetId: string };
+  await cdp.send('Target.activateTarget', { targetId: front.targetId });
+  assert.equal(await service.evaluate('land', undefined, 'document.visibilityState'), 'hidden');
+  const behind = Date.now();
+  clicked = await service.click('land', ref(refs, 'button "Buy"'));
+  assert.ok(Date.now() - behind < 1000, `a click in a background tab took ${Date.now() - behind} ms`);
+  assert.equal(clicked.note, undefined);
+  assert.equal(await title(), 'clicks 1');
+  await cdp.send('Target.closeTarget', { targetId: front.targetId });
+  await cdp.send('Target.activateTarget', { targetId });
+  results.push('background tab: one mouse click, no wait');
+
   refs = await open(page('Scrolled', `${count}<p style="height:2000px">Above</p><div>Price <button onclick="hit()">Buy</button></div>`));
   clicked = await service.click('land', ref(refs, 'button "Buy"'));
   assert.equal(clicked.note, undefined);

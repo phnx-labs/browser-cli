@@ -207,11 +207,11 @@ if (!remoteTag) {
   run('git', ['push', 'origin', tag], { stdio: 'inherit' });
 }
 // npm and GitHub show the same newest version: a rerun after this step finds the release and leaves it.
-if (spawnSync('gh', ['release', 'view', tag], { encoding: 'utf8' }).status !== 0) {
-  const kind = distTag === 'latest' ? '--latest' : '--prerelease';
-  run('gh', ['release', 'create', tag, '--verify-tag', kind, '--title', pkg.name.split('/').pop() + ' ' + pkg.version, '--notes-file', '-'], { input: notes });
-  console.log('GitHub release ' + tag + ' created (' + elapsed() + ')');
-}
+const kind = distTag === 'latest' ? '--latest' : '--prerelease';
+const ghRelease = spawnSync('gh', ['release', 'create', tag, '--verify-tag', kind, '--title', pkg.name.split('/').pop() + ' ' + pkg.version, '--notes-file', '-'], { encoding: 'utf8', timeout: 120_000, input: notes });
+if (ghRelease.status === 0) console.log('GitHub release ' + tag + ' created (' + elapsed() + ')');
+else if (/already.exists/.test(ghRelease.stderr)) console.log('GitHub release ' + tag + ' already exists');
+else throw new Error('gh release create ' + tag + '\n' + (ghRelease.stderr || ghRelease.error));
 verifyInstall();
 function verifyInstall() {
   const prefix = resolve(scratch, 'installed-' + pkg.version);

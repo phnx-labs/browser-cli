@@ -21,7 +21,7 @@ Agents usually get a fresh browser that is signed in to nothing, so they stop at
 - **Several agents, no collisions.** Every `browser start` opens a task that owns its tabs, so agents sharing one browser don't read, type into or close each other's pages.
 - **Passwords stay on their site.** `browser type --secret stripe.com/PASSWORD` types a saved password the agent never sees, and a bundle named after a site types only on that site: on any other page it is refused and nothing is typed ([how](docs/use-cases/fill-forms-and-check-out.md)).
 
-**Measured, with every run published:** on eight web tasks in Claude Code (2026-11-07, browser-cli 0.2.3), browser-cli was the fastest (17.1 s per task) and cheapest ($0.047) of four tools, against Browser Use, browser-harness and agent-browser; browser-harness took slightly fewer turns. With three agents in one browser (rerun 2026-11-11, browser-cli 0.2.8), none of its 6 runs saw another agent's tab, against 4 to 6 of 6 for the other three, and it finished fastest. [Benchmark](#benchmark)
+**Measured, with every run published:** on eight web tasks in Claude Code (2026-11-07, browser-cli 0.2.3), browser-cli was the fastest (17.1 s per task) and cheapest ($0.047) of four tools, against Browser Use, browser-harness and agent-browser; browser-harness took slightly fewer turns. With three agents in one browser (rerun 2026-11-11, browser-cli 0.2.8), none of its 6 runs saw another agent's tab, against 4 to 6 of 6 for the other three, and it was fastest on average (25 s per trial, against 36 s for Browser Use, 41 s for browser-harness and 112 s for agent-browser). [Benchmark](#benchmark)
 
 <p align="center">
   <img src="docs/assets/three-agents.gif" alt="Three Claude Code agents work at once in one Brave window, each in its own tab: one finds the cheapest mystery book, one fills a pizza order form, one checks out two items. Each pane shows the agent's current browser command, then its answer." width="100%">
@@ -246,7 +246,7 @@ Four browser tools on eight web tasks, Claude Sonnet 5.5 in Claude Code, 2 runs 
   <img src="docs/assets/crossed-tabs-light.svg" alt="Runs where an agent saw another agent's tab, out of 6: browser-cli 0, browser-harness 6, Browser Use 4, agent-browser 6" width="100%">
 </picture>
 
-- **No agent saw another's tabs with browser-cli** when three agents worked in one browser at once, and with 0.2.8 it was also the fastest at it: 16 and 34 s per trial, against 30 to 42 s for Browser Use and browser-harness and 98 to 126 s for agent-browser (2026-11-11 rerun).
+- **No agent saw another's tabs with browser-cli** when three agents worked in one browser at once, and with 0.2.8 it was also the fastest at it on average: 25 s per trial (16 and 34 s), against 36 s for Browser Use, 41 s for browser-harness and 112 s for agent-browser (2026-11-11 rerun).
 
 Method, per-task results and the run records: [Benchmarks](docs/benchmarks/README.md). Rerun it with [`bench/`](bench/README.md).
 

@@ -507,6 +507,7 @@ function watchLaunchExit(child: ChildProcess, browserType: BrowserType): { exite
 }
 
 export function killChrome(pid: number): void {
+  if (!pid) return;
   if (process.platform === 'win32') {
     // On Windows process.kill is TerminateProcess, which skips Chromium's profile flush. Ask
     // taskkill for a graceful stop (no /F posts WM_CLOSE) and force-kill the tree only if that

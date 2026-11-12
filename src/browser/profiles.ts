@@ -82,6 +82,7 @@ export function profileDataDirs(
     return { reason: `browser runs on ${parseEndpointUrl(target)?.host ?? 'a remote host'} over ssh` };
   }
   if (profile.browser === 'firefox') return { reason: 'Firefox stores are not read' };
+  if (profile.browser === 'editor') return { reason: 'an editor window keeps no login store of its own' };
   if (profile.browser === 'arc') {
     const arcDir = arcSupportDir();
     if (!arcDir) return { reason: 'Arc is not supported on this platform' };
@@ -305,8 +306,15 @@ function parseEndpointPort(config: BrowserProfileConfig): number | undefined {
 }
 
 /** Return the native login identity, or undefined for profiles not pinned to a native store. */
+function editorWindowIdOf(profile: BrowserProfile): string | undefined {
+  const target = Object.values(getEndpointPresets(profile)).find((preset) => preset.target.startsWith('editor:'))?.target;
+  return target ? new URL(target).hostname.toLowerCase() : undefined;
+}
+
 export function nativeIdentity(profile: BrowserProfile): string | undefined {
   if (profile.arc) return `arc:${profile.arc.profileId}`;
+  const editorId = editorWindowIdOf(profile);
+  if (editorId) return `editor:${editorId}`;
   if (profile.userDataDir) return `${profile.browser}:${profile.userDataDir}:${profile.profileDirectory ?? ''}`;
   return undefined;
 }
@@ -383,7 +391,7 @@ export async function getProfile(name: string): Promise<BrowserProfileWithDeclar
 export async function persistDiscoveredProfile(name: string): Promise<void> {
   if (localDeclaration(name)) return;
   const profile = unsavedNativeProfiles(discoverNativeProfiles().profiles).find((candidate) => candidate.name === name);
-  if (!profile) return;
+  if (!profile || profile.browser === 'editor') return;
   await createProfile(profile);
 }
 
@@ -397,13 +405,10 @@ export function isProfileLaunchableHere(profile: BrowserProfile): boolean {
       (candidate) => candidate.arc?.profileId === profile.arc?.profileId,
     );
   }
-  const editorTarget = Object.values(getEndpointPresets(profile)).find(
-    (preset) => preset.target.startsWith('editor:'),
-  )?.target;
-  if (editorTarget) {
-    const id = new URL(editorTarget).hostname;
+  const editorId = editorWindowIdOf(profile);
+  if (editorId) {
     const editors = discoverEditorWindows();
-    return editors.ok && editors.windows.some((w) => w.id.toLowerCase() === id);
+    return editors.ok && editors.windows.some((w) => w.id.toLowerCase() === editorId);
   }
   const bidi = Object.values(getEndpointPresets(profile)).some(
     (preset) => preset.target.startsWith('firefox-bidi:'),

@@ -64,6 +64,7 @@ const PROBE_FN = `function () {
     if (e.composedPath().some((n) => n === target || (n.tagName === 'LABEL' && n.control === target))) seen[e.type] = true;
   };
   for (const type of types) root.addEventListener(type, on, true);
+  seen.hidden = target.ownerDocument.visibilityState === 'hidden';
   seen.done = () => {
     for (const type of types) root.removeEventListener(type, on, true);
     return seen.click || !target.isConnected ? 'clicked' : seen.mousedown ? 'pressed' : 'missed';
@@ -72,6 +73,7 @@ const PROBE_FN = `function () {
 }`;
 
 export interface ClickProbe {
+  hidden: () => Promise<boolean>;
   moved: () => Promise<boolean>;
   landed: () => Promise<'clicked' | 'pressed' | 'missed'>;
 }
@@ -88,6 +90,7 @@ export async function armClickProbe(cdp: CDPClient, sessionId: string, backendNo
       objectId: result.objectId, functionDeclaration: fn, returnByValue: true,
     }, sessionId);
     return {
+      hidden: async () => (await read<boolean>('function () { return this.hidden === true; }')).result.value === true,
       moved: async () => (await read<boolean>('function () { return this.mousemove === true; }')).result.value === true,
       landed: async () => {
         try {

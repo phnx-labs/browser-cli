@@ -1,0 +1,111 @@
+{
+  "kind": "isolation",
+  "tool": "browser-use",
+  "toolVersion": "0.13.14",
+  "trial": 1,
+  "model": "claude-sonnet-5-5",
+  "wallSeconds": 42.287,
+  "agents": [
+    {
+      "task": "books",
+      "correct": true,
+      "grade": "expected \"The Girl You Lost\" at £12.29",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-12T05:05:59.425Z",
+      "seconds": 12.50719211,
+      "turns": 4,
+      "costUsd": 0.0537328,
+      "tokens": {
+        "input": 6,
+        "cacheCreation": 11169,
+        "cacheRead": 42548,
+        "output": 479,
+        "total": 54202
+      },
+      "answer": "The cheapest five-star book in the Mystery category is **\"The Girl You Lost\"**, at **£12.29**.\n\nI checked all 32 Mystery books across every page of the category. Five of them are rated five stars, and this one has the lowest price. The Mystery category page is still open in the tab I created.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 2,
+      "sawOtherAgentsTab": false,
+      "leakingCommands": []
+    },
+    {
+      "task": "pizza",
+      "correct": true,
+      "grade": "all fields submitted",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-12T05:05:59.427Z",
+      "seconds": 20.831597240000004,
+      "turns": 8,
+      "costUsd": 0.0920476,
+      "tokens": {
+        "input": 14,
+        "cacheCreation": 15924,
+        "cacheRead": 132936,
+        "output": 1503,
+        "total": 150377
+      },
+      "answer": "I submitted the pizza order and httpbin accepted it. Its response echoed back these values:\n\n- **Customer name:** Ada Lovelace\n- **Telephone:** 555-0100\n- **Email:** ada@example.com\n- **Size:** large\n- **Toppings:** bacon and cheese (the form's \"Extra Cheese\" option)\n- **Delivery time:** 19:45\n- **Delivery instructions:** Ring twice\n\nThe result page, `https://httpbin.org/post`, is still open in the tab I created. Partway through, the browser's active tab switched to another agent's page. I switched back to my own tab and did the rest there, without touching theirs.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 6,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "browser-use <<'PY'\nprint(current_tab()); print(list_tabs())\nprint(page_info())\nPY",
+          "seen": [
+            "books.toscrape.com",
+            "Books to Scrape",
+            "saucedemo.com",
+            "Swag Labs"
+          ]
+        }
+      ]
+    },
+    {
+      "task": "saucedemo",
+      "correct": true,
+      "grade": "checkout-complete page open",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-12T05:05:59.428Z",
+      "seconds": 42.282064002,
+      "turns": 11,
+      "costUsd": 0.11825129999999999,
+      "tokens": {
+        "input": 20,
+        "cacheCreation": 17850,
+        "cacheRead": 199513,
+        "output": 2686,
+        "total": 220069
+      },
+      "answer": "The order is complete. The page shows \"Thank you for your order!\" at https://www.saucedemo.com/checkout-complete.html.\n\n- **Login and sorting:** I logged in as standard_user and sorted by price from low to high.\n- **Cart:** I added Sauce Labs Backpack and Sauce Labs Bike Light. The checkout overview listed exactly those two items.\n- **Checkout:** I checked out as Ada Lovelace, postal code 10001.\n\nThe confirmation page is still open in the tab I created.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 9,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "browser-use <<'PY'\ntid = new_tab(\"https://www.saucedemo.com\")\nwait_for_load()\nprint(tid, page_info())\nPY",
+          "seen": [
+            "books.toscrape.com",
+            "Books to Scrape"
+          ]
+        },
+        {
+          "command": "browser-use <<'PY'\nfor t in list_tabs(): print(t)\nprint(current_tab())\nPY",
+          "seen": [
+            "books.toscrape.com",
+            "Books to Scrape",
+            "httpbin.org"
+          ]
+        }
+      ]
+    }
+  ]
+}

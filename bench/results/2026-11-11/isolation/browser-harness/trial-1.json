@@ -1,0 +1,143 @@
+{
+  "kind": "isolation",
+  "tool": "browser-harness",
+  "toolVersion": "0.1.13",
+  "trial": 1,
+  "model": "claude-sonnet-5-5",
+  "wallSeconds": 41.846,
+  "agents": [
+    {
+      "task": "books",
+      "correct": true,
+      "grade": "expected \"The Girl You Lost\" at £12.29",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-12T05:06:42.611Z",
+      "seconds": 27.641381370999994,
+      "turns": 8,
+      "costUsd": 0.0727787,
+      "tokens": {
+        "input": 14,
+        "cacheCreation": 10330,
+        "cacheRead": 120907,
+        "output": 1934,
+        "total": 133185
+      },
+      "answer": "The cheapest five-star book in the Mystery category is **The Girl You Lost**, at **£12.29**.\n\nThe category has 2 pages (32 books), and I checked both. There are five five-star books:\n\n| Book | Price |\n|---|---|\n| The Girl You Lost | £12.29 |\n| The Silkworm (Cormoran Strike #2) | £23.05 |\n| What Happened on Beale Street | £25.37 |\n| A Time of Torment | £48.35 |\n| The Bachelor Girl's Guide to Murder | £52.30 |\n\nI got the page 1 titles and prices from my first script. I then fetched page 2 myself because that script's pagination loop stopped after page 1.\n\nMy tab for this task, with the Mystery page 2 listing, is still open.\n\nWhile paginating, the harness's attached tab briefly switched to one that wasn't mine. It showed an httpbin form, then later a saucedemo page. My `goto_url` call to page 2 may have navigated that other tab, and I couldn't confirm either way. If another agent's tab now shows a Books to Scrape page, that was probably me.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 6,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "browser-harness <<'PY'\nprint(page_info())\ngoto_url(\"https://books.toscrape.com/catalogue/category/books/mystery_3/page-2.html\"); wait_for_load()\nr=js(\"\"\"[...document.querySelectorAll('article.product_pod')].map(a=>[a.querySelector('h3 a').title,a.querySelector('.price_color').textContent,a.querySele",
+          "seen": [
+            "httpbin.org"
+          ]
+        },
+        {
+          "command": "browser-harness <<'PY'\nprint(current_tab())\nfor t in list_tabs(): print(t)\nPY",
+          "seen": [
+            "saucedemo.com",
+            "Swag Labs"
+          ]
+        },
+        {
+          "command": "browser-harness <<'PY'\nh=cdp(\"Page.getNavigationHistory\")\nfor e in h[\"entries\"]: print(e[\"id\"],e[\"url\"])\nprint(h[\"currentIndex\"])\nPY",
+          "seen": [
+            "saucedemo.com"
+          ]
+        }
+      ]
+    },
+    {
+      "task": "pizza",
+      "correct": true,
+      "grade": "all fields submitted",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-12T05:06:42.612Z",
+      "seconds": 33.501511128,
+      "turns": 10,
+      "costUsd": 0.0905536,
+      "tokens": {
+        "input": 18,
+        "cacheCreation": 13399,
+        "cacheRead": 169716,
+        "output": 1995,
+        "total": 185128
+      },
+      "answer": "The pizza order went through. httpbin.org accepted the form and echoed back what it received:\n\n- **Name:** Ada Lovelace\n- **Telephone:** 555-0100\n- **Email:** ada@example.com\n- **Size:** large\n- **Toppings:** bacon, cheese\n- **Delivery time:** 19:45\n- **Instructions:** \"Ring twice\"\n\nThe confirmation page (`https://httpbin.org/post`) is still open in the tab I opened for this.\n\nEarly on, the harness's default tab pointed at another agent's Books to Scrape page. One script's form-filling failed there and changed nothing. A later submit-button click did run on that page. I didn't check what it did, and the page seemed to be navigating afterward. I then switched to my own tab by ID and did everything there.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 8,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "browser-harness <<'PY'\nprint(current_tab()); print(page_info()); print(list_tabs())\nPY",
+          "seen": [
+            "books.toscrape.com",
+            "Books to Scrape",
+            "saucedemo.com",
+            "Swag Labs"
+          ]
+        },
+        {
+          "command": "browser-harness <<'PY'\nprint(current_tab()['url'])\njs(\"document.querySelector('form button').click()\")\nwait_for_load()\nprint(page_info()['url']); print(js(\"document.body.innerText\"))\nPY",
+          "seen": [
+            "books.toscrape.com"
+          ]
+        }
+      ]
+    },
+    {
+      "task": "saucedemo",
+      "correct": true,
+      "grade": "checkout-complete page open",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-12T05:06:42.613Z",
+      "seconds": 41.842499018000005,
+      "turns": 12,
+      "costUsd": 0.09898629999999999,
+      "tokens": {
+        "input": 22,
+        "cacheCreation": 12279,
+        "cacheRead": 211063,
+        "output": 2872,
+        "total": 226236
+      },
+      "answer": "The order is complete. The final page says \"Thank you for your order!\"\n\n- **Login:** I logged in as standard_user.\n- **Sort:** I sorted the products by price, low to high.\n- **Cart:** I added the Sauce Labs Backpack and the Sauce Labs Bike Light.\n- **Checkout:** I checked out as Ada Lovelace, postal code 10001. The total was $43.18.\n\nThe confirmation page (`https://www.saucedemo.com/checkout-complete.html`) is still open in the tab I created.\n\nOne of my early scripts ran against another agent's Books to Scrape tab because the shared session had switched to it. It found no inputs there and failed without changing anything. After that I opened my own tab and switched to it at the start of every script. One extra saucedemo tab from my first attempt is also still open. I couldn't confirm it was mine, so I left it alone.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 10,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "browser-harness <<'PY'\nnew_tab(\"https://www.saucedemo.com\")\nwait_for_load()\nprint(page_info())\nPY",
+          "seen": [
+            "books.toscrape.com",
+            "Books to Scrape"
+          ]
+        },
+        {
+          "command": "browser-harness <<'PY'\nprint(current_tab())\nfor t in list_tabs(): print(t)\nPY",
+          "seen": [
+            "books.toscrape.com",
+            "Books to Scrape"
+          ]
+        },
+        {
+          "command": "browser-harness <<'PY'\nprint(page_info())\nprint(js(\"document.body.innerText.slice(0,300)\"))\nprint(js(\"[...document.querySelectorAll('input')].map(i=>i.id+':'+i.tagName)\"))\nPY",
+          "seen": [
+            "books.toscrape.com",
+            "Books to Scrape"
+          ]
+        }
+      ]
+    }
+  ]
+}

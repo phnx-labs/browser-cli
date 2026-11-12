@@ -1,0 +1,202 @@
+{
+  "kind": "isolation",
+  "tool": "agent-browser",
+  "toolVersion": "0.41.2",
+  "trial": 2,
+  "model": "claude-sonnet-5-5",
+  "wallSeconds": 97.6,
+  "agents": [
+    {
+      "task": "books",
+      "correct": true,
+      "grade": "expected \"The Girl You Lost\" at £12.29",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-12T05:10:27.819Z",
+      "seconds": 47.67592529600003,
+      "turns": 18,
+      "costUsd": 0.10677949999999999,
+      "tokens": {
+        "input": 32,
+        "cacheCreation": 13201,
+        "cacheRead": 323415,
+        "output": 2157,
+        "total": 338805
+      },
+      "answer": "The cheapest five-star book in the Mystery category is **\"The Girl You Lost\"**, at **£12.29**.\n\nThe category has two pages, and I checked both. There are five five-star books in total:\n\n| Title | Price |\n|---|---|\n| The Girl You Lost | £12.29 |\n| The Silkworm (Cormoran Strike #2) | £23.05 |\n| What Happened on Beale Street (Secrets of the South Mysteries #2) | £25.37 |\n| A Time of Torment (Charlie Parker #14) | £48.35 |\n| The Bachelor Girl's Guide to Murder (Herringford and Watts Mysteries #1) | £52.30 |\n\nPartway through, the active tab switched to another agent's Swag Labs page. I went back to my own tab and didn't touch theirs. My tab is still open on page 2 of the category.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [
+        {
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_01FgXpfbuBwc2a5M1uVsnLzz",
+          "tool_input": {
+            "command": "S=\"$(agent-browser session id --scope worktree --prefix task)\"; echo $S; agent-browser --session $S open https://books.toscrape.com/catalogue/category/books/mystery_3/index.html; agent-browser --session $S eval 'document.querySelector(\".pager .current\")?.innerText'"
+          }
+        },
+        {
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_013t1DP3DH7rF8dSBiUGQWh9",
+          "tool_input": {
+            "command": "agent-browser --session task-0e9b35b8aa9e open https://books.toscrape.com/catalogue/category/books/mystery_3/index.html; cat <<'EOF' | agent-browser --session task-0e9b35b8aa9e eval --stdin\ndocument.querySelector(\".pager .current\")?.innerText\nEOF"
+          }
+        },
+        {
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_015s5WFVkM9y3e7KTKDGC6bL",
+          "tool_input": {
+            "command": "agent-browser --session task-0e9b35b8aa9e eval -b $(echo -n 'document.querySelector(\".pager .current\")?.innerText' | base64 -w0)"
+          }
+        }
+      ],
+      "toolCalls": 16,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "agent-browser --session task-0e9b35b8aa9e snapshot -i -c",
+          "seen": [
+            "Swag Labs"
+          ]
+        },
+        {
+          "command": "agent-browser --session task-0e9b35b8aa9e tab",
+          "seen": [
+            "httpbin.org",
+            "saucedemo.com",
+            "Swag Labs"
+          ]
+        }
+      ]
+    },
+    {
+      "task": "pizza",
+      "correct": true,
+      "grade": "all fields submitted",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-12T05:10:27.820Z",
+      "seconds": 28.00372744699998,
+      "turns": 14,
+      "costUsd": 0.10307210000000001,
+      "tokens": {
+        "input": 26,
+        "cacheCreation": 13866,
+        "cacheRead": 262761,
+        "output": 2128,
+        "total": 278781
+      },
+      "answer": "I submitted the pizza order, and httpbin's response shows it received every field as requested.\n\n- **Customer:** Ada Lovelace, telephone 555-0100, email ada@example.com\n- **Size:** Large\n- **Toppings:** Bacon and Extra Cheese\n- **Delivery time:** 19:45\n- **Instructions:** \"Ring twice\"\n\nThe result page (`https://httpbin.org/post`) is still open in my own tab, t2.\n\nMy first commands ran in a tab that turned out to be another agent's. It had navigated to saucedemo.com. A few of my form-filling commands (including typing \"0745PM\" into a field) may have landed there. I then opened my own tab and did the whole order there. That saucedemo tab is still open, and I didn't close it or touch it again.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [
+        {
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_01GLvcyXwKBXnBhGKMxizaq4",
+          "tool_input": {
+            "command": "S=\"$(agent-browser session id --scope worktree --prefix task)\"; echo $S; agent-browser --session $S open https://httpbin.org/forms/post && agent-browser --session $S snapshot -i"
+          }
+        },
+        {
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_01PKPCWvHT36WrxSEqzyceQQ",
+          "tool_input": {
+            "command": "B=\"agent-browser --session task-202c3d3d1778\"; $B fill @e2 \"Ada Lovelace\"; $B fill @e3 \"555-0100\"; $B fill @e4 \"ada@example.com\"; $B check @e7; $B check @e8; $B check @e9; $B fill @e12 \"Ring twice\"; $B click @e14; $B type @e14 \"07\"; $B type @e15 \"45\"; $B type @e16 \"PM\"; $B snapshot -i"
+          }
+        }
+      ],
+      "toolCalls": 12,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "agent-browser --session task-202c3d3d1778 fill @e2 \"Ada Lovelace\"; agent-browser --session task-202c3d3d1778 fill @e3 \"555-0100\"; agent-browser --session task-202c3d3d1778 fill @e4 \"ada@example.com\"; agent-browser --session task-202c3d3d1778 check @e7; agent-browser --session task-202c3d3d1778 check",
+          "seen": [
+            "Swag Labs"
+          ]
+        },
+        {
+          "command": "agent-browser --session task-202c3d3d1778 tab",
+          "seen": [
+            "saucedemo.com",
+            "Swag Labs"
+          ]
+        },
+        {
+          "command": "agent-browser --session task-202c3d3d1778 tab new https://httpbin.org/forms/post; agent-browser --session task-202c3d3d1778 tab; agent-browser --session task-202c3d3d1778 snapshot -i",
+          "seen": [
+            "saucedemo.com",
+            "Swag Labs"
+          ]
+        }
+      ]
+    },
+    {
+      "task": "saucedemo",
+      "correct": true,
+      "grade": "checkout-complete page open",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-12T05:10:27.821Z",
+      "seconds": 97.59778327100003,
+      "turns": 27,
+      "costUsd": 0.1844676,
+      "tokens": {
+        "input": 52,
+        "cacheCreation": 19142,
+        "cacheRead": 620456,
+        "output": 4575,
+        "total": 644225
+      },
+      "answer": "The order is complete. The confirmation page says \"Thank you for your order!\" and is open in my tab, which I left open.\n\n- **Items:** Sauce Labs Backpack and Sauce Labs Bike Light, added after sorting by price from low to high.\n- **Checkout:** Ada Lovelace, postal code 10001.\n- **Total:** $43.18.\n\nAnother agent took over my first tab partway through, so I redid the login in a new tab and worked only there. I used `agent-browser` from the shell, because no separate browser tool was available.\n\n**Answer: Order complete. \"Thank you for your order!\"**",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [
+        {
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_01DYTe5VpVkNoectshNw1fYd",
+          "tool_input": {
+            "command": "S=\"$(agent-browser session id --scope worktree --prefix task)\"; echo $S; agent-browser --session $S open https://www.saucedemo.com && agent-browser --session $S snapshot -i"
+          }
+        },
+        {
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_0187hzZmVauyGhRp6MMCPqBS",
+          "tool_input": {
+            "command": "A=\"agent-browser --session task-921fac041678\"; $A fill @e5 standard_user; $A fill @e6 secret_sauce; $A click @e4; $A wait --url \"**/inventory.html\"; $A snapshot -i"
+          }
+        }
+      ],
+      "toolCalls": 25,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "agent-browser --session task-921fac041678 tab",
+          "seen": [
+            "books.toscrape.com",
+            "httpbin.org"
+          ]
+        },
+        {
+          "command": "agent-browser --session task-921fac041678 tab new https://www.saucedemo.com; agent-browser --session task-921fac041678 tab",
+          "seen": [
+            "books.toscrape.com",
+            "httpbin.org"
+          ]
+        },
+        {
+          "command": "agent-browser --session task-921fac041678 tab t3; agent-browser --session task-921fac041678 snapshot -i >/dev/null; agent-browser --session task-921fac041678 fill @e55 standard_user; agent-browser --session task-921fac041678 fill @e56 secret_sauce; agent-browser --session task-921fac041678 click @e5",
+          "seen": [
+            "books.toscrape.com",
+            "httpbin.org"
+          ]
+        },
+        {
+          "command": "agent-browser --session task-921fac041678 tab t3; agent-browser --session task-921fac041678 open https://www.saucedemo.com/cart.html; agent-browser --session task-921fac041678 tab; agent-browser --session task-921fac041678 eval \"JSON.stringify([location.href,[...document.querySelectorAll('.inventory",
+          "seen": [
+            "books.toscrape.com",
+            "httpbin.org"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "kind": "isolation",
+  "tool": "browser-use",
+  "toolVersion": "0.13.14",
+  "trial": 2,
+  "model": "claude-sonnet-5-5",
+  "wallSeconds": 30.199,
+  "agents": [
+    {
+      "task": "books",
+      "correct": true,
+      "grade": "expected \"The Girl You Lost\" at £12.29",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-12T05:12:40.660Z",
+      "seconds": 17.50309381599998,
+      "turns": 4,
+      "costUsd": 0.045921000000000003,
+      "tokens": {
+        "input": 6,
+        "cacheCreation": 8975,
+        "cacheRead": 44890,
+        "output": 552,
+        "total": 54423
+      },
+      "answer": "The cheapest five-star book in the Mystery category is **\"The Girl You Lost\"**, priced at **£12.29**.\n\nI went through both pages of the category, which hold 32 books in total. Five of them are rated five stars. The next cheapest is \"The Silkworm (Cormoran Strike #2)\" at £23.05. The tab I used is still open.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 2,
+      "sawOtherAgentsTab": false,
+      "leakingCommands": []
+    },
+    {
+      "task": "pizza",
+      "correct": true,
+      "grade": "all fields submitted",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-12T05:12:40.661Z",
+      "seconds": 19.664554496000054,
+      "turns": 8,
+      "costUsd": 0.0777524,
+      "tokens": {
+        "input": 14,
+        "cacheCreation": 12452,
+        "cacheRead": 131664,
+        "output": 1475,
+        "total": 145605
+      },
+      "answer": "I submitted the pizza order, and httpbin's response page confirms it. I left that tab open at https://httpbin.org/post.\n\nThe server echoed back these form values:\n- **Customer name:** Ada Lovelace\n- **Telephone:** 555-0100\n- **Email:** ada@example.com\n- **Size:** large\n- **Toppings:** bacon and cheese (the form's value for Extra Cheese)\n- **Delivery time:** 19:45\n- **Delivery instructions:** Ring twice\n\nPartway through, the shared browser connection had switched to another agent's tab (saucedemo.com). My first attempt to fill the form failed and changed nothing. I switched back to my own httpbin tab and did the work only there, without touching the other tab.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 6,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "browser-use <<'PY'\nprint(current_tab()); print(list_tabs())\nPY",
+          "seen": [
+            "saucedemo.com",
+            "Swag Labs"
+          ]
+        }
+      ]
+    },
+    {
+      "task": "saucedemo",
+      "correct": true,
+      "grade": "checkout-complete page open",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-12T05:12:40.662Z",
+      "seconds": 30.195424488999997,
+      "turns": 9,
+      "costUsd": 0.08793869999999998,
+      "tokens": {
+        "input": 16,
+        "cacheCreation": 13124,
+        "cacheRead": 153907,
+        "output": 2002,
+        "total": 169049
+      },
+      "answer": "The order is complete. The confirmation page says \"Thank you for your order!\"\n\n- I logged in as `standard_user` and sorted the products by price from low to high.\n- I added the Sauce Labs Backpack and the Sauce Labs Bike Light, and the cart showed just those two.\n- I checked out as Ada Lovelace, postal code 10001. The order total was $43.18.\n\nThe confirmation page (`https://www.saucedemo.com/checkout-complete.html`) is still open in the tab I created.\n\nMy first browser command ran in another agent's tab (a Books to Scrape page) because the browser is shared. It failed before changing anything. After that I switched to my own saucedemo tab at the start of every command.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 7,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "browser-use <<'PY'\nprint(current_tab())\ndef setv(sel,v):\n    js(f\"\"\"(()=>{{const e=document.querySelector('{sel}');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(e,'{v}');e.dispatchEvent(new Event('input',{{bubbles:true}}));}})()\"\"\")\nsetv('#user-name','standar",
+          "seen": [
+            "books.toscrape.com",
+            "Books to Scrape"
+          ]
+        },
+        {
+          "command": "browser-use <<'PY'\nfor t in list_tabs(): print(t)\nPY",
+          "seen": [
+            "books.toscrape.com",
+            "Books to Scrape",
+            "httpbin.org"
+          ]
+        }
+      ]
+    }
+  ]
+}

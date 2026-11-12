@@ -92,18 +92,18 @@ describe('editorWindowLabel', () => {
 });
 
 describe('resolveEditorWsUrl', () => {
-  it('reads the runtime dir and returns the tokenized loopback URL, matching the id case-insensitively', () => {
+  it('finds the open window by name and returns its tokenized loopback URL', () => {
     process.env.AGENTS_HOME = dir;
     fs.mkdirSync(editorEndpointsDir(), { recursive: true });
-    write(editorEndpointsDir(), 'a.json', endpoint({ id: '0B7C1E2A-1111-4C2B-9D1E-AAAAAAAAAAAA' }));
-    const id = new URL('editor://0B7C1E2A-1111-4C2B-9D1E-AAAAAAAAAAAA').hostname;
-    expect(resolveEditorWsUrl(id, 'vscodium-agi-ext')).toBe(`ws://127.0.0.1:49321/devtools/browser/${TOKEN}`);
+    write(editorEndpointsDir(), 'a.json', endpoint());
+    const name = new URL('editor://vscodium-agi-ext').hostname;
+    expect(resolveEditorWsUrl(name, 'vscodium-agi-ext')).toBe(`ws://127.0.0.1:49321/devtools/browser/${TOKEN}`);
   });
 
   it('fails loud and names the fix when the window closed', () => {
     process.env.AGENTS_HOME = dir;
-    expect(() => resolveEditorWsUrl('0b7c1e2a-1111-4c2b-9d1e-aaaaaaaaaaaa', 'vscodium-agi-ext')).toThrow(
-      /no longer open.*browser profiles list/,
+    expect(() => resolveEditorWsUrl('vscodium-agi-ext', 'vscodium-agi-ext')).toThrow(
+      /is not open.*browser profiles list/,
     );
   });
 });
@@ -120,7 +120,7 @@ describe('editor rows in the profile store', () => {
       name: 'vscodium-agi-ext',
       label: 'VSCodium window "agi-ext"',
       launchPolicy: 'attach-only',
-      endpoints: { editor: { target: 'editor://0b7c1e2a-1111-4c2b-9d1e-aaaaaaaaaaaa' } },
+      endpoints: { editor: { target: 'editor://vscodium-agi-ext' } },
     });
     expect(isProfileLaunchableHere(row!)).toBe(true);
     fs.rmSync(file);
@@ -129,16 +129,21 @@ describe('editor rows in the profile store', () => {
   });
 });
 
-describe('editor rows are discovered, never saved', () => {
-  it('using a window by name saves no alias, so it never goes stale', async () => {
+describe('a used editor window is adopted like any discovered profile', () => {
+  it('starting adopts the window, and the saved alias follows it across a restart', async () => {
     process.env.AGENTS_HOME = dir;
-    const { persistDiscoveredProfile, getProfile } = await import('./profiles.js');
+    const { persistDiscoveredProfile, isProfileDeclaredHere, getProfile, isProfileLaunchableHere } = await import('./profiles.js');
     fs.mkdirSync(editorEndpointsDir(), { recursive: true });
     write(editorEndpointsDir(), 'a.json', endpoint());
     await persistDiscoveredProfile('vscodium-agi-ext');
-    expect(fs.existsSync(path.join(dir, 'browser', 'profiles'))).toBe(false);
-    expect(fs.existsSync(path.join(dir, 'browser', 'local', 'profiles.yaml'))).toBe(false);
-    expect((await getProfile('vscodium-agi-ext'))?.browser).toBe('editor');
+    expect(isProfileDeclaredHere('vscodium-agi-ext')).toBe(true);
+    fs.rmSync(path.join(editorEndpointsDir(), 'a.json'));
+    const saved = (await getProfile('vscodium-agi-ext'))!;
+    expect(isProfileLaunchableHere(saved)).toBe(false);
+    write(editorEndpointsDir(), 'b.json', endpoint({ id: '9f00aa11-5555-4c2b-9d1e-eeeeeeeeeeee', port: 50111 }));
+    expect(isProfileLaunchableHere(saved)).toBe(true);
+    const target = Object.values(saved.endpoints as Record<string, { target: string }>)[0].target;
+    expect(resolveEditorWsUrl(new URL(target).hostname, saved.name)).toBe(`ws://127.0.0.1:50111/devtools/browser/${TOKEN}`);
   });
 
   it('prune leaves an open window alone', async () => {

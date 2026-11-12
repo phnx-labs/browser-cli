@@ -260,7 +260,7 @@ export function discoverNativeProfiles(): DiscoveredProfiles {
         name: w.name,
         label: editorWindowLabel(w),
         browser: 'editor',
-        endpoints: { editor: { target: `editor://${w.id}` } },
+        endpoints: { editor: { target: `editor://${w.name}` } },
         defaultEndpoint: 'editor',
         launchPolicy: 'attach-only',
         devices: [machineId()],
@@ -306,15 +306,15 @@ function parseEndpointPort(config: BrowserProfileConfig): number | undefined {
 }
 
 /** Return the native login identity, or undefined for profiles not pinned to a native store. */
-function editorWindowIdOf(profile: BrowserProfile): string | undefined {
+function editorWindowNameOf(profile: BrowserProfile): string | undefined {
   const target = Object.values(getEndpointPresets(profile)).find((preset) => preset.target.startsWith('editor:'))?.target;
   return target ? new URL(target).hostname.toLowerCase() : undefined;
 }
 
 export function nativeIdentity(profile: BrowserProfile): string | undefined {
   if (profile.arc) return `arc:${profile.arc.profileId}`;
-  const editorId = editorWindowIdOf(profile);
-  if (editorId) return `editor:${editorId}`;
+  const editorName = editorWindowNameOf(profile);
+  if (editorName) return `editor:${editorName}`;
   if (profile.userDataDir) return `${profile.browser}:${profile.userDataDir}:${profile.profileDirectory ?? ''}`;
   return undefined;
 }
@@ -391,7 +391,7 @@ export async function getProfile(name: string): Promise<BrowserProfileWithDeclar
 export async function persistDiscoveredProfile(name: string): Promise<void> {
   if (localDeclaration(name)) return;
   const profile = unsavedNativeProfiles(discoverNativeProfiles().profiles).find((candidate) => candidate.name === name);
-  if (!profile || profile.browser === 'editor') return;
+  if (!profile) return;
   await createProfile(profile);
 }
 
@@ -405,10 +405,10 @@ export function isProfileLaunchableHere(profile: BrowserProfile): boolean {
       (candidate) => candidate.arc?.profileId === profile.arc?.profileId,
     );
   }
-  const editorId = editorWindowIdOf(profile);
-  if (editorId) {
+  const editorName = editorWindowNameOf(profile);
+  if (editorName) {
     const editors = discoverEditorWindows();
-    return editors.ok && editors.windows.some((w) => w.id.toLowerCase() === editorId);
+    return editors.ok && editors.windows.some((w) => w.name === editorName);
   }
   const bidi = Object.values(getEndpointPresets(profile)).some(
     (preset) => preset.target.startsWith('firefox-bidi:'),
@@ -642,7 +642,7 @@ export async function createProfile(profile: BrowserProfile): Promise<void> {
   // Resolve discovered binaries at launch so one removed app cannot prevent other profiles from
   // publishing.
   const storePinned = !!profile.userDataDir && !!profile.profileDirectory;
-  if (!hasSshEndpoint(profile.endpoints) && !nativeArc && !storePinned) {
+  if (!hasSshEndpoint(profile.endpoints) && !nativeArc && !storePinned && profile.browser !== 'editor') {
     findBrowserPath(profile.browser, profile.binary);
   }
 

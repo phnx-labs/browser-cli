@@ -14,7 +14,7 @@ The picker, the printed list and its count footer, the format helpers (`formatRe
 
 Under Bun, once `process.stdout` is materialized, a `console.log` over 64 KiB to a pipe keeps only the first 65536 bytes. On the `sessions` paths write with the `@phnx-labs/tui` writers (`printJson`, `printLine`, `writeErr`), which retry on EAGAIN. Load `@inquirer/*` only through a dynamic `import()` inside the interactive branch (the package's `itemPicker` already does), test for a TTY with `isInteractiveTerminal`. `scripts/verify-compiled.mjs` pipes over 100 KB and opens the picker in a PTY to catch both.
 
-Editor-window profiles (`browser: editor`, `editor://<id>`) come from files the Agents VS Code extension (`swarmify.swarm-ext`, repo `phnx-labs/agi-ext`) writes to `$AGENTS_HOME/browser/run/editors/<id>.json` (0600): `{ v: 1, id, app, appVersion, workspace, pid, port, token, startedAt }`. `src/browser/editor-discovery.ts` reads them and never writes. The id is stable per editor and folder so a saved alias survives restarts; the token, not `--user-data-dir`, proves ownership. Change the format in both repos together and bump `v`.
+Editor-window profiles (`browser: editor`, `editor://<name>`, the window's profile name) come from files the Agents VS Code extension (`swarmify.swarm-ext`, repo `phnx-labs/agi-ext`) writes to `$AGENTS_HOME/browser/run/editors/<id>.json` (0600): `{ v: 1, id, app, appVersion, workspace, pid, port, token, startedAt }`. `src/browser/editor-discovery.ts` reads them and never writes. The endpoint names the window (`<editor>-<folder>`), not its port, so a saved alias follows the window across restarts; the token, not `--user-data-dir`, proves ownership. Change the format in both repos together and bump `v`.
 
 ## Browser skill
 

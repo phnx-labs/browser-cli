@@ -106,13 +106,13 @@ export function editorWindowLabel(w: Pick<EditorWindow, 'app' | 'workspace'>): s
   return w.workspace ? `${w.app} window "${w.workspace}"` : `${w.app} window (no folder)`;
 }
 
-export function resolveEditorWsUrl(id: string, profileName: string): string {
+export function resolveEditorWsUrl(name: string, profileName: string): string {
   const found = discoverEditorWindows();
   if (!found.ok) throw new Error(`Cannot read editor windows: ${found.reason}`);
-  const w = found.windows.find((x) => x.id.toLowerCase() === id.toLowerCase());
+  const w = found.windows.find((x) => x.name === name.toLowerCase());
   if (!w) {
     throw new Error(
-      `The editor window behind profile "${profileName}" is no longer open. ` +
+      `The editor window behind profile "${profileName}" is not open. ` +
         `Run \`browser profiles list\` to see the open editor windows.`,
     );
   }

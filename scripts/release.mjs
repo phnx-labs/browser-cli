@@ -67,6 +67,9 @@ async function waitForRegistry(name) {
 if (!/^\d+\.\d+\.\d+(-pre\.(0|[1-9]\d*))?$/.test(pkg.version)) throw new Error('Version must be x.y.z or x.y.z-pre.n');
 const branch = 'release/' + pkg.version;
 const distTag = pkg.version.includes('-pre.') ? 'pre' : 'latest';
+// The GitHub release carries this version's CHANGELOG section, checked before anything publishes.
+const notes = readFileSync('CHANGELOG.md', 'utf8').split(/^## /m).find(section => section.split('\n')[0].trim() === pkg.version)?.split('\n').slice(1).join('\n').trim();
+if (!notes) throw new Error('CHANGELOG.md has no "## ' + pkg.version + '" section with notes; the GitHub release takes its notes from it');
 if (distTag === 'latest') {
   const latest = run('npm', ['view', pkg.name, 'dist-tags.latest']);
   const [a, b] = [pkg.version, latest].map(version => version.split('.').map(Number));
@@ -202,6 +205,12 @@ await publishAndWait(staged.filter(item => item.name === launcher.name));
 if (!remoteTag) {
   if (localTag.status !== 0) run('git', ['tag', '-a', tag, '-m', pkg.name + ' ' + pkg.version, sha]);
   run('git', ['push', 'origin', tag], { stdio: 'inherit' });
+}
+// npm and GitHub show the same newest version: a rerun after this step finds the release and leaves it.
+if (spawnSync('gh', ['release', 'view', tag], { encoding: 'utf8' }).status !== 0) {
+  const kind = distTag === 'latest' ? '--latest' : '--prerelease';
+  run('gh', ['release', 'create', tag, '--verify-tag', kind, '--title', pkg.name.split('/').pop() + ' ' + pkg.version, '--notes-file', '-'], { input: notes });
+  console.log('GitHub release ' + tag + ' created (' + elapsed() + ')');
 }
 verifyInstall();
 function verifyInstall() {

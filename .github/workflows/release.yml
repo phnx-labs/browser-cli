@@ -2,7 +2,9 @@ name: release
 # Pushing release/x.y.z (or release/x.y.z-pre.n) publishes that version, which must match
 # package.json, from the compiled-packages artifact of main's successful test.yml run for the
 # commit: nothing is rebuilt or retested. npm auth is the npm-publish environment's NPM_TOKEN,
-# read through setup-node's .npmrc. `bash scripts/release.sh --confirm` pushes the branch.
+# read through setup-node's .npmrc. After npm, it pushes the vX.Y.Z tag and creates the GitHub
+# release from that version's CHANGELOG section (Latest, or a pre-release for -pre.n).
+# `bash scripts/release.sh --confirm` pushes the branch.
 on:
   push:
     branches: ['release/[0-9]*']

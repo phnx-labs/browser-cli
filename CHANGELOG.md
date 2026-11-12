@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- `browser screenshot` captures at the page's CSS pixels, not the screen's device pixels. On a 2x (Retina) display a 1280×713 viewport came back as 2560×1426, which a model reads as about 4,870 image tokens instead of about 1,220, and the 100 KB cap only lowered JPEG quality, never the pixel count. In 3 runs each of a Swappa shopping task with Claude Code, total tokens fell from 1,575k to 1,301k on average and cost from $0.467 to $0.343, and a screenshot takes 42 ms instead of 67 ms. `--quality raw` still returns every device pixel.
+- `browser screenshot` in Chrome and other Chromium browsers captures at the page's CSS pixels, not the screen's device pixels, so an emulated phone (`browser set device "iPhone 14"`) comes back at its CSS size too. On a 2x (Retina) display a 1280×713 viewport came back as 2560×1426, which a model reads as about 4,870 image tokens instead of about 1,220, and the 100 KB cap only lowered JPEG quality, never the pixel count. In 3 runs each of a Swappa shopping task with Claude Code, total tokens fell from 1,575k to 1,301k on average and cost from $0.467 to $0.343, and a screenshot takes 42 ms instead of 67 ms. `--quality raw` still returns every device pixel.
 
 ## 0.2.10
 

@@ -5,7 +5,7 @@ import { join } from 'node:path';
 
 const chrome = process.env.AGENTS_TEST_CHROME;
 
-test.skipIf(!chrome)('a compressed screenshot is CSS pixels on a 2x screen; raw keeps device pixels', async () => {
+test.skipIf(!chrome)('a compressed screenshot is the scrolled view at CSS pixels on a 2x or 1.5x screen; raw keeps device pixels', async () => {
   const directory = mkdtempSync(join(tmpdir(), 'browser-shot-'));
   try {
     const child = Bun.spawn([process.execPath, join(import.meta.dir, 'testdata/screenshot-size-live.ts'), chrome!], {
@@ -17,7 +17,7 @@ test.skipIf(!chrome)('a compressed screenshot is CSS pixels on a 2x screen; raw 
     ]);
     expect(error).toBe('');
     expect(code).toBe(0);
-    expect(output.trim()).toBe('compressed 800x600, raw 1600x1200');
+    expect(output.trim()).toBe('2x: compressed 800x600 blue, raw 1600x1200; 1.5x: compressed 800x600 blue, raw 1200x900');
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }

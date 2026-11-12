@@ -34,6 +34,7 @@ const BROWSER_PATHS: Record<string, Record<BrowserType, string[]>> = {
       '/Applications/Firefox.app/Contents/MacOS/firefox',
       '/Applications/Firefox Developer Edition.app/Contents/MacOS/firefox',
     ],
+    editor: [],
     custom: [],
   },
   linux: {
@@ -48,6 +49,7 @@ const BROWSER_PATHS: Record<string, Record<BrowserType, string[]>> = {
     // in place, so the pid survives and `--remote-debugging-port` works through
     // it. The driver reads the real pid from the BiDi handshake anyway.
     firefox: ['/usr/bin/firefox', '/snap/bin/firefox', '/usr/lib/firefox/firefox', '/opt/firefox/firefox'],
+    editor: [],
     custom: [],
   },
   win32: {
@@ -82,6 +84,7 @@ const BROWSER_PATHS: Record<string, Record<BrowserType, string[]>> = {
       `${WIN_PROGRAMFILES_X86}\\Mozilla Firefox\\firefox.exe`,
       `${WIN_LOCALAPPDATA}\\Mozilla Firefox\\firefox.exe`,
     ],
+    editor: [],
     custom: [],
   },
 };

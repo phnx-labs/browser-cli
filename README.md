@@ -3,7 +3,7 @@
 # browser-cli
 
 **Your coding agent can use the browser you're already signed into.**<br>
-Several agents at once, each in its own tabs. Chrome, Arc, Brave, Edge, Comet or Firefox, on this machine or another one over SSH.
+Several agents at once, each in its own tabs. Chrome, Arc, Brave, Edge, Comet, Firefox or the browser built into VS Code, on this machine or another one over SSH.
 
 [![npm](https://img.shields.io/npm/v/@phnx-labs/browser-cli?style=flat-square&color=C9A962&labelColor=0d1117)](https://www.npmjs.com/package/@phnx-labs/browser-cli)
 [![CI](https://img.shields.io/github/actions/workflow/status/phnx-labs/browser-cli/test.yml?branch=main&style=flat-square&label=tests&labelColor=0d1117)](https://github.com/phnx-labs/browser-cli/actions/workflows/test.yml)

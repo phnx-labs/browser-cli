@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Each open VS Code or VSCodium window running the Agents extension is a profile: `browser profiles list` shows it as `<editor>-<folder>` (for example `vscodium-my-app`, labeled `VSCodium window "my-app"`), and `browser start --profile vscodium-my-app --url …` opens the page as a tab in that editor, beside the user's work, where they can watch or type a captcha. The extension serves the window's built-in browser over a loopback WebSocket and announces it in `~/.agents/browser/run/editors/<id>.json` (0600) with the port and a token. The token is the proof of ownership, so an editor profile has no `--user-data-dir` check, and a closed window's profile is not hostable here. The session sees only the tabs its tasks open, never the user's own editor tabs. Nothing picks an editor profile on its own: the user or their instructions name it.
+
 ## 0.2.9
 
 - `browser text` puts the page's scroll position back when the page is too busy to answer while it loads lazy parts. If the first check scrolled an `include-fragment` into view and then timed out, the page was left scrolled to it.

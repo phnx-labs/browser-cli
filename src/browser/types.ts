@@ -2,7 +2,7 @@ import type { ArcNativeTabRef } from './drivers/arc.js';
 
 export type { ArcNativeTabRef } from './drivers/arc.js';
 
-export type BrowserType = 'chrome' | 'comet' | 'chromium' | 'brave' | 'edge' | 'arc' | 'firefox' | 'custom';
+export type BrowserType = 'chrome' | 'comet' | 'chromium' | 'brave' | 'edge' | 'arc' | 'firefox' | 'editor' | 'custom';
 
 /** Connection transport discriminant; actions must route non-CDP backends to their drivers or throw
  * capability errors. */

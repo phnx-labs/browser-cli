@@ -15,7 +15,11 @@ Several agents at once, each in its own tabs. Chrome, Arc, Brave, Edge, Comet or
 
 </div>
 
-Agents usually get a fresh browser that is signed in to nothing, so they stop at login pages and CAPTCHAs. `browser` is one command Claude Code, Codex or Cursor runs from its shell to read, click and type in your own browser instead: the Comet, Arc and Firefox profiles you already use, or a Chrome, Brave or Edge profile you sign into once. Every `browser start` opens a task that owns its tabs, so several agents can share that browser without reading, typing into or closing each other's pages, and a saved password types only into the site it belongs to.
+Agents usually get a fresh browser that is signed in to nothing, so they stop at login pages and CAPTCHAs. `browser` is one command Claude Code, Codex or Cursor runs from its shell to read, click and type in your own browser instead.
+
+- **Your logins.** The agent works in a profile you already use, or one you sign into once.
+- **Several agents, no collisions.** Every `browser start` opens a task that owns its tabs, so agents sharing one browser don't read, type into or close each other's pages.
+- **Passwords stay on their site.** A password saved for `stripe.com` types only on stripe.com; on any other page it is refused and nothing is typed.
 
 **Measured, with every run published:** on eight web tasks in Claude Code, browser-cli was the fastest (17.1 s per task) and cheapest ($0.047) of four tools, against Browser Use, browser-harness and agent-browser. With three agents in one browser, none of its 6 runs saw another agent's tab; with the other three, 4 to 6 of 6 did. [Benchmark](#benchmark)
 

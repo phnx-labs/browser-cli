@@ -240,7 +240,7 @@ Four browser tools on eight web tasks, Claude Sonnet 5.5 in Claude Code, 2 runs 
   <img src="docs/assets/crossed-tabs-light.svg" alt="Runs where an agent saw another agent's tab, out of 6: browser-cli 0, browser-harness 6, Browser Use 4, agent-browser 6" width="100%">
 </picture>
 
-- **No agent saw another's tabs with browser-cli** when three agents worked in one browser at once.
+- **No agent saw another's tabs with browser-cli** when three agents worked in one browser at once, and with 0.2.8 it was also the fastest at it: 16 and 34 s per trial, against 30 to 42 s for Browser Use and browser-harness and 98 to 126 s for agent-browser (2026-11-11 rerun).
 
 Method, per-task results and the run records: [Benchmarks](docs/benchmarks/README.md). Rerun it with [`bench/`](bench/README.md).
 

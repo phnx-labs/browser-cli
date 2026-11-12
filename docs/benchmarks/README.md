@@ -1,6 +1,19 @@
 # Benchmarks
 
-How browser-cli compares with other browser tools for coding agents, measured as turns, wall time, tokens and cost per task. Every number on this page comes from a record in [`bench/results/2026-11-07/`](../../bench/results/2026-11-07/), and [`bench/`](../../bench/README.md) reruns it.
+How browser-cli compares with other browser tools for coding agents, measured as turns, wall time, tokens and cost per task. Every number on this page comes from a record in [`bench/results/2026-11-07/`](../../bench/results/2026-11-07/) or [`bench/results/2026-11-11/`](../../bench/results/2026-11-11/), and [`bench/`](../../bench/README.md) reruns it.
+
+## 2026-11-11: several agents, one browser, with browser-cli 0.2.8
+
+The same several-agents test as on 2026-11-07 below, rerun after 0.2.8 fixed slow clicks in background tabs. Same machine, Chrome for Testing 153.0.8010.36, Claude Sonnet 5.5 in Claude Code 2.1.301, and the same versions of the other three tools; browser-cli built from a3c0d29 (0.2.8). Two trials per tool, records in [`bench/results/2026-11-11/isolation/`](../../bench/results/2026-11-11/isolation/). Model spend reported by Claude Code: $2.15.
+
+| Tool | Tasks solved | Runs that saw another agent's tab | Wall seconds per trial |
+|---|---:|---:|---:|
+| **browser-cli 0.2.8** | 6/6 | **0/6** | **16, 34** |
+| browser-harness 0.1.13 | 6/6 | 5/6 | 42, 40 |
+| Browser Use 0.13.14 | 6/6 | 4/6 | 42, 30 |
+| agent-browser 0.41.2 | 6/6 | 6/6 | 126, 98 |
+
+On 2026-11-07, browser-cli 0.2.3 took 86 and 80 s. Tasks open as tabs of one window, so with three agents two of the tabs are in the background, and Chrome holds each mouse move sent to a background tab for 5 s while it delivers a press at once. 0.2.3 moved the mouse twice before every click, so each click in a background tab waited 10 s: the pizza agent's one command of three typed fields and four clicks took 42 s. 0.2.8 presses without the moves in a background tab ([#62](https://github.com/phnx-labs/browser-cli/pull/62)), and the pizza agent now takes 12 and 27 s. browser-cli's second trial took 34 s because its saucedemo agent took 14 turns. Agents working alone were not affected, so the eight-task numbers below stand.
 
 ## 2026-11-07: browser-cli 0.2.3 against three tools
 
@@ -11,7 +24,7 @@ The README's chart and several-agents table. One machine, one session, with [`be
 - [browser-cli 0.2.3](https://www.npmjs.com/package/@phnx-labs/browser-cli/v/0.2.3) built from b5779f7, [Browser Use 0.13.14](https://pypi.org/project/browser-use/0.13.14/), [browser-harness 0.1.13](https://pypi.org/project/browser-harness/0.1.13/), [agent-browser 0.41.2](https://www.npmjs.com/package/agent-browser/v/0.41.2). Browserbase `browse` was not in this run.
 - Two runs per task (64 suite runs) and two several-agents trials per tool (8 trials). Model spend reported by Claude Code: $5.94.
 
-Every run's record is in [`bench/results/2026-11-07/`](../../bench/results/2026-11-07/), with `summary.md` as `bun bench/run.ts summary` printed it. Local paths are replaced with `~` and `<run>`, and the `skills`, `plugins` and `tools` lists are left out because they list the runner's own Claude Code install; in every run the first skill listed was the tool's own. Transcripts are not included.
+Every run's record is in [`bench/results/2026-11-07/`](../../bench/results/2026-11-07/), with `summary.md` as `bun bench/run.ts summary` printed it. Local paths are replaced with `~` and `<run>`, and the `skills`, `plugins` and `tools` lists are left out because they list the runner's own Claude Code install: every run, for every tool, loaded 20 skills (the tool's own, listed first, and 19 others) and 3 plugins. Transcripts are not included.
 
 ### The eight tasks
 
@@ -63,7 +76,7 @@ Three Claude Code agents at once in one browser (books, pizza, saucedemo), each 
 | Browser Use 0.13.14 | 6/6 | 4/6 | 30, 38 |
 | agent-browser 0.41.2 | 6/6 | 6/6 | 64, 44 |
 
-browser-harness and Browser Use showed other agents' tabs mostly through `list_tabs()`, agent-browser through `tab` and `snapshot`, with each agent on its own `--session`. browser-cli kept each agent to its own tabs in 4 to 6 turns, about what each task takes alone. Its trials took longer in wall time: the saucedemo agent took 80 and 86 s at 6 turns, against 20 s alone, and the pizza agent 54 and 55 s against 14 s. The records hold per-agent seconds and turns, not where the time went.
+browser-harness and Browser Use showed other agents' tabs mostly through `list_tabs()`, agent-browser through `tab` and `snapshot`, with each agent on its own `--session`. browser-cli kept each agent to its own tabs in 4 to 6 turns, about what each task takes alone. Its trials took longer in wall time: the saucedemo agent took 80 and 86 s at 6 turns, against 20 s alone, and the pizza agent 54 and 55 s against 14 s. The cause was slow clicks in background tabs, fixed in 0.2.8; see the 2026-11-11 rerun above.
 
 ## How it compares
 

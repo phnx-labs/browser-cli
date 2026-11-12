@@ -1,0 +1,85 @@
+{
+  "kind": "isolation",
+  "tool": "browser-cli",
+  "toolVersion": "0.2.8 (a3c0d29)",
+  "trial": 1,
+  "model": "claude-sonnet-5-5",
+  "wallSeconds": 16.325,
+  "agents": [
+    {
+      "task": "books",
+      "correct": true,
+      "grade": "expected \"The Girl You Lost\" at £12.29",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-12T05:09:31.024Z",
+      "seconds": 13.250076938000014,
+      "turns": 5,
+      "costUsd": 0.0427536,
+      "tokens": {
+        "input": 8,
+        "cacheCreation": 7569,
+        "cacheRead": 59416,
+        "output": 652,
+        "total": 67645
+      },
+      "answer": "The cheapest five-star book in the Mystery category is **The Girl You Lost**, at **£12.29**.\n\nFive Mystery books are rated five stars. The next cheapest is *The Silkworm (Cormoran Strike #2)* at £23.05.\n\nI checked both pages of the category (index.html and page-2.html). I didn't separately confirm that there is no third page, but the category's 32 books fit on two pages of 20. The category page I opened is still open in my tab.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 3,
+      "sawOtherAgentsTab": false,
+      "leakingCommands": []
+    },
+    {
+      "task": "pizza",
+      "correct": true,
+      "grade": "all fields submitted",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-12T05:09:31.025Z",
+      "seconds": 12.30882892,
+      "turns": 5,
+      "costUsd": 0.039540599999999995,
+      "tokens": {
+        "input": 8,
+        "cacheCreation": 7242,
+        "cacheRead": 60166,
+        "output": 454,
+        "total": 67870
+      },
+      "answer": "I submitted the pizza order at https://httpbin.org/forms/post, and httpbin accepted it. The response page echoes back the form data:\n\n- **Customer name:** Ada Lovelace\n- **Telephone:** 555-0100\n- **Email:** ada@example.com\n- **Size:** Large\n- **Toppings:** Bacon and Extra Cheese\n- **Delivery time:** 19:45\n- **Delivery instructions:** Ring twice\n\nI worked only in the tab I opened, and that tab is still open on the response page (https://httpbin.org/post).",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 3,
+      "sawOtherAgentsTab": false,
+      "leakingCommands": []
+    },
+    {
+      "task": "saucedemo",
+      "correct": true,
+      "grade": "checkout-complete page open",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-12T05:09:31.026Z",
+      "seconds": 16.322099103999992,
+      "turns": 6,
+      "costUsd": 0.046314799999999996,
+      "tokens": {
+        "input": 10,
+        "cacheCreation": 8298,
+        "cacheRead": 77828,
+        "output": 532,
+        "total": 86668
+      },
+      "answer": "The order is complete. The final page, https://www.saucedemo.com/checkout-complete.html, shows \"Thank you for your order!\" and \"Checkout: Complete!\"\n\nI logged in as standard_user and sorted by price from low to high. I added the Sauce Labs Backpack and the Sauce Labs Bike Light, then checked out as Ada Lovelace with postal code 10001. The cart showed 2 items before checkout. I didn't read the order summary page, so I haven't confirmed the total.\n\nThe tab is still open.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 4,
+      "sawOtherAgentsTab": false,
+      "leakingCommands": []
+    }
+  ]
+}

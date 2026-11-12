@@ -1844,13 +1844,23 @@ export class BrowserService {
       buffer = Buffer.from(data, 'base64');
       extension = 'png';
     } else {
-      // Limit screenshot retries: capture at quality 60, then once at 30 if needed to fit the 100 KB
-      // budget.
+      // Capture at CSS pixels (a model reads a 2x Retina shot as 4x the image tokens), at quality 60,
+      // then once at 30 if needed to fit the 100 KB budget.
       const MAX_SIZE = 100 * 1024;
+      const { cssVisualViewport: view } = (await conn.cdp.send('Page.getLayoutMetrics', {}, sessionId)) as {
+        cssVisualViewport: { pageX: number; pageY: number; clientWidth: number; clientHeight: number };
+      };
+      const { result: ratio } = (await conn.cdp.send(
+        'Runtime.evaluate', { expression: 'devicePixelRatio', returnByValue: true }, sessionId,
+      )) as { result: { value?: number } };
+      const scale = ratio.value && ratio.value > 1 ? 1 / ratio.value : undefined;
+      const clip = scale
+        ? { x: view.pageX, y: view.pageY, width: view.clientWidth, height: view.clientHeight, scale }
+        : undefined;
       const capture = async (quality: number): Promise<Buffer> => {
         const { data } = (await conn.cdp.send(
           'Page.captureScreenshot',
-          { format: 'jpeg', quality },
+          { format: 'jpeg', quality, ...(clip ? { clip } : {}) },
           sessionId
         )) as { data: string };
         return Buffer.from(data, 'base64');

@@ -2059,7 +2059,7 @@
         },
         {
           "flags": "-q, --quality <mode>",
-          "description": "compressed (JPEG, capped at ~100 KB — default) or raw (PNG, pixel-faithful)",
+          "description": "compressed (JPEG at CSS pixels, capped at ~100 KB — default) or raw (PNG at device pixels)",
           "short": "-q",
           "long": "--quality",
           "required": true,

@@ -2586,7 +2586,7 @@ function registerTaskCommands(browser: Command): void {
     .option('-o, --output <path>', 'Specific output path (otherwise auto-saved under sessions/<task>/)')
     .option(
       '-q, --quality <mode>',
-      'compressed (JPEG, capped at ~100 KB — default) or raw (PNG, pixel-faithful)',
+      'compressed (JPEG at CSS pixels, capped at ~100 KB — default) or raw (PNG at device pixels)',
       'compressed'
     )
     .action(async (opts) => {

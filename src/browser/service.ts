@@ -3405,8 +3405,8 @@ export class BrowserService {
     await this.waitForDocumentOn(conn, await this.getSessionId(conn, target.targetId));
   }
 
-  /** Return URL, title and interactive refs, caching their numbering; wait for readiness unless already
-   * settled. */
+  /** Return URL, title, interactive refs (caching their numbering) and, except on native Arc, a compressed
+   * screenshot's path; wait for readiness unless already settled. */
   private async snapshotPage(
     conn: ProfileConnection,
     task: Task,
@@ -3422,7 +3422,9 @@ export class BrowserService {
           ? await this.evaluateFirefox(conn, task, shortId, expression)
           : undefined;
       const { url, title } = typeof page === 'string' ? (JSON.parse(page) as { url: string; title: string }) : { url: '', title: '' };
-      return { url, title, refs };
+      if (conn.backend !== 'bidi') return { url, title, refs };
+      const { path: screenshot } = await this.screenshot(task.id, shortId);
+      return { url, title, refs, screenshot };
     }
     const cdpTargetId = this.getCdpTargetId(task, shortId);
     const target = await this.getTarget(conn, cdpTargetId);
@@ -3438,7 +3440,8 @@ export class BrowserService {
     const listing = await getRefs(conn.cdp, sessionId, { interactive: true, limit: 500 });
     this.cacheRefDescriptors(task, shortId, listing.nodeMap, listing.opts);
     this.saveTaskStateSoon(task.profile, conn.tasks);
-    return { url, title, refs: listing.refs };
+    const { path: screenshot } = await this.screenshot(task.id, shortId);
+    return { url, title, refs: listing.refs, screenshot };
   }
 
   /** `Page.enable` once per session; every Page-domain user goes through here. */

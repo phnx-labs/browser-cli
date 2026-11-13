@@ -433,6 +433,7 @@ export interface PageSnapshot {
   title: string;
   /** Interactive ref listing, numbered exactly as a following `browser refs` would be. */
   refs: string;
+  screenshot?: string;
 }
 
 /** Created and refreshed are exclusive; adoption or navigation of an existing tab sets neither. */

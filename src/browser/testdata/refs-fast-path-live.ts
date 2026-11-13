@@ -95,6 +95,10 @@ try {
   assert.equal(navigated.snapshot!.url, NEXT);
   assert.equal(navigated.snapshot!.refs, (await service.refs('fast')).refs);
   assert.match(navigated.snapshot!.refs, /button "Only" \[ref=1\]/);
+  const shot = await readFile(navigated.snapshot!.screenshot!);
+  assert.match(navigated.snapshot!.screenshot!, /sessions\/fast\/[^/]+\.jpg$/);
+  assert.deepEqual([...shot.subarray(0, 3)], [0xff, 0xd8, 0xff], 'snapshot screenshot must be a JPEG');
+  assert.ok(shot.length < 100 * 1024, `snapshot screenshot is ${shot.length} bytes, over the 100 KB cap`);
 
   // A page with an editor root still gets its editor detected.
   await service.navigate('fast', EDITOR);
@@ -262,7 +266,7 @@ try {
   // One field of the split input takes keystrokes; PM from before stays.
   assert.equal((await service.type('fast', hoursRef, '08')).reads, '20:45');
 
-  console.log('gate: one question, zero walks; click: partial check only; replaced node: healed; snapshot: destination; editor: detected; enter: submitted; router click: settled; wait: settled; relabeled: same element');
+  console.log('gate: one question, zero walks; click: partial check only; replaced node: healed; snapshot: destination + screenshot; editor: detected; enter: submitted; router click: settled; wait: settled; relabeled: same element');
 } finally {
   clearTimeout(deadline);
   await cdp.close();

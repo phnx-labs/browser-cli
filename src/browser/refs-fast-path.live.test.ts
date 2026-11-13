@@ -5,7 +5,7 @@ import { join } from 'node:path';
 
 const chrome = process.env.AGENTS_TEST_CHROME;
 
-test.skipIf(!chrome)('refs fast paths: editor gate, cached-ref click, heal fallback, snapshot, Enter submits', async () => {
+test.skipIf(!chrome)('refs fast paths: editor gate, cached-ref click, heal fallback, snapshot with screenshot, Enter submits', async () => {
   const directory = mkdtempSync(join(tmpdir(), 'browser-refs-'));
   try {
     const child = Bun.spawn([process.execPath, join(import.meta.dir, 'testdata/refs-fast-path-live.ts'), chrome!], {
@@ -18,7 +18,7 @@ test.skipIf(!chrome)('refs fast paths: editor gate, cached-ref click, heal fallb
     expect(error).toBe('');
     expect(code).toBe(0);
     expect(output.trim()).toBe(
-      'gate: one question, zero walks; click: partial check only; replaced node: healed; snapshot: destination; editor: detected; enter: submitted; router click: settled; wait: settled; relabeled: same element',
+      'gate: one question, zero walks; click: partial check only; replaced node: healed; snapshot: destination + screenshot; editor: detected; enter: submitted; router click: settled; wait: settled; relabeled: same element',
     );
   } finally {
     rmSync(directory, { recursive: true, force: true });

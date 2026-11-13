@@ -112,7 +112,7 @@ let inferredTaskName: string | undefined;
  * Reject page-verb --device. */
 const SNAPSHOT_OPTION_FLAG = '--snapshot';
 const SNAPSHOT_OPTION_DESC =
-  'After the action settles, also print the page url, title and interactive refs (what `browser refs` would print next) — one round trip instead of two';
+  'After the action settles, also print the page url, title, the path of a compressed screenshot (as `browser screenshot` saves it; not on native Arc) and the interactive refs (what `browser refs` would print next) — one round trip instead of three';
 
 const NO_WAIT_OPTION_FLAG = '--no-wait';
 const NO_WAIT_OPTION_DESC =
@@ -146,6 +146,7 @@ function printSnapshot(snapshot: PageSnapshot | undefined): void {
   if (!snapshot) return;
   const where = snapshot.title ? `${snapshot.title} — ${snapshot.url}` : snapshot.url;
   console.log(`\n${where}`);
+  if (snapshot.screenshot) console.log(`screenshot: ${snapshot.screenshot}`);
   console.log(snapshot.refs || '(no interactive elements)');
 }
 

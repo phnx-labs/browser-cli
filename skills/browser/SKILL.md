@@ -26,7 +26,7 @@ Never switch to a different browser because the default cannot do something. Whe
 
 ```bash
 browser start --url https://example.com --snapshot   # the page's refs; later calls drive this task
-browser click 3 --snapshot                           # act, then print the page it left
+browser click 3 --snapshot                           # act, then print the page it left and a screenshot's path
 browser click --text "Checkout" --snapshot           # by visible name, no listing needed
 browser type 5 "hello"                               # date/time inputs take "19:45" or "2026-10-18"
 browser type "Email" "ada@example.com"               # or name the field by its label

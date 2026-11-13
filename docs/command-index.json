@@ -106,7 +106,7 @@
         },
         {
           "flags": "--snapshot",
-          "description": "After the action settles, also print the page url, title and interactive refs (what `browser refs` would print next) — one round trip instead of two",
+          "description": "After the action settles, also print the page url, title, the path of a compressed screenshot (as `browser screenshot` saves it; not on native Arc) and the interactive refs (what `browser refs` would print next) — one round trip instead of three",
           "long": "--snapshot",
           "required": false,
           "optional": false,
@@ -694,7 +694,7 @@
         },
         {
           "flags": "--snapshot",
-          "description": "After the action settles, also print the page url, title and interactive refs (what `browser refs` would print next) — one round trip instead of two",
+          "description": "After the action settles, also print the page url, title, the path of a compressed screenshot (as `browser screenshot` saves it; not on native Arc) and the interactive refs (what `browser refs` would print next) — one round trip instead of three",
           "long": "--snapshot",
           "required": false,
           "optional": false,
@@ -831,7 +831,7 @@
         },
         {
           "flags": "--snapshot",
-          "description": "After the action settles, also print the page url, title and interactive refs (what `browser refs` would print next) — one round trip instead of two",
+          "description": "After the action settles, also print the page url, title, the path of a compressed screenshot (as `browser screenshot` saves it; not on native Arc) and the interactive refs (what `browser refs` would print next) — one round trip instead of three",
           "long": "--snapshot",
           "required": false,
           "optional": false,
@@ -2219,7 +2219,7 @@
         },
         {
           "flags": "--snapshot",
-          "description": "After the action settles, also print the page url, title and interactive refs (what `browser refs` would print next) — one round trip instead of two",
+          "description": "After the action settles, also print the page url, title, the path of a compressed screenshot (as `browser screenshot` saves it; not on native Arc) and the interactive refs (what `browser refs` would print next) — one round trip instead of three",
           "long": "--snapshot",
           "required": false,
           "optional": false,
@@ -3429,7 +3429,7 @@
         },
         {
           "flags": "--snapshot",
-          "description": "After the action settles, also print the page url, title and interactive refs (what `browser refs` would print next) — one round trip instead of two",
+          "description": "After the action settles, also print the page url, title, the path of a compressed screenshot (as `browser screenshot` saves it; not on native Arc) and the interactive refs (what `browser refs` would print next) — one round trip instead of three",
           "long": "--snapshot",
           "required": false,
           "optional": false,

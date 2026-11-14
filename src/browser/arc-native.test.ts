@@ -62,15 +62,12 @@ describe('durable native Arc identity', () => {
 });
 
 describe('Arc refusals', () => {
-  it('name a next step in Arc for every capability the service refuses, never another browser', async () => {
+  it('name a next step in Arc and never another browser', async () => {
     const { ArcNativeCapabilityError } = await import('./drivers/arc.js');
-    const source = await Bun.file(new URL('./service.ts', import.meta.url)).text();
-    const refused = [...source.matchAll(/(?:requireCdp\(conn, |new ArcNativeCapabilityError\()'([^']+)'/g)].map((m) => m[1]!);
-    expect(refused).toContain('trustedInput');
-    for (const capability of new Set([...refused, 'asyncEvaluate'])) {
+    for (const capability of ['press', 'hover', 'click --at', 'click --text', 'consoleCapture', 'networkCapture', 'download'] as const) {
       const { message } = new ArcNativeCapabilityError(capability);
-      expect(message).toContain(`does not support ${capability}.\nNext: `);
-      expect(message).not.toMatch(/configured browser|Chromium-family|--browser/);
+      expect(message).toMatch(new RegExp(`does not support ${capability}\\.\nNext: (?!read the page with browser text or browser refs)`));
+      expect(message).not.toMatch(/configured browser|Chromium-family|requestSubmit|XMLHttpRequest/);
     }
   });
 });

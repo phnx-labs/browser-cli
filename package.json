@@ -38,7 +38,7 @@
     "@phnx-labs/browser-cli-win32-x64": "0.2.13"
   },
   "devDependencies": {
-    "@inquirer/prompts": "8.7.5",
+    "@inquirer/prompts": "8.8.0",
     "@phnx-labs/cli-docs": "0.1.1",
     "@phnx-labs/tui": "file:vendor/phnx-labs-tui-0.1.0.tgz",
     "@types/bun": "1.4.4",
@@ -47,10 +47,10 @@
     "@types/ws": "8.18.2",
     "bun": "1.4.4",
     "chalk": "6.0.1",
-    "commander": "15.0.0",
+    "commander": "15.1.0",
     "proper-lockfile": "4.1.2",
     "typescript": "7.0.2",
-    "ws": "8.22.1",
+    "ws": "8.22.2",
     "yaml": "2.9.1"
   }
 }

@@ -47,9 +47,35 @@ export function pickShowSpace(
   return pickArcSpace(own, live.filter((space) => !agentWindows.has(space.windowId))) ?? pickArcSpace(own, live);
 }
 
+const BY_REF = 'browser refs --task <task>, then browser click <ref> --task <task>';
+const READ_PAGE = 'read the page with browser text or browser refs and continue in this tab';
+const ARC_NEXT = {
+  press: `Arc takes no key presses. To send a form, click its submit button by ref: ${BY_REF}. For other keys, tell the user`,
+  hover: 'Arc takes no mouse moves. Find what the hover would show with browser refs or browser text; click a menu trigger by ref only if clicking it is safe',
+  'click --at': `Arc takes no coordinate clicks. Click by ref: ${BY_REF}`,
+  'click --text': BY_REF,
+  'scroll --at-x/--at-y': 'browser scroll without --at-x/--at-y scrolls the page',
+  consoleCapture: 'read what the page shows with browser text, and say the console was not captured',
+  networkCapture: 'read the data the page shows with browser text, and say the requests were not captured',
+  upload: 'ask the user to attach the file in their Arc window, then continue',
+  download: 'list the download links with browser evaluate "[...document.querySelectorAll(\'a[download]\')].map((a) => a.href)" --task <task> and give the right one to the user',
+  viewport: 'continue at the window\'s size',
+  recording: 'take screenshots instead: browser screenshot --task <task>',
+  pdf: 'take a screenshot or read the page instead: browser screenshot --task <task>, browser text --task <task>',
+  asyncEvaluate: 'write it as one synchronous expression, and use browser wait --fn to wait for the page',
+  screenshot: 'start a new task; it opens in the agent window, which screenshot captures',
+  click: READ_PAGE, closeTab: READ_PAGE, createTab: READ_PAGE, enumerate: READ_PAGE, evaluate: READ_PAGE,
+  navigate: READ_PAGE, scroll: READ_PAGE, select: READ_PAGE, type: READ_PAGE,
+} as const;
+export type ArcCapability = keyof typeof ARC_NEXT;
+
+function arcNextStep(capability: ArcCapability): string {
+  return `Next: ${ARC_NEXT[capability]}. Do not switch to another browser or profile.`;
+}
+
 export class ArcNativeCapabilityError extends Error {
-  constructor(public readonly capability: string, message?: string) {
-    super(message ?? `Native Arc does not support ${capability}. Use a configured browser with that capability.`);
+  constructor(public readonly capability: ArcCapability, message?: string) {
+    super(message ?? `Native Arc does not support ${capability}.\n${arcNextStep(capability)}`);
     this.name = 'ArcNativeCapabilityError';
   }
 }
@@ -273,7 +299,7 @@ export function navigateArcTab(ref: ArcNativeTabRef, url: string): Promise<void>
 
 /** Arc serializes a returned object once. JSON.stringify at the top level would double-encode. */
 export function executeJavaScript(ref: ArcNativeTabRef, expression: string, timeoutMs = TIMEOUT_MS): Promise<unknown> {
-  const wrapper = `(()=>{try{const value=(0,eval)(${JSON.stringify(expression)});if(value!=null&&typeof value.then==='function')return {ok:false,error:'Native Arc does not support asynchronous evaluation.'};return {ok:true,hasValue:value!==undefined,value:value===undefined?null:JSON.parse(JSON.stringify(value))}}catch(error){return {ok:false,error:String(error)}}})()`;
+  const wrapper = `(()=>{try{const value=(0,eval)(${JSON.stringify(expression)});if(value!=null&&typeof value.then==='function')return {ok:false,error:${JSON.stringify(`Native Arc does not support asynchronous evaluation.\n${arcNextStep('asyncEvaluate')}`)}};return {ok:true,hasValue:value!==undefined,value:value===undefined?null:JSON.parse(JSON.stringify(value))}}catch(error){return {ok:false,error:String(error)}}})()`;
   return serialized(async () => {
     const result = parse<{ ok: boolean; hasValue?: boolean; value?: unknown; error?: string }>(await execAppleScript(script(`${lookup(ref)}\nreturn execute targetTab javascript ${escapeAppleScriptString(wrapper)}`), timeoutMs));
     if (!result || result.ok !== true) throw new Error(result?.error ?? 'Native Arc JavaScript returned no result.');

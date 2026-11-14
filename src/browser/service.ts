@@ -109,6 +109,7 @@ import {
 } from './drivers/firefox.js';
 import {
   ArcNativeCapabilityError,
+  type ArcCapability,
   captureArcTab,
   isArcAgentWindowLive,
   openArcAgentWindow,
@@ -380,7 +381,7 @@ function refuseCrossSiteUpload(node: RefNode, ref: number): void {
 /** Narrow to CDP or throw the backend capability error. */
 function requireCdp(
   conn: ProfileConnection,
-  capability: string,
+  capability: ArcCapability,
 ): asserts conn is CdpProfileConnection {
   if (conn.backend === 'arc-native') throw new ArcNativeCapabilityError(capability);
   if (conn.backend === 'bidi') throw new FirefoxCapabilityError(capability);
@@ -2506,7 +2507,7 @@ export class BrowserService {
     opts: ActionOpts = {},
   ): Promise<{ snapshot?: PageSnapshot; asking?: string }> {
     const { conn, task } = await this.findTask(taskId);
-    requireCdp(conn, 'trustedInput');
+    requireCdp(conn, 'click --at');
     const shortId = tabHint ? await this.resolveTabHint(conn, task, tabHint) : this.resolveCurrentTab(task);
     const cdpTargetId = this.getCdpTargetId(task, shortId);
     const target = await this.getTarget(conn, cdpTargetId);
@@ -2827,7 +2828,7 @@ export class BrowserService {
     opts: ActionOpts = {},
   ): Promise<{ snapshot?: PageSnapshot; asking?: string }> {
     const { conn, task } = await this.findTask(taskId);
-    requireCdp(conn, 'trustedInput');
+    requireCdp(conn, 'press');
     const shortId = tabHint ? await this.resolveTabHint(conn, task, tabHint) : this.resolveCurrentTab(task);
     const cdpTargetId = this.getCdpTargetId(task, shortId);
     const target = await this.getTarget(conn, cdpTargetId);
@@ -2846,7 +2847,7 @@ export class BrowserService {
 
   async hover(taskId: string, ref: number, tabHint?: string): Promise<void> {
     const { conn, task } = await this.findTask(taskId);
-    requireCdp(conn, 'trustedInput');
+    requireCdp(conn, 'hover');
     const shortId = tabHint ? await this.resolveTabHint(conn, task, tabHint) : this.resolveCurrentTab(task);
     const cdpTargetId = this.getCdpTargetId(task, shortId);
     const target = await this.getTarget(conn, cdpTargetId);
@@ -2870,7 +2871,7 @@ export class BrowserService {
     const { conn, task } = await this.findTask(taskId);
     const shortId = tabHint ? await this.resolveTabHint(conn, task, tabHint) : this.resolveCurrentTab(task);
     if (conn.backend === 'arc-native') {
-      if (atX !== undefined || atY !== undefined) throw new ArcNativeCapabilityError('trustedInput');
+      if (atX !== undefined || atY !== undefined) throw new ArcNativeCapabilityError('scroll --at-x/--at-y');
       await this.evaluateArcNative(conn, task, shortId, arcScrollExpression(deltaX, deltaY));
       return;
     }

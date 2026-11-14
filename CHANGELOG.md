@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- An Arc refusal names what to do in Arc. `Native Arc does not support <capability>.` used to end with "Use a configured browser with that capability", which the browser skill tells agents never to do. It now ends with a `Next:` line: click by ref (`browser refs`, then `browser click <ref>`) for `click --at` and `click --text`, and a form's submit button by ref for `press`; `browser text` for console or network capture; one synchronous expression for async `evaluate`. `press`, `hover`, `click --at` and `scroll --at-x/--at-y` are refused under those names instead of `trustedInput`, in Arc and Firefox.
+
 ## 0.2.11
 
 - `--snapshot` on `navigate`, `click`, `type`, `select`, `press` and `start` also saves a compressed screenshot, the same JPEG of about 100 KB or less that `browser screenshot` saves under `sessions/<task>/`, and prints `screenshot: <path>` under the page title (`snapshot.screenshot` in `--json` and `stream`). Native Arc skips it: capturing there takes the Arc lock, selects the tab and refuses tabs in your own window, so a `--snapshot` that succeeds today would fail after its action had run. `--snapshot` used to print text only, so an agent needed a second call to see the page, and `browser sessions` listed 0 captures for a task driven only with `--snapshot`.

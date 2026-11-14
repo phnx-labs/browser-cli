@@ -49,7 +49,7 @@ test.skipIf(process.platform !== 'darwin' || !arcProfile)('Arc waits on the page
   try {
     const owner = selectedTabs();
     task = JSON.parse(cli('start', '--profile', 'arc-test', '--url', 'https://example.com/', '--json')).task;
-    for (const condition of [['--time', '200'], ['--selector', 'h1'], ['--url', 'example.com'], ['--state', 'load'], ['--fn', 'document.title.length > 0']]) {
+    for (const condition of [['--time', '200'], ['--selector', 'p'], ['--url', 'example.com'], ['--state', 'load'], ['--fn', 'document.title.length > 0']]) {
       cli('wait', '--task', task!, ...condition, '--timeout', '10000');
     }
     for (const [name, quality] of [['shot.jpg', 'compressed'], ['again.jpg', 'compressed'], ['raw.png', 'raw']]) {

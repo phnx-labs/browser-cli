@@ -60,3 +60,17 @@ describe('durable native Arc identity', () => {
     expect(arcCreateMarker('https://example.com/')).toMatch(/^https:\/\/agents-browser\.invalid\//);
   });
 });
+
+describe('Arc refusals', () => {
+  it('name a next step in Arc for every capability the service refuses, never another browser', async () => {
+    const { ArcNativeCapabilityError } = await import('./drivers/arc.js');
+    const source = await Bun.file(new URL('./service.ts', import.meta.url)).text();
+    const refused = [...source.matchAll(/(?:requireCdp\(conn, |new ArcNativeCapabilityError\()'([^']+)'/g)].map((m) => m[1]!);
+    expect(refused).toContain('trustedInput');
+    for (const capability of new Set([...refused, 'asyncEvaluate'])) {
+      const { message } = new ArcNativeCapabilityError(capability);
+      expect(message).toContain(`does not support ${capability}.\nNext: `);
+      expect(message).not.toMatch(/configured browser|Chromium-family|--browser/);
+    }
+  });
+});

@@ -47,9 +47,27 @@ export function pickShowSpace(
   return pickArcSpace(own, live.filter((space) => !agentWindows.has(space.windowId))) ?? pickArcSpace(own, live);
 }
 
+const REFS_THEN_CLICK = 'browser refs --task <task>, then browser click <ref> --task <task>';
+const ARC_NEXT: Record<string, string> = {
+  trustedInput: `Arc takes no real mouse or key presses. Click by ref instead: ${REFS_THEN_CLICK}. To submit a form: browser evaluate "document.activeElement.form.requestSubmit()" --task <task>. To scroll: browser scroll without --at`,
+  'click --text': REFS_THEN_CLICK,
+  consoleCapture: 'read what the page shows: browser text --task <task>',
+  networkCapture: 'read the data from the page: browser text --task <task>, or fetch it again with a synchronous XMLHttpRequest in browser evaluate',
+  upload: 'ask the user to attach the file in their Arc window, then continue',
+  download: 'read the link with browser evaluate "document.querySelector(\'a[download], a[href]\').href" --task <task> and give it to the user',
+  viewport: 'continue at the window\'s size',
+  recording: 'take screenshots instead: browser screenshot --task <task>',
+  pdf: 'take a screenshot or read the page instead: browser screenshot --task <task>, browser text --task <task>',
+  asyncEvaluate: 'write it as one synchronous expression, and use browser wait --fn to wait for the page',
+};
+
+export function arcNextStep(capability: string): string {
+  return `Next: ${ARC_NEXT[capability] ?? 'read the page with browser text or browser refs and continue in this tab'}. Do not switch to another browser or profile.`;
+}
+
 export class ArcNativeCapabilityError extends Error {
   constructor(public readonly capability: string, message?: string) {
-    super(message ?? `Native Arc does not support ${capability}. Use a configured browser with that capability.`);
+    super(message ?? `Native Arc does not support ${capability}.\n${arcNextStep(capability)}`);
     this.name = 'ArcNativeCapabilityError';
   }
 }
@@ -273,7 +291,7 @@ export function navigateArcTab(ref: ArcNativeTabRef, url: string): Promise<void>
 
 /** Arc serializes a returned object once. JSON.stringify at the top level would double-encode. */
 export function executeJavaScript(ref: ArcNativeTabRef, expression: string, timeoutMs = TIMEOUT_MS): Promise<unknown> {
-  const wrapper = `(()=>{try{const value=(0,eval)(${JSON.stringify(expression)});if(value!=null&&typeof value.then==='function')return {ok:false,error:'Native Arc does not support asynchronous evaluation.'};return {ok:true,hasValue:value!==undefined,value:value===undefined?null:JSON.parse(JSON.stringify(value))}}catch(error){return {ok:false,error:String(error)}}})()`;
+  const wrapper = `(()=>{try{const value=(0,eval)(${JSON.stringify(expression)});if(value!=null&&typeof value.then==='function')return {ok:false,error:${JSON.stringify(`Native Arc does not support asynchronous evaluation.\n${arcNextStep('asyncEvaluate')}`)}};return {ok:true,hasValue:value!==undefined,value:value===undefined?null:JSON.parse(JSON.stringify(value))}}catch(error){return {ok:false,error:String(error)}}})()`;
   return serialized(async () => {
     const result = parse<{ ok: boolean; hasValue?: boolean; value?: unknown; error?: string }>(await execAppleScript(script(`${lookup(ref)}\nreturn execute targetTab javascript ${escapeAppleScriptString(wrapper)}`), timeoutMs));
     if (!result || result.ok !== true) throw new Error(result?.error ?? 'Native Arc JavaScript returned no result.');

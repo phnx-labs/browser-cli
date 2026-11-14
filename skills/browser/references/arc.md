@@ -12,13 +12,14 @@ A task started before the agent window existed has its tab in the user's own win
 
 ## What Arc cannot do
 
-These fail with `Native Arc does not support <capability>`:
+These fail with `Native Arc does not support <capability>`, and the line after it names what to do in Arc instead:
 
 - asynchronous JavaScript: `evaluate` runs synchronous expressions only
 - the page's own JavaScript variables: `evaluate` and `wait --fn` run beside the page and share only its DOM, so `window.app` reads as undefined. Check the page instead, for example `browser wait --selector '.loaded'` or `--fn "document.body.innerText.includes('Done')"`
 - `console` and `errors` capture, `requests` and `responsebody`
 - `record`, `pdf`, `upload`, `download`, `set viewport`
-- coordinate clicks (`click --at X,Y`)
+- real mouse and key presses: `click --at X,Y`, `press`, `hover` and `scroll --at`. Click by ref (`browser refs`, then `browser click <ref>`); submit a form with `browser evaluate "document.activeElement.form.requestSubmit()"`
+- `click --text`: click by ref
 
 Never switch to a different browser because Arc cannot do a step. Read the page as text instead, for example `browser evaluate "document.body.innerText.slice(0, 4000)" --task <task>`, and say the capture was not possible. Never pick another profile from `browser profiles list` to get around it.
 

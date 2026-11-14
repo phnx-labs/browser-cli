@@ -3670,70 +3670,38 @@ export class BrowserService {
     options: { timeout?: number; tabHint?: string } = {}
   ): Promise<void> {
     const timeout = options.timeout ?? 30000;
-    const { conn, task } = await this.findTask(taskId);
-    requireCdp(conn, 'asyncEvaluate');
-
     if (type === 'time') {
       await new Promise((r) => setTimeout(r, typeof value === 'number' ? value : parseInt(value as string, 10)));
       return;
     }
 
+    const { conn, task } = await this.findTask(taskId);
     const shortId = options.tabHint ? await this.resolveTabHint(conn, task, options.tabHint) : this.resolveCurrentTab(task);
-    const cdpTargetId = this.getCdpTargetId(task, shortId);
-    const target = await this.getTarget(conn, cdpTargetId);
-    if (!target) throw new Error(`Tab ${shortId} not found`);
+    const text = String(value);
+    const expression =
+      type === 'selector' ? `!!document.querySelector(${JSON.stringify(text)})`
+      : type === 'url' ? 'location.href'
+      : type === 'function' ? `!!(${text})`
+      : 'document.readyState';
+    const pattern = type === 'url' && text.includes('*') ? new RegExp(text.replace(/\*/g, '.*'), 'i') : null;
+    const met = (result: unknown): boolean => {
+      if (type === 'url') return pattern ? pattern.test(String(result)) : String(result).includes(text);
+      if (type === 'load') return text === 'domcontentloaded' ? result !== 'loading' : result === 'complete';
+      return result === true;
+    };
 
-    const sessionId = await this.getSessionId(conn, target.targetId);
     const start = Date.now();
-
     while (Date.now() - start < timeout) {
-      let condition = false;
-
-      if (type === 'selector') {
-        const result = (await conn.cdp.send(
-          'Runtime.evaluate',
-          { expression: `!!document.querySelector(${JSON.stringify(value)})`, returnByValue: true },
-          sessionId
-        )) as { result: { value: boolean } };
-        condition = result.result.value === true;
-      } else if (type === 'url') {
-        const result = (await conn.cdp.send(
-          'Runtime.evaluate',
-          { expression: 'location.href', returnByValue: true },
-          sessionId
-        )) as { result: { value: string } };
-        const pattern = (value as string).includes('*')
-          ? new RegExp((value as string).replace(/\*/g, '.*'), 'i')
-          : null;
-        condition = pattern ? pattern.test(result.result.value) : result.result.value.includes(value as string);
-      } else if (type === 'function') {
-        const result = (await conn.cdp.send(
-          'Runtime.evaluate',
-          { expression: `!!(${value})`, returnByValue: true },
-          sessionId
-        )) as { result: { value: boolean } };
-        condition = result.result.value === true;
-      } else if (type === 'load') {
-        const result = (await conn.cdp.send(
-          'Runtime.evaluate',
-          { expression: 'document.readyState', returnByValue: true },
-          sessionId
-        )) as { result: { value: string } };
-        if (value === 'domcontentloaded') {
-          condition = result.result.value !== 'loading';
-        } else if (value === 'load' || value === 'complete') {
-          condition = result.result.value === 'complete';
-        } else if (value === 'networkidle') {
-          // Simplified: check if document is complete
-          condition = result.result.value === 'complete';
-        }
-      }
-
-      if (condition) return;
+      if (met(await this.evaluate(taskId, shortId, expression))) return;
       await new Promise((r) => setTimeout(r, 100));
     }
 
-    throw new Error(`Wait condition "${type}:${value}" not met within ${timeout}ms`);
+    throw new Error(
+      actionable(
+        `Wait condition "${type}:${value}" not met within ${timeout}ms`,
+        'Next: browser snapshot to see the page as it is, or retry with a longer --timeout',
+      ),
+    );
   }
 
   // ─── Downloads ───────────────────────────────────────────────────────────────

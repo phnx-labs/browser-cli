@@ -3670,14 +3670,17 @@ export class BrowserService {
     options: { timeout?: number; tabHint?: string } = {}
   ): Promise<void> {
     const timeout = options.timeout ?? 30000;
+    const { conn, task } = await this.findTask(taskId);
     if (type === 'time') {
       await new Promise((r) => setTimeout(r, typeof value === 'number' ? value : parseInt(value as string, 10)));
       return;
     }
 
-    const { conn, task } = await this.findTask(taskId);
     const shortId = options.tabHint ? await this.resolveTabHint(conn, task, options.tabHint) : this.resolveCurrentTab(task);
     const text = String(value);
+    if (type === 'load' && !['domcontentloaded', 'load', 'complete', 'networkidle'].includes(text)) {
+      throw new Error(`--state takes domcontentloaded, load or networkidle, not "${text}".`);
+    }
     const expression =
       type === 'selector' ? `!!document.querySelector(${JSON.stringify(text)})`
       : type === 'url' ? 'location.href'
@@ -3690,15 +3693,26 @@ export class BrowserService {
       return result === true;
     };
 
-    const start = Date.now();
-    while (Date.now() - start < timeout) {
-      if (met(await this.evaluate(taskId, shortId, expression))) return;
-      await new Promise((r) => setTimeout(r, 100));
+    const pollMs = conn.backend === 'arc-native' ? 300 : 100;
+    const deadline = Date.now() + timeout;
+    let lastError: string | undefined;
+    while (Date.now() < deadline) {
+      const check = this.evaluate(taskId, shortId, expression).then(
+        (result) => { lastError = undefined; return met(result); },
+        (error: unknown) => { lastError = error instanceof Error ? error.message : String(error); return false; },
+      );
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      const late = new Promise<false>((r) => { timer = setTimeout(() => r(false), Math.max(0, deadline - Date.now())); });
+      const done = await Promise.race([check, late]);
+      clearTimeout(timer);
+      if (done) return;
+      await new Promise((r) => setTimeout(r, pollMs));
     }
 
     throw new Error(
       actionable(
         `Wait condition "${type}:${value}" not met within ${timeout}ms`,
+        lastError ? `The last check failed: ${lastError.split('\n')[0]}` : '',
         'Next: browser snapshot to see the page as it is, or retry with a longer --timeout',
       ),
     );

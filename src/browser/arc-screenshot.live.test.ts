@@ -52,6 +52,13 @@ test.skipIf(process.platform !== 'darwin' || !arcProfile)('Arc waits on the page
     for (const condition of [['--time', '200'], ['--selector', 'p'], ['--url', 'example.com'], ['--state', 'load'], ['--fn', 'document.title.length > 0']]) {
       cli('wait', '--task', task!, ...condition, '--timeout', '10000');
     }
+    cli('evaluate', '--task', task!, "void setTimeout(() => { document.body.dataset.late = 'yes'; }, 1000)");
+    cli('wait', '--task', task!, '--fn', "document.querySelector('[data-late]').dataset.late === 'yes'", '--timeout', '10000');
+    const started = Date.now();
+    const missing = Bun.spawnSync([process.execPath, entry, 'wait', '--task', task!, '--selector', '#absent', '--timeout', '1000'], { env, stderr: 'pipe' });
+    expect(missing.exitCode).not.toBe(0);
+    expect(missing.stderr.toString()).toContain('not met within 1000ms');
+    expect(Date.now() - started).toBeLessThan(5000);
     for (const [name, quality] of [['shot.jpg', 'compressed'], ['again.jpg', 'compressed'], ['raw.png', 'raw']]) {
       const shot = join(home, name);
       cli('screenshot', '--task', task!, '-q', quality, '-o', shot);

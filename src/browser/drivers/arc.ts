@@ -61,7 +61,7 @@ const ARC_NEXT: Record<string, string> = {
   asyncEvaluate: 'write it as one synchronous expression, and use browser wait --fn to wait for the page',
 };
 
-export function arcNextStep(capability: string): string {
+function arcNextStep(capability: string): string {
   return `Next: ${ARC_NEXT[capability] ?? 'read the page with browser text or browser refs and continue in this tab'}. Do not switch to another browser or profile.`;
 }
 

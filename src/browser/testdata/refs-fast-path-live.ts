@@ -272,6 +272,11 @@ try {
   await service.wait('fast', 'load', 'load');
   await service.wait('fast', 'function', "document.title === 'When'");
   await assert.rejects(service.wait('fast', 'selector', '#absent', { timeout: 300 }), /not met within 300ms\nNext: browser snapshot/);
+  await send('Runtime.evaluate', { expression: "setTimeout(() => { document.body.dataset.late = 'yes'; }, 300)" },
+    (await send('Target.attachToTarget', { targetId, flatten: true }) as { sessionId: string }).sessionId);
+  await service.wait('fast', 'function', "document.querySelector('[data-late]').dataset.late === 'yes'");
+  await assert.rejects(service.wait('fast', 'function', 'window.never.ready', { timeout: 300 }), /The last check failed: TypeError/);
+  await assert.rejects(service.wait('fast', 'load', 'loaded'), /--state takes domcontentloaded, load or networkidle/);
 
   console.log('gate: one question, zero walks; click: partial check only; replaced node: healed; snapshot: destination + screenshot; editor: detected; enter: submitted; router click: settled; wait: settled; relabeled: same element');
 } finally {

@@ -1251,7 +1251,11 @@ export function reconcileDaemonVersion(daemon: string | undefined): void {
   const client = getCliVersion();
   if (!shouldRecommendDaemonRefresh(daemon, client)) return;
   emit('daemon.version_mismatch', { daemon, cli: client });
-  process.stderr.write(`daemon is ${daemon}, CLI is ${client}: run browser stop --service\n`);
+  process.stderr.write(
+    `daemon is ${daemon}, CLI is ${client}: commands run on the older service, without the fixes since ${daemon}. ` +
+      'If one fails or misbehaves, run browser stop --service once no other agent is using the browser; ' +
+      'a restart cuts off their running commands, recordings and captures.\n',
+  );
 }
 
 async function logAction(request: IPCRequest, send: () => Promise<IPCResponse>): Promise<IPCResponse> {

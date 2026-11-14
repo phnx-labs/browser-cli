@@ -26,7 +26,7 @@ const selectedTabs = () => osa(`tell application id "company.thebrowser.Browser"
   return out as text
 end tell`).split('\n');
 
-test.skipIf(process.platform !== 'darwin' || !arcProfile)('an Arc screenshot captures the agent window and leaves the owner where they were', () => {
+test.skipIf(process.platform !== 'darwin' || !arcProfile)('Arc waits on the page, and a screenshot captures the agent window and leaves the owner where they were', () => {
   const home = mkdtempSync(join(tmpdir(), 'browser-arc-shot-'));
   const bin = join(home, 'bin');
   mkdirSync(join(home, 'browser', 'profiles'), { recursive: true });
@@ -49,6 +49,9 @@ test.skipIf(process.platform !== 'darwin' || !arcProfile)('an Arc screenshot cap
   try {
     const owner = selectedTabs();
     task = JSON.parse(cli('start', '--profile', 'arc-test', '--url', 'https://example.com/', '--json')).task;
+    for (const condition of [['--time', '200'], ['--selector', 'h1'], ['--url', 'example.com'], ['--state', 'load'], ['--fn', 'document.title.length > 0']]) {
+      cli('wait', '--task', task!, ...condition, '--timeout', '10000');
+    }
     for (const [name, quality] of [['shot.jpg', 'compressed'], ['again.jpg', 'compressed'], ['raw.png', 'raw']]) {
       const shot = join(home, name);
       cli('screenshot', '--task', task!, '-q', quality, '-o', shot);

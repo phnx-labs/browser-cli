@@ -266,6 +266,13 @@ try {
   // One field of the split input takes keystrokes; PM from before stays.
   assert.equal((await service.type('fast', hoursRef, '08')).reads, '20:45');
 
+  // `browser wait` reads the page through evaluate, the one path every backend has.
+  await service.wait('fast', 'selector', '#t');
+  await service.wait('fast', 'url', 'data:*');
+  await service.wait('fast', 'load', 'load');
+  await service.wait('fast', 'function', "document.title === 'When'");
+  await assert.rejects(service.wait('fast', 'selector', '#absent', { timeout: 300 }), /not met within 300ms\nNext: browser snapshot/);
+
   console.log('gate: one question, zero walks; click: partial check only; replaced node: healed; snapshot: destination + screenshot; editor: detected; enter: submitted; router click: settled; wait: settled; relabeled: same element');
 } finally {
   clearTimeout(deadline);

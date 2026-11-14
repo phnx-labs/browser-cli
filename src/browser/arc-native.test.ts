@@ -60,3 +60,14 @@ describe('durable native Arc identity', () => {
     expect(arcCreateMarker('https://example.com/')).toMatch(/^https:\/\/agents-browser\.invalid\//);
   });
 });
+
+describe('Arc refusals', () => {
+  it('name a next step in Arc and never another browser', async () => {
+    const { ArcNativeCapabilityError } = await import('./drivers/arc.js');
+    for (const capability of ['press', 'hover', 'click --at', 'click --text', 'consoleCapture', 'networkCapture', 'download'] as const) {
+      const { message } = new ArcNativeCapabilityError(capability);
+      expect(message).toMatch(new RegExp(`does not support ${capability}\\.\nNext: (?!read the page with browser text or browser refs)`));
+      expect(message).not.toMatch(/configured browser|Chromium-family|requestSubmit|XMLHttpRequest/);
+    }
+  });
+});

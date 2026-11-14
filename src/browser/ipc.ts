@@ -473,11 +473,9 @@ export class BrowserIPCServer {
             const backend = this.backendFor(response.task ?? request.task);
             socket.write(JSON.stringify({ ...response, ...(dialogs.length ? { dialogs } : {}), ...(backend ? { backend } : {}), version: response.version ?? getCliVersion() }) + '\n');
           } catch (err) {
-            const error = err instanceof Error ? err.message : 'Unknown error';
-            const code = errorCode(err);
             const dialogs = this.dialogsFor(request?.task);
             const backend = this.backendFor(request?.task);
-            socket.write(JSON.stringify({ ok: false, error, ...(code ? { code } : {}), ...(dialogs.length ? { dialogs } : {}), ...(backend ? { backend } : {}), version: getCliVersion() }) + '\n');
+            socket.write(JSON.stringify({ ...failure(err), ...(dialogs.length ? { dialogs } : {}), ...(backend ? { backend } : {}), version: getCliVersion() }) + '\n');
           }
         }
       });
@@ -631,7 +629,7 @@ export class BrowserIPCServer {
       }
       return undefined;
     } catch (err) {
-      return { ok: false, error: err instanceof Error ? err.message : String(err) };
+      return failure(err);
     }
   }
 
@@ -776,7 +774,7 @@ export class BrowserIPCServer {
               actor: request.actor,
             });
           } catch (err) {
-            return { ok: false, error: err instanceof Error ? err.message : String(err) };
+            return failure(err);
           }
           return { ok: true };
         }
@@ -937,7 +935,7 @@ export class BrowserIPCServer {
           });
           return { ok: true, path: r.path, fps: r.fps, durationCapSec: r.durationCapSec, maxMb: r.maxMb };
         } catch (err) {
-          return { ok: false, error: err instanceof Error ? err.message : String(err) };
+          return failure(err);
         }
       }
 
@@ -947,7 +945,7 @@ export class BrowserIPCServer {
           const r = await this.service.recordStop(request.task);
           return { ok: true, path: r.path, bytes: r.bytes, durationMs: r.durationMs, stopReason: r.reason as 'manual' | 'duration-cap' | 'size-cap' };
         } catch (err) {
-          return { ok: false, error: err instanceof Error ? err.message : String(err) };
+          return failure(err);
         }
       }
 
@@ -1239,6 +1237,11 @@ function errorCode(err: unknown): string | undefined {
   return err instanceof Error && err.name !== 'Error' ? err.name : undefined;
 }
 
+function failure(err: unknown): IPCResponse {
+  const code = errorCode(err);
+  return { ok: false, error: err instanceof Error ? err.message : String(err), ...(code ? { code } : {}) };
+}
+
 let versionReconciledThisProcess = false;
 
 /** Recommend refresh only for an older daemon or unordered distinct versions; ignore unknown versions. */
@@ -1291,7 +1294,7 @@ async function logAction(request: IPCRequest, send: () => Promise<IPCResponse>):
     record(response);
     return response;
   } catch (err) {
-    record({ ok: false, error: err instanceof Error ? err.message : String(err), code: errorCode(err) });
+    record(failure(err));
     throw err;
   }
 }

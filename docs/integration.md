@@ -69,8 +69,8 @@ BROWSER_EVENTS_FD=<n>
   "url": "https://example.com",
   "ok": true,
   "backend": "cdp",
-  "cli": "0.2.13",
-  "daemon": "0.2.13",
+  "cli": "0.2.12",
+  "daemon": "0.2.12",
   "ms": 412,
   "host": "laptop",
   "sessionId": "…",
@@ -79,7 +79,7 @@ BROWSER_EVENTS_FD=<n>
 }
 ```
 
-A failed request adds `error`, its message, and `code` when a typed error failed it (`ArcNativeCapabilityError`, `FirefoxCapabilityError`, `BrowserCdpConnectionError`, `BrowserServiceNotRunningError`, …). `backend` is how the service drove the task (`cdp`, `arc-native` or `bidi`), absent when the request had no live task. `cli` is the CLI that sent the request and `daemon` the service that answered it, absent when no service answered.
+A failed request adds `error`, its message, and `code`, the error's class name unless it is a plain `Error` (`ArcNativeCapabilityError`, `FirefoxCapabilityError`, `BrowserCdpConnectionError`, `BrowserServiceNotRunningError`, …). `backend` is how the service drove the task (`cdp`, `arc-native` or `bidi`), absent when the request had no live task. `cli` is the CLI that sent the request and `daemon` the service that answered it, absent when no service answered.
 
 Writes are best-effort and never block a verb. Payloads are metadata only.
 

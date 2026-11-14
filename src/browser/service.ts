@@ -5183,12 +5183,12 @@ export class BrowserService {
     return taken;
   }
 
-  /** The confirm() or prompt() a task's tab is showing, if any. */
   backendOf(taskId: string): NonNullable<ProfileConnection['backend']> | undefined {
     const found = this.findTaskByHandle(taskId);
     return found ? found.conn.backend ?? 'cdp' : undefined;
   }
 
+  /** The confirm() or prompt() a task's tab is showing, if any. */
   openDialog(taskId: string): string | undefined {
     for (const sid of this.taskSessions(taskId)?.sessions ?? []) {
       const said = this.openDialogs.get(sid);

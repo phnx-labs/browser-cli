@@ -15,6 +15,7 @@ A task started before the agent window existed has its tab in the user's own win
 These fail with `Native Arc does not support <capability>`:
 
 - asynchronous JavaScript: `evaluate` runs synchronous expressions only
+- the page's own JavaScript variables: `evaluate` and `wait --fn` run beside the page and share only its DOM, so `window.app` reads as undefined. Check the page instead, for example `browser wait --selector '.loaded'` or `--fn "document.body.innerText.includes('Done')"`
 - `console` and `errors` capture, `requests` and `responsebody`
 - `record`, `pdf`, `upload`, `download`, `set viewport`
 - coordinate clicks (`click --at X,Y`)

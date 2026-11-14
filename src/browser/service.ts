@@ -5184,6 +5184,11 @@ export class BrowserService {
   }
 
   /** The confirm() or prompt() a task's tab is showing, if any. */
+  backendOf(taskId: string): NonNullable<ProfileConnection['backend']> | undefined {
+    const found = this.findTaskByHandle(taskId);
+    return found ? found.conn.backend ?? 'cdp' : undefined;
+  }
+
   openDialog(taskId: string): string | undefined {
     for (const sid of this.taskSessions(taskId)?.sessions ?? []) {
       const said = this.openDialogs.get(sid);

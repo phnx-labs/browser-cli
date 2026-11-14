@@ -15,7 +15,7 @@ Task summaries are kept for 365 days in `~/.agents/browser/data/history.db`. Cap
 
 Logs are JSON lines with a `ts` field, read with `tail` and `jq`:
 
-- **`logs/actions/<UTC day>.jsonl`:** one record per request the CLI sends (command, task, profile, `ok`, `error`, `ms`), kept 30 days.
+- **`logs/actions/<UTC day>.jsonl`:** one record per request the CLI sends (command, task, profile, `ok`, `error` and its `code`, the `backend`, the `cli` and `daemon` versions, `ms`), kept 30 days.
 - **`logs/daemon.jsonl`:** launches, closes, navigations, screenshots, cleanup results, lost connections and save failures. A repeated failure is written once, then at its 10th, 100th, 1000th occurrence and so on with `count`, and starts over after ten quiet minutes. At start the service rolls a `daemon.jsonl` over 10 MB to `.1`, keeping three.
 - **`logs/browser-service.log`:** only what the service prints to stderr, such as a crash.
 

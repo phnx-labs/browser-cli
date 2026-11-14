@@ -3,6 +3,7 @@
 ## 0.2.12
 
 - `browser wait` works in Arc and Firefox. It used to refuse every condition outside a Chromium-family browser, even `--time`, with "Native Arc does not support asyncEvaluate", so an agent in Arc that waited for a page to load failed on every call and some retried hundreds of times. Each condition is now checked through `evaluate`, which every browser supports, and `--time` just pauses. A wait that times out names the next step: `browser snapshot` to see the page, or a longer `--timeout`.
+- An Arc refusal names what to do in Arc. `Native Arc does not support <capability>.` used to end with "Use a configured browser with that capability", which the browser skill tells agents never to do. It now ends with a `Next:` line, for example click by ref (`browser refs`, then `browser click <ref>`) for `press`, `hover`, `click --at` and `click --text`; `document.querySelector('form').requestSubmit()` to submit; `browser text` for console or network capture; and one synchronous expression for async `evaluate`.
 
 ## 0.2.11
 

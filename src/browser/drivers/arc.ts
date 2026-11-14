@@ -49,7 +49,7 @@ export function pickShowSpace(
 
 const REFS_THEN_CLICK = 'browser refs --task <task>, then browser click <ref> --task <task>';
 const ARC_NEXT: Record<string, string> = {
-  trustedInput: `Arc takes no real mouse or key presses. Click by ref instead: ${REFS_THEN_CLICK}. To submit a form: browser evaluate "document.activeElement.form.requestSubmit()" --task <task>. To scroll: browser scroll without --at`,
+  trustedInput: `Arc takes no real mouse or key presses. Click by ref instead: ${REFS_THEN_CLICK}. To submit a form: browser evaluate "document.querySelector('form').requestSubmit()" --task <task>. To scroll: browser scroll without --at`,
   'click --text': REFS_THEN_CLICK,
   consoleCapture: 'read what the page shows: browser text --task <task>',
   networkCapture: 'read the data from the page: browser text --task <task>, or fetch it again with a synchronous XMLHttpRequest in browser evaluate',

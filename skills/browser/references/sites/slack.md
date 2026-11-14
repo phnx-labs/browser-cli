@@ -14,7 +14,7 @@ Slack's web app is a virtualized React SPA. Two mistakes waste the most time: (1
    - **Composer** = `[data-qa="texty_input"]` with `aria-label` starting `"Message "`, NOT inside a dialog → `scripts/slack/type-composer.js`
 3. **React inputs need `execCommand`.** Setting `.value` / `.textContent` does nothing — Slack ignores it. Use `el.focus(); document.execCommand('insertText', false, text)`.
 4. **Send safely: compose → screenshot → Enter.** Never insert-and-Enter blind. Compose with `type-composer.js`, `browser screenshot` to confirm the text and that you are in the right conversation, THEN `browser press Enter`.
-5. **Stale browser service → ref drift.** If `browser` reports the browser service is running on an older version than the CLI, refs mismap and clicks misfire. Run `browser stop --service`, then retry; the next command starts a current service.
+5. **Stale browser service → ref drift.** If `browser` reports the browser service is running on an older version than the CLI, refs mismap and clicks misfire. Once no other agent is using the browser, run `browser stop --service` (a restart cuts off their running commands), then retry; the next command starts a current service.
 
 ## Canonical flow
 

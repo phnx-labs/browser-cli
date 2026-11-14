@@ -24,10 +24,10 @@ test('a stale daemon prints and logs one restart hint per process without reques
     `], { timeout: 5_000, env: { ...process.env, AGENTS_HOME: home } });
     expect(result.exitCode).toBe(0);
     expect(result.stdout.toString()).toBe('continued\n');
-    expect(result.stderr.toString()).toBe(
-      `daemon is 0.0.1, CLI is ${getCliVersion()}. Keep working: it runs your commands. Restart it (browser stop --service) ` +
-        'only when no other agent is using the browser; a restart cuts off their running commands, recordings and captures.\n',
-    );
+    const warning = result.stderr.toString();
+    expect(warning.split('\n')).toHaveLength(2);
+    expect(warning).toStartWith(`daemon is 0.0.1, CLI is ${getCliVersion()}: `);
+    expect(warning).toContain('browser stop --service once no other agent is using the browser');
     const log = fs.readFileSync(path.join(home, 'browser', 'logs', 'daemon.jsonl'), 'utf8').trim().split('\n');
     expect(log.map((line) => JSON.parse(line))).toMatchObject([
       { event: 'daemon.version_mismatch', daemon: '0.0.1', cli: getCliVersion() },

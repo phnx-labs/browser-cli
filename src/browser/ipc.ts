@@ -1252,8 +1252,9 @@ export function reconcileDaemonVersion(daemon: string | undefined): void {
   if (!shouldRecommendDaemonRefresh(daemon, client)) return;
   emit('daemon.version_mismatch', { daemon, cli: client });
   process.stderr.write(
-    `daemon is ${daemon}, CLI is ${client}. Keep working: it runs your commands. Restart it (browser stop --service) ` +
-      'only when no other agent is using the browser; a restart cuts off their running commands, recordings and captures.\n',
+    `daemon is ${daemon}, CLI is ${client}: commands run on the older service, without the fixes since ${daemon}. ` +
+      'If one fails or misbehaves, run browser stop --service once no other agent is using the browser; ' +
+      'a restart cuts off their running commands, recordings and captures.\n',
   );
 }
 

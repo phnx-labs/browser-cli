@@ -11,7 +11,7 @@ Several agents at once, each in its own tabs. Chrome, Arc, Brave, Edge, Comet, F
 
 [Install](#install) · [Features](#features) · [Benchmark](#benchmark) · [How it compares](#how-it-compares) · [FAQ](#faq) · [Docs](#docs)
 
-[phoenix.so/browser](https://phoenix.so/browser?ref=github) · [Why we open-sourced it](https://phoenix.so/blog/browser-cli?ref=github)
+[browser-cli.sh](https://browser-cli.sh/?ref=github) · [Why we open-sourced it](https://phoenix.so/blog/browser-cli?ref=github)
 
 </div>
 
@@ -296,4 +296,4 @@ Every question: [Discussions → Q&A](https://github.com/phnx-labs/browser-cli/d
 | **Benchmarks** | [Results](docs/benchmarks/README.md) · [How it compares](docs/comparison.md) · [Rerun with `bench/`](bench/README.md) |
 | **Contributing** | [Development](docs/development.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) |
 
-browser-cli is built by [Phoenix](https://phoenix.so/browser?ref=github) ([why we open-sourced it](https://phoenix.so/blog/browser-cli?ref=github)). Apache-2.0.
+browser-cli is built by [Phoenix](https://phoenix.so/?ref=github) ([why we open-sourced it](https://phoenix.so/blog/browser-cli?ref=github)). Apache-2.0.

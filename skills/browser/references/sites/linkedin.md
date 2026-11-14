@@ -12,7 +12,7 @@ LinkedIn is a React SPA with heavy server-driven rendering and an **iframe-based
    - Capture a ref and use it in the **very next** command. Do not screenshot or re-`refs` in between.
    - A stale-ref `click` can land on a background link and **navigate the page** out from under you. After any click that "didn't seem to work," screenshot before retrying.
 
-2. **Stale browser service → ref drift.** If `browser` reports the browser service is running on an older version than the CLI, refs mismap and clicks misfire. Run `browser stop --service`, then retry; the next command starts a current service. Prefer the **navigate-by-URL** and **evaluate** patterns below, which don't depend on refs.
+2. **Stale browser service → ref drift.** If `browser` reports the browser service is running on an older version than the CLI, refs mismap and clicks misfire. Once no other agent is using the browser, run `browser stop --service` (a restart cuts off their running commands), then retry; the next command starts a current service. Prefer the **navigate-by-URL** and **evaluate** patterns below, which don't depend on refs.
 
 3. **Navigate by URL — don't click search results.** Extract profile URLs from the DOM and `browser navigate --url` straight to them. Far more reliable than clicking a result (whose ref drifts between snapshot and click).
    ```bash

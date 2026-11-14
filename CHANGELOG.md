@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Each line of the action log (`logs/actions/<day>.jsonl`) also records how the request was served and by what: `code`, the typed error that failed it (for example `ArcNativeCapabilityError`), `backend` (`cdp`, `arc-native` or `bidi`), and the `cli` and `daemon` versions. Before, a failure carried only its message, so telling an Arc refusal from a timeout, or a command run on an older service, meant matching message text.
+- Each line of the action log (`logs/actions/<day>.jsonl`) also records how the request was served and by what: `code`, the class of the error that failed it unless it is a plain `Error` (for example `ArcNativeCapabilityError`), `backend` (`cdp`, `arc-native` or `bidi`), and the `cli` and `daemon` versions. Before, a failure carried only its message, so telling an Arc refusal from a timeout, or a command run on an older service, meant matching message text.
 
 ## 0.2.12
 

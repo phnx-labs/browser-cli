@@ -3,6 +3,7 @@
 ## 0.2.12
 
 - `browser wait` works in Arc and Firefox. It used to refuse every condition outside a Chromium-family browser, even `--time`, with "Native Arc does not support asyncEvaluate", so an agent in Arc that waited for a page to load failed on every call and some retried hundreds of times. Each condition is now checked through `evaluate`, which every browser supports, and `--time` just pauses. A wait that times out names the next step: `browser snapshot` to see the page, or a longer `--timeout`.
+- When the service is older than the CLI, the warning printed on every command no longer tells agents to run `browser stop --service`. A restart cuts off every agent's running commands, recordings and console and network captures (their tasks come back), and agents obeyed the hint while others were working. The warning now says to keep working, and to restart only when no other agent is using the browser.
 
 ## 0.2.11
 

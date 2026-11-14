@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- npm's homepage link and the README point at browser-cli's own site, browser-cli.sh. phoenix.so/browser, the product page they named before, moves there; phoenix.so/browser-cli stays the launch story.
+
 ## 0.2.13
 
 - Each line of the action log (`logs/actions/<day>.jsonl`) also records how the request was served and by what: `code`, the class of the error that failed it unless it is a plain `Error` (for example `ArcNativeCapabilityError`), `backend` (`cdp`, `arc-native` or `bidi`), and the `cli` and `daemon` versions. Before, a failure carried only its message, so telling an Arc refusal from a timeout, or a command run on an older service, meant matching message text.

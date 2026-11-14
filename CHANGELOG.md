@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.12
 
 - An Arc refusal names what to do in Arc. `Native Arc does not support <capability>.` used to end with "Use a configured browser with that capability", which the browser skill tells agents never to do. It now ends with a `Next:` line: click by ref (`browser refs`, then `browser click <ref>`) for `click --at` and `click --text`, and a form's submit button by ref for `press`; `browser text` for console or network capture; one synchronous expression for async `evaluate`. `press`, `hover`, `click --at` and `scroll --at-x/--at-y` are refused under those names instead of `trustedInput`, in Arc and Firefox.
 - When the service is older than the CLI, the warning printed on every command says what that means: commands run on the older service, without the fixes since its version. It no longer says to run `browser stop --service` unconditionally, since a restart cuts off every agent's running commands, recordings and console and network captures (their tasks come back). It says to restart when a command fails or misbehaves and no other agent is using the browser.

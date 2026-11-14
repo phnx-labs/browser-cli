@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Each line of the action log (`logs/actions/<day>.jsonl`) also records how the request was served and by what: `code`, the typed error that failed it (for example `ArcNativeCapabilityError`), `backend` (`cdp`, `arc-native` or `bidi`), and the `cli` and `daemon` versions. Before, a failure carried only its message, so telling an Arc refusal from a timeout, or a command run on an older service, meant matching message text.
+
 ## 0.2.12
 
 - An Arc refusal names what to do in Arc. `Native Arc does not support <capability>.` used to end with "Use a configured browser with that capability", which the browser skill tells agents never to do. It now ends with a `Next:` line: click by ref (`browser refs`, then `browser click <ref>`) for `click --at` and `click --text`, and a form's submit button by ref for `press`; `browser text` for console or network capture; one synchronous expression for async `evaluate`. `press`, `hover`, `click --at` and `scroll --at-x/--at-y` are refused under those names instead of `trustedInput`, in Arc and Firefox.

@@ -470,11 +470,14 @@ export class BrowserIPCServer {
             // Every reply carries the daemon's version so a client can notice
             // skew from the reply it already has, with no extra probe.
             const dialogs = this.dialogsFor(response.task ?? request.task);
-            socket.write(JSON.stringify({ ...response, ...(dialogs.length ? { dialogs } : {}), version: response.version ?? getCliVersion() }) + '\n');
+            const backend = this.backendFor(response.task ?? request.task);
+            socket.write(JSON.stringify({ ...response, ...(dialogs.length ? { dialogs } : {}), ...(backend ? { backend } : {}), version: response.version ?? getCliVersion() }) + '\n');
           } catch (err) {
             const error = err instanceof Error ? err.message : 'Unknown error';
+            const code = errorCode(err);
             const dialogs = this.dialogsFor(request?.task);
-            socket.write(JSON.stringify({ ok: false, error, ...(dialogs.length ? { dialogs } : {}) }) + '\n');
+            const backend = this.backendFor(request?.task);
+            socket.write(JSON.stringify({ ok: false, error, ...(code ? { code } : {}), ...(dialogs.length ? { dialogs } : {}), ...(backend ? { backend } : {}), version: getCliVersion() }) + '\n');
           }
         }
       });
@@ -630,6 +633,10 @@ export class BrowserIPCServer {
     } catch (err) {
       return { ok: false, error: err instanceof Error ? err.message : String(err) };
     }
+  }
+
+  private backendFor(task: string | undefined): IPCResponse['backend'] {
+    return task ? this.service.backendOf(task) : undefined;
   }
 
   private dialogsFor(task: string | undefined): string[] {
@@ -1228,6 +1235,10 @@ export class BrowserIPCServer {
   }
 }
 
+function errorCode(err: unknown): string | undefined {
+  return err instanceof Error && err.name !== 'Error' ? err.name : undefined;
+}
+
 let versionReconciledThisProcess = false;
 
 /** Recommend refresh only for an older daemon or unordered distinct versions; ignore unknown versions. */
@@ -1260,23 +1271,27 @@ export function reconcileDaemonVersion(daemon: string | undefined): void {
 
 async function logAction(request: IPCRequest, send: () => Promise<IPCResponse>): Promise<IPCResponse> {
   const started = performance.now();
-  const record = (ok: boolean, error?: string, task?: string) => emitBrowserAction(request.action, {
-    task: task ?? request.task ?? request.taskName,
+  const record = (reply: Partial<IPCResponse>) => emitBrowserAction(request.action, {
+    task: reply.task ?? request.task ?? request.taskName,
     profile: request.profile,
     url: request.url,
     actor: request.actor,
     launchId: request.launchId,
     sessionId: request.sessionId,
-    ok,
-    error,
+    ok: reply.ok ?? false,
+    error: reply.error,
+    code: reply.code,
+    backend: reply.backend,
+    cli: getCliVersion(),
+    daemon: reply.version,
     ms: Math.round(performance.now() - started),
   });
   try {
     const response = await send();
-    record(response.ok, response.error, response.task);
+    record(response);
     return response;
   } catch (err) {
-    record(false, err instanceof Error ? err.message : String(err));
+    record({ ok: false, error: err instanceof Error ? err.message : String(err), code: errorCode(err) });
     throw err;
   }
 }

@@ -447,6 +447,8 @@ export interface PageOpenResult {
 export interface IPCResponse {
   ok: boolean;
   error?: string;
+  code?: string;
+  backend?: 'cdp' | 'arc-native' | 'bidi';
   /** Page dialogs (alert, confirm, prompt, beforeunload) the service accepted for this task since its last reply. */
   dialogs?: string[];
   task?: string;

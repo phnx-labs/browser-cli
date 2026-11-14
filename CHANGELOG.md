@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.12
+
+- `browser wait` works in Arc and Firefox. It used to refuse every condition outside a Chromium-family browser, even `--time`, with "Native Arc does not support asyncEvaluate", so an agent in Arc that waited for a page to load failed on every call and some retried hundreds of times. Each condition is now checked through `evaluate`, which every browser supports, and `--time` just pauses. A wait that times out names the next step: `browser snapshot` to see the page, or a longer `--timeout`.
+
 ## 0.2.11
 
 - `--snapshot` on `navigate`, `click`, `type`, `select`, `press` and `start` also saves a compressed screenshot, the same JPEG of about 100 KB or less that `browser screenshot` saves under `sessions/<task>/`, and prints `screenshot: <path>` under the page title (`snapshot.screenshot` in `--json` and `stream`). Native Arc skips it: capturing there takes the Arc lock, selects the tab and refuses tabs in your own window, so a `--snapshot` that succeeds today would fail after its action had run. `--snapshot` used to print text only, so an agent needed a second call to see the page, and `browser sessions` listed 0 captures for a task driven only with `--snapshot`.

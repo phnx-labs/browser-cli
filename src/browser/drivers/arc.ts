@@ -210,6 +210,12 @@ export function isArcRunning(): Promise<boolean> {
   return serialized(async () => (await execAppleScript(`return application id "${APP_ID}" is running`)) === 'true');
 }
 
+/** Whether Arc is the app the owner is using now. Reading it does not bring Arc forward. */
+export function isArcFrontmost(): Promise<boolean> {
+  if (process.platform !== 'darwin') return Promise.resolve(false);
+  return serialized(async () => (await execAppleScript(`return frontmost of application id "${APP_ID}"`)) === 'true');
+}
+
 export function enumerateArcSpaces(): Promise<ArcEnumeratedSpace[]> {
   return serialized(async () => parse(await execAppleScript(script(`set resultText to "["
 set separator to ""
@@ -315,15 +321,13 @@ export function closeArcTab(ref: ArcNativeTabRef): Promise<'closed' | 'missing'>
   });
 }
 
-/** Explicit user-facing focus only. Evaluation and cleanup never invoke this. `activate` also brings Arc to the front. */
-export function selectArcTab(ref: ArcNativeTabRef, opts: { activate?: boolean } = {}): Promise<void> {
-  return serialized(async () => { await execAppleScript(selectArcTabScript(ref, opts)); });
+/** Selects the tab in its window. Never `activate`: Arc stays wherever the owner left it among their apps. */
+export function selectArcTab(ref: ArcNativeTabRef): Promise<void> {
+  return serialized(async () => { await execAppleScript(selectArcTabScript(ref)); });
 }
 
-/** `activate` brings Arc to the front after selecting; Arc refuses `set index of window` (-10000). */
-export function selectArcTabScript(ref: ArcNativeTabRef, opts: { activate?: boolean } = {}): string {
-  const raise = opts.activate ? '\nactivate' : '';
-  return script(`${lookup(ref)}\nselect targetTab${raise}\nreturn "selected"`);
+export function selectArcTabScript(ref: ArcNativeTabRef): string {
+  return script(`${lookup(ref)}\nselect targetTab\nreturn "selected"`);
 }
 
 /** AppleScript that selects `tabId` in whatever Space of window `targetWindowIndex` holds it; returns "true"/"false". */

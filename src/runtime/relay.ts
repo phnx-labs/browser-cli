@@ -46,8 +46,8 @@ async function post(relay: Relay, device: string, op: 'exec' | 'file', body: unk
     throw new Error(`Relay answered ${response.status} with a non-JSON body for device "${device}"`);
   }
   if (!response.ok) {
-    const error = (decoded as { error?: { code?: string; message?: string } }).error;
-    throw new Error(`${error?.code ?? `HTTP_${response.status}`}: ${error?.message ?? 'relay refused the request'}`);
+    const { code, error } = decoded as { code?: string; error?: string };
+    throw new Error(`${code ?? `HTTP_${response.status}`}: ${error ?? 'relay refused the request'}`);
   }
   return decoded;
 }

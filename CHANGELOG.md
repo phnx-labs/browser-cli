@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- A relay refusal over `--device` names its reason. Rush's relay answers `{"error": "<message>", "code": "<CODE>"}`, but the relay client read `error.code` and `error.message` as if `error` were an object, so every refusal printed only its status: on 2026-11-14 a cloud run's `browser start --device zion` failed with `HTTP_409: relay refused the request` and then `HTTP_403`, which hid whether the Mac was offline (`DEVICE_OFFLINE`), the person had not approved the run (`DEVICE_REFUSED: APPROVAL_DENIED …`) or the browser was off on it. The test relay now answers in that real shape.
+
 ## 0.2.14
 
 - Native Arc stops taking the tab you are looking at. When the agent window was your only Arc window (a `show` with no other window visible puts its page there, and you then keep working in it), every `browser start` selected its new tab in front of you and never gave yours back. Now a new tab in that window hands your tab back as soon as it has loaded (about 0.15 s on screen). To stop seeing even that, open another Arc window to work in: the agent window then keeps its tabs to itself.

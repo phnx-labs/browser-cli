@@ -22,7 +22,7 @@ beforeAll(() => {
       const pathname = new URL(req.url).pathname;
       seen.push({ path: pathname, auth: req.headers.get('authorization'), body });
       if (pathname.startsWith('/devices/offline-mac/')) {
-        return Response.json({ error: { code: 'DEVICE_OFFLINE', message: 'offline-mac has no live link' } }, { status: 409 });
+        return Response.json({ error: '"offline-mac" has no live link', code: 'DEVICE_OFFLINE', requestId: 'r1' }, { status: 409 });
       }
       if (pathname.endsWith('/file')) return Response.json({ base64: Buffer.from('PNGDATA').toString('base64') });
       if (body.argv?.[0] === 'start') return Response.json({ code: 0, stdout: 'relay-task-1\n', stderr: '' });
@@ -64,7 +64,7 @@ describe('relayExec and relayFetchFile against a live relay', () => {
   });
 
   test('a refusal surfaces its code', async () => {
-    await expect(relayExec(relay(), 'offline-mac', ['navigate', 'x'], {})).rejects.toThrow('DEVICE_OFFLINE: offline-mac has no live link');
+    await expect(relayExec(relay(), 'offline-mac', ['navigate', 'x'], {})).rejects.toThrow('DEVICE_OFFLINE: "offline-mac" has no live link');
   });
 
   test('fetches a file body', async () => {

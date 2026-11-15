@@ -47,6 +47,16 @@ export function pickShowSpace(
   return pickArcSpace(own, live.filter((space) => !agentWindows.has(space.windowId))) ?? pickArcSpace(own, live);
 }
 
+/** Arc selects every new tab, so only the current agent window, while the owner has another window, keeps it selected. */
+export function handsBackOwnerTab(
+  task: { windowId: string; agentWindow?: boolean },
+  agentWindowId: string | undefined,
+  visible: ReadonlyArray<{ windowId: string }>,
+): boolean {
+  if (!task.agentWindow || task.windowId !== agentWindowId) return true;
+  return !visible.some((space) => space.windowId !== task.windowId);
+}
+
 const BY_REF = 'browser refs --task <task>, then browser click <ref> --task <task>';
 const READ_PAGE = 'read the page with browser text or browser refs and continue in this tab';
 const ARC_NEXT = {
@@ -315,15 +325,13 @@ export function closeArcTab(ref: ArcNativeTabRef): Promise<'closed' | 'missing'>
   });
 }
 
-/** Explicit user-facing focus only. Evaluation and cleanup never invoke this. `activate` also brings Arc to the front. */
-export function selectArcTab(ref: ArcNativeTabRef, opts: { activate?: boolean } = {}): Promise<void> {
-  return serialized(async () => { await execAppleScript(selectArcTabScript(ref, opts)); });
+/** Selects the tab in its window. Never `activate`: Arc stays wherever the owner left it among their apps. */
+export function selectArcTab(ref: ArcNativeTabRef): Promise<void> {
+  return serialized(async () => { await execAppleScript(selectArcTabScript(ref)); });
 }
 
-/** `activate` brings Arc to the front after selecting; Arc refuses `set index of window` (-10000). */
-export function selectArcTabScript(ref: ArcNativeTabRef, opts: { activate?: boolean } = {}): string {
-  const raise = opts.activate ? '\nactivate' : '';
-  return script(`${lookup(ref)}\nselect targetTab${raise}\nreturn "selected"`);
+export function selectArcTabScript(ref: ArcNativeTabRef): string {
+  return script(`${lookup(ref)}\nselect targetTab\nreturn "selected"`);
 }
 
 /** AppleScript that selects `tabId` in whatever Space of window `targetWindowIndex` holds it; returns "true"/"false". */

@@ -2552,7 +2552,7 @@
       "name": "show",
       "path": "show",
       "aliases": [],
-      "description": "Open a URL or file for a human to read in browser.viewer (default: browser.profile), on the browser.device hub when one is set; reloads and focuses a tab already showing it; fails unless the viewer confirms it opened. Binds no task",
+      "description": "Open a URL or file for a human to read in browser.viewer (default: browser.profile), on the browser.device hub when one is set; reloads and selects a tab already showing it (native Arc stays behind the app in use); fails unless the viewer confirms it opened. Binds no task",
       "args": [
         {
           "name": "url",
@@ -2583,7 +2583,7 @@
         },
         {
           "flags": "--fresh",
-          "description": "Always open a new tab, even when one already shows this page (default: navigate and focus that tab)",
+          "description": "Always open a new tab, even when one already shows this page (default: navigate and select that tab)",
           "long": "--fresh",
           "required": false,
           "optional": false,

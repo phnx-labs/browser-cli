@@ -121,6 +121,7 @@ import {
   enumerateArcSpaces,
   pickArcSpace,
   pickShowSpace,
+  handsBackOwnerTab,
   isArcRunning,
   type ArcEnumeratedSpace,
   resolveArcTab,
@@ -5624,18 +5625,19 @@ export class BrowserService {
     const native = this.requireArcTask(task);
     const tabId = generateShortId();
     const markerUrl = arcCreateMarker();
-    const originalSpace = (await enumerateArcSpaces()).find(
+    const spaces = await enumerateArcSpaces();
+    const originalSpace = spaces.find(
       (space) => space.windowId === native.windowId && space.spaceId === native.spaceId,
     );
     if (!originalSpace) throw new Error('The original Arc window/Space for this task is no longer present.');
+    const handBack = handsBackOwnerTab(native, this.readArcAgentWindow()?.windowId, spaces);
     native.createIntents ??= {};
     native.createIntents[tabId] = {
       tabId,
       markerUrl,
       targetUrl: url,
       createdAt: Date.now(),
-      // Only a task opened in the owner's window, before the agent window existed, hands its tab back.
-      previousTabId: native.agentWindow ? undefined : originalSpace.activeTabId,
+      previousTabId: handBack ? originalSpace.activeTabId : undefined,
     };
     await this.saveTaskState(task.profile, conn.tasks);
     await this.reconcileArcCreateIntents(conn, task);
@@ -6103,7 +6105,7 @@ export class BrowserService {
         if (match) {
           await navigateArcTab(match, url);
           if (onlyFragmentMoves(match.url, url)) await executeJavaScript(match, 'location.reload()');
-          await selectArcTab(match, { activate: true });
+          await selectArcTab(match);
           await confirmArcShows(match, url, match.url);
           return { tabId: match.tabId, reused: true };
         }
@@ -6113,7 +6115,7 @@ export class BrowserService {
       const created = await createArcTab(space, arcCreateMarker(url));
       try {
         if (!url.startsWith('file:')) await navigateArcTab(created, url);
-        await selectArcTab(created, { activate: true });
+        await selectArcTab(created);
         await confirmArcShows(created, url, url.startsWith('file:') ? '' : created.url);
       } catch (error) {
         // No task owns this tab, so nothing would ever close a marker tab left behind.

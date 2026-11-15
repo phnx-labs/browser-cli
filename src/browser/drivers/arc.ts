@@ -47,6 +47,16 @@ export function pickShowSpace(
   return pickArcSpace(own, live.filter((space) => !agentWindows.has(space.windowId))) ?? pickArcSpace(own, live);
 }
 
+/** Arc selects every new tab, so only the current agent window, while the owner has another window, keeps it selected. */
+export function handsBackOwnerTab(
+  task: { windowId: string; agentWindow?: boolean },
+  agentWindowId: string | undefined,
+  visible: ReadonlyArray<{ windowId: string }>,
+): boolean {
+  if (!task.agentWindow || task.windowId !== agentWindowId) return true;
+  return !visible.some((space) => space.windowId !== task.windowId);
+}
+
 const BY_REF = 'browser refs --task <task>, then browser click <ref> --task <task>';
 const READ_PAGE = 'read the page with browser text or browser refs and continue in this tab';
 const ARC_NEXT = {
@@ -208,12 +218,6 @@ function parse<T>(raw: string): T {
 export function isArcRunning(): Promise<boolean> {
   if (process.platform !== 'darwin') return Promise.resolve(false);
   return serialized(async () => (await execAppleScript(`return application id "${APP_ID}" is running`)) === 'true');
-}
-
-/** Whether Arc is the app the owner is using now. Reading it does not bring Arc forward. */
-export function isArcFrontmost(): Promise<boolean> {
-  if (process.platform !== 'darwin') return Promise.resolve(false);
-  return serialized(async () => (await execAppleScript(`return frontmost of application id "${APP_ID}"`)) === 'true');
 }
 
 export function enumerateArcSpaces(): Promise<ArcEnumeratedSpace[]> {

@@ -112,7 +112,6 @@ import {
   type ArcCapability,
   captureArcTab,
   isArcAgentWindowLive,
-  isArcFrontmost,
   openArcAgentWindow,
   type ArcAgentWindow,
   executeJavaScript,
@@ -122,6 +121,7 @@ import {
   enumerateArcSpaces,
   pickArcSpace,
   pickShowSpace,
+  handsBackOwnerTab,
   isArcRunning,
   type ArcEnumeratedSpace,
   resolveArcTab,
@@ -5438,13 +5438,10 @@ export class BrowserService {
     return { windowId: saved.windowId, cgWindowId: saved.cgWindowId as number, retired };
   }
 
-  /** The recorded agent window unless it closed or became the owner's only Arc window; a replacement opens only while Arc is behind another app (`make new window` stays behind an app, not behind the owner's Arc window). The caller holds `arc-native:host-app`. */
+  /** The recorded agent window while it is still open, else a new one. The caller holds `arc-native:host-app`. */
   private async ensureArcAgentWindow(): Promise<ArcAgentWindow> {
     const recorded = this.readArcAgentWindow();
-    if (recorded && await isArcAgentWindowLive(recorded)) {
-      const adopted = !(await enumerateArcSpaces()).some((space) => space.windowId !== recorded.windowId);
-      if (!adopted || await isArcFrontmost()) return recorded;
-    }
+    if (recorded && await isArcAgentWindowLive(recorded)) return recorded;
     const opened = await openArcAgentWindow();
     const retired = recorded ? [recorded.windowId, ...recorded.retired].slice(0, 20) : [];
     const file = this.arcAgentWindowPath();
@@ -5633,17 +5630,14 @@ export class BrowserService {
       (space) => space.windowId === native.windowId && space.spaceId === native.spaceId,
     );
     if (!originalSpace) throw new Error('The original Arc window/Space for this task is no longer present.');
-    // The owner gets their tab back unless this is the agent window and they have another one.
-    const agentOwned = native.agentWindow === true
-      && native.windowId === this.readArcAgentWindow()?.windowId
-      && spaces.some((space) => space.windowId !== native.windowId);
+    const handBack = handsBackOwnerTab(native, this.readArcAgentWindow()?.windowId, spaces);
     native.createIntents ??= {};
     native.createIntents[tabId] = {
       tabId,
       markerUrl,
       targetUrl: url,
       createdAt: Date.now(),
-      previousTabId: agentOwned ? undefined : originalSpace.activeTabId,
+      previousTabId: handBack ? originalSpace.activeTabId : undefined,
     };
     await this.saveTaskState(task.profile, conn.tasks);
     await this.reconcileArcCreateIntents(conn, task);

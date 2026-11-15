@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { join } from 'node:path';
-import { arcPageRect, pickArcSpace, pickShowSpace, readArcSidebar, type ArcEnumeratedSpace } from './arc.js';
+import { arcPageRect, handsBackOwnerTab, pickArcSpace, pickShowSpace, readArcSidebar, type ArcEnumeratedSpace } from './arc.js';
 
 // Every Arc window lists every Space; rows arrive front to back. This is the
 // laptop layout of 2026-10-18 that made `browser start` refuse the Work profile:
@@ -64,6 +64,26 @@ describe('pickShowSpace', () => {
 
   test('returns undefined with no visible window', () => {
     expect(pickShowSpace(work, [], new Set(['w-agent']))).toBeUndefined();
+  });
+});
+
+describe('handsBackOwnerTab', () => {
+  const agentTask = { windowId: 'w-agent', agentWindow: true };
+
+  test('keeps the agent tab selected in the agent window while the owner has another window', () => {
+    expect(handsBackOwnerTab(agentTask, 'w-agent', [{ windowId: 'w-agent' }, { windowId: 'w-owner' }])).toBe(false);
+  });
+
+  test('hands back when the agent window is the only visible Arc window, since the owner may be working in it', () => {
+    expect(handsBackOwnerTab(agentTask, 'w-agent', [{ windowId: 'w-agent' }])).toBe(true);
+  });
+
+  test('hands back in a retired agent window', () => {
+    expect(handsBackOwnerTab(agentTask, 'w-new', [{ windowId: 'w-agent' }, { windowId: 'w-new' }])).toBe(true);
+  });
+
+  test('hands back for a task opened in the owner window before agent windows existed', () => {
+    expect(handsBackOwnerTab({ windowId: 'w-owner' }, 'w-agent', [{ windowId: 'w-owner' }, { windowId: 'w-agent' }])).toBe(true);
   });
 });
 

@@ -112,6 +112,7 @@ import {
   type ArcCapability,
   captureArcTab,
   isArcAgentWindowLive,
+  isArcFrontmost,
   openArcAgentWindow,
   type ArcAgentWindow,
   executeJavaScript,
@@ -5437,10 +5438,13 @@ export class BrowserService {
     return { windowId: saved.windowId, cgWindowId: saved.cgWindowId as number, retired };
   }
 
-  /** The recorded agent window while it is still open, else a new one. The caller holds `arc-native:host-app`. */
+  /** The recorded agent window unless it closed or became the owner's only Arc window; a replacement opens only while Arc is behind another app (`make new window` stays behind an app, not behind the owner's Arc window). The caller holds `arc-native:host-app`. */
   private async ensureArcAgentWindow(): Promise<ArcAgentWindow> {
     const recorded = this.readArcAgentWindow();
-    if (recorded && await isArcAgentWindowLive(recorded)) return recorded;
+    if (recorded && await isArcAgentWindowLive(recorded)) {
+      const adopted = !(await enumerateArcSpaces()).some((space) => space.windowId !== recorded.windowId);
+      if (!adopted || await isArcFrontmost()) return recorded;
+    }
     const opened = await openArcAgentWindow();
     const retired = recorded ? [recorded.windowId, ...recorded.retired].slice(0, 20) : [];
     const file = this.arcAgentWindowPath();
@@ -5624,18 +5628,22 @@ export class BrowserService {
     const native = this.requireArcTask(task);
     const tabId = generateShortId();
     const markerUrl = arcCreateMarker();
-    const originalSpace = (await enumerateArcSpaces()).find(
+    const spaces = await enumerateArcSpaces();
+    const originalSpace = spaces.find(
       (space) => space.windowId === native.windowId && space.spaceId === native.spaceId,
     );
     if (!originalSpace) throw new Error('The original Arc window/Space for this task is no longer present.');
+    // The owner gets their tab back unless this is the agent window and they have another one.
+    const agentOwned = native.agentWindow === true
+      && native.windowId === this.readArcAgentWindow()?.windowId
+      && spaces.some((space) => space.windowId !== native.windowId);
     native.createIntents ??= {};
     native.createIntents[tabId] = {
       tabId,
       markerUrl,
       targetUrl: url,
       createdAt: Date.now(),
-      // Only a task opened in the owner's window, before the agent window existed, hands its tab back.
-      previousTabId: native.agentWindow ? undefined : originalSpace.activeTabId,
+      previousTabId: agentOwned ? undefined : originalSpace.activeTabId,
     };
     await this.saveTaskState(task.profile, conn.tasks);
     await this.reconcileArcCreateIntents(conn, task);
@@ -6103,7 +6111,7 @@ export class BrowserService {
         if (match) {
           await navigateArcTab(match, url);
           if (onlyFragmentMoves(match.url, url)) await executeJavaScript(match, 'location.reload()');
-          await selectArcTab(match, { activate: true });
+          await selectArcTab(match);
           await confirmArcShows(match, url, match.url);
           return { tabId: match.tabId, reused: true };
         }
@@ -6113,7 +6121,7 @@ export class BrowserService {
       const created = await createArcTab(space, arcCreateMarker(url));
       try {
         if (!url.startsWith('file:')) await navigateArcTab(created, url);
-        await selectArcTab(created, { activate: true });
+        await selectArcTab(created);
         await confirmArcShows(created, url, url.startsWith('file:') ? '' : created.url);
       } catch (error) {
         // No task owns this tab, so nothing would ever close a marker tab left behind.

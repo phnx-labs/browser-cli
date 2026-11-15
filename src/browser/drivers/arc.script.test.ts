@@ -21,14 +21,7 @@ describe('createArcTab script', () => {
 
 describe('selectArcTab script', () => {
   const ref = { windowId: 'W-1', spaceId: 'S-1', tabId: 'T-1' };
-  test('activate brings Arc to the front after selecting, and never sets a window index (Arc refuses it)', () => {
-    const script = selectArcTabScript(ref, { activate: true });
-    const select = script.indexOf('select targetTab');
-    expect(select).toBeGreaterThan(-1);
-    expect(script.indexOf('\nactivate', select)).toBeGreaterThan(select);
-    expect(script).not.toContain('set index of window');
-  });
-  test('without activate it only selects', () => {
+  test('only selects: never brings Arc to the front or sets a window index (Arc refuses it)', () => {
     const script = selectArcTabScript(ref);
     expect(script).toContain('select targetTab');
     expect(script).not.toContain('set index of window');

@@ -1,6 +1,6 @@
 # Arc
 
-An Arc profile is driven natively through Apple Events, not CDP. The task's tabs open in an Arc window of their own, the agent window, which `browser` opens behind the user's apps the first time a task needs it and reuses after that. Arc shares a Space's tabs between its windows, so your tabs also list in the user's sidebar, but the user's window keeps the tab they had and Arc is not brought forward.
+An Arc profile is driven natively through Apple Events, not CDP. The task's tabs open in an Arc window of their own, the agent window, which `browser` opens behind the user's apps the first time a task needs it and reuses after that. Arc shares a Space's tabs between its windows, so your tabs also list in the user's sidebar, but the user's window keeps the tab they had and Arc is not brought forward. If the user has adopted the agent window as their only Arc window, a new tab there hands their tab back right after it loads, and the next `start` while Arc is behind another app opens a fresh agent window.
 
 ## Screenshots
 

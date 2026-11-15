@@ -2332,10 +2332,10 @@ function registerTaskCommands(browser: Command): void {
 
   browser
     .command('show <url>')
-    .description('Open a URL or file for a human to read in browser.viewer (default: browser.profile), on the browser.device hub when one is set; reloads and focuses a tab already showing it; fails unless the viewer confirms it opened. Binds no task')
+    .description('Open a URL or file for a human to read in browser.viewer (default: browser.profile), on the browser.device hub when one is set; reloads and selects a tab already showing it (native Arc stays behind the app in use); fails unless the viewer confirms it opened. Binds no task')
     .option('-p, --profile <name>', 'Show it in this profile instead of browser.viewer')
     .option('--os-browser', 'Use the OS default handler instead of the configured viewer')
-    .option('--fresh', 'Always open a new tab, even when one already shows this page (default: navigate and focus that tab)')
+    .option('--fresh', 'Always open a new tab, even when one already shows this page (default: navigate and select that tab)')
     .option('--json', 'Output machine-readable JSON')
     .action(async (url: string, opts: { profile?: string; osBrowser?: boolean; fresh?: boolean; json?: boolean }) => {
       // The entry point external tools need. `navigate` binds a task, which the

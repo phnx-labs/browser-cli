@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.14
 
 - Native Arc stops taking the tab you are looking at. When the agent window was your only Arc window (a `show` with no other window visible puts its page there, and you then keep working in it), every `browser start` selected its new tab in front of you and never gave yours back. Now a new tab in that window hands your tab back as soon as it has loaded (about 0.15 s on screen). To stop seeing even that, open another Arc window to work in: the agent window then keeps its tabs to itself.
 - `browser show` in native Arc no longer brings Arc in front of the app you are using. It still opens or reloads the page and selects it in Arc, so it is there when you switch. Before, every `show` raised Arc over whatever you were doing.

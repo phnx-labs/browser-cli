@@ -19,9 +19,11 @@ export function describeShown(outcome: Exclude<ShowOutcome, { via: 'none' }> & {
     ? (outcome.app ? `${outcome.app} (${outcome.profile})` : outcome.profile)
     : outcome.app ?? 'the OS default browser';
   const verb = outcome.via === 'profile' && outcome.reused ? 'Reloaded the tab already showing it in' : 'Opened in';
+  const space = outcome.hiddenSpace ? `, Space ${outcome.hiddenSpace} (not the one showing)` : '';
   let state: string;
   if (outcome.visible) state = `, selected in its front window with ${outcome.app} in front`;
-  else if (outcome.frontmost === 'unknown' || !outcome.app) state = `; cannot tell whether the user can see it (${outcome.unknownWhy ?? 'the app in front is unknown'})`;
+  else if (outcome.frontmost === 'unknown' || !outcome.app) state = `${space}; cannot tell whether the user can see it (${outcome.unknownWhy ?? 'the app in front is unknown'})`;
+  else if (space) state = outcome.frontmost === outcome.app ? `${space}, with ${outcome.app} in front` : `${space}, behind ${outcome.frontmost}`;
   else if (outcome.frontmost !== outcome.app) state = ` (behind ${outcome.frontmost})`;
   else if (outcome.unknownWhy) state = `; ${outcome.app} is in front, but cannot tell whether it shows the page (${outcome.unknownWhy})`;
   else state = ` (${outcome.frontmost} is in front, but another of its windows or tabs is showing)`;
@@ -141,7 +143,7 @@ export async function showUrl(url: string, opts: ShowOptions = {}): Promise<Show
   const shown = response.shown;
   const seen = await seeShown(
     shown?.viewer,
-    shown ? { inFront: shown.inFront, whyUnknown: shown.whyUnknown } : { inFront: false, whyUnknown: 'the running browser service predates this CLI and does not report it' },
+    shown ? { inFront: shown.inFront, whyUnknown: shown.whyUnknown, hiddenSpace: shown.hiddenSpace } : { inFront: false, whyUnknown: 'the running browser service predates this CLI and does not report it' },
     pageLabel(shown?.title ?? '', url),
   );
   return {

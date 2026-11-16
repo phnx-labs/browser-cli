@@ -129,6 +129,7 @@ import {
   selectWindowTab,
   selectArcTab,
   type ArcNativeTab,
+  type ArcSelection,
   ARC_APP,
 } from './drivers/arc.js';
 import { selectChromiumTab } from './drivers/chromium-mac.js';
@@ -172,6 +173,11 @@ export interface ShownTab {
   viewer?: { name: string; bundleId: string };
   inFront: boolean;
   whyUnknown?: string;
+  hiddenSpace?: string;
+}
+
+function arcShown({ selected, frontWindow, hiddenSpace }: ArcSelection): Pick<ShownTab, 'viewer' | 'inFront' | 'hiddenSpace'> {
+  return { viewer: ARC_APP, inFront: selected && frontWindow, ...(hiddenSpace ? { hiddenSpace } : {}) };
 }
 
 const ARC_SHOW_CONFIRM_MS = 5_000;
@@ -6161,7 +6167,7 @@ export class BrowserService {
           if (onlyFragmentMoves(match.url, url)) await executeJavaScript(match, 'location.reload()');
           const selection = await selectArcTab(match);
           const tab = await confirmArcShows(match, url, match.url);
-          return { tabId: match.tabId, reused: true, title: tab.title, viewer: ARC_APP, inFront: selection.selected && selection.frontWindow };
+          return { tabId: match.tabId, reused: true, title: tab.title, ...arcShown(selection) };
         }
       }
       const space = pickShowSpace(this.arcProfileSpaces(conn.arcProfile), all, agentWindows)
@@ -6171,7 +6177,7 @@ export class BrowserService {
         if (!url.startsWith('file:')) await navigateArcTab(created, url);
         const selection = await selectArcTab(created);
         const tab = await confirmArcShows(created, url, url.startsWith('file:') ? '' : created.url);
-        return { tabId: created.tabId, reused: false, title: tab.title, viewer: ARC_APP, inFront: selection.selected && selection.frontWindow };
+        return { tabId: created.tabId, reused: false, title: tab.title, ...arcShown(selection) };
       } catch (error) {
         // No task owns this tab, so nothing would ever close a marker tab left behind.
         const message = error instanceof Error ? error.message : String(error);

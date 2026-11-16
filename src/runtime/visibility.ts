@@ -10,9 +10,11 @@ export interface Seen {
   frontmost: string;
   notification: 'clickable' | 'plain' | 'none';
   unknownWhy?: string;
+  hiddenSpace?: string;
+  hiddenWhy?: string;
 }
 
-export interface TabSeen { inFront: boolean; whyUnknown?: string }
+export interface TabSeen { inFront: boolean; whyUnknown?: string; hiddenSpace?: string }
 
 export const OS_HANDLER_BLIND = 'the OS default handler opened it and cannot be asked which tab or window is showing';
 
@@ -23,7 +25,10 @@ export function osHandlerTab(viewer: App | undefined): TabSeen {
 export function judgeShown(viewer: App | undefined, tab: TabSeen, front: App | undefined, frontWhy?: string): Omit<Seen, 'notification'> {
   const visible = viewer !== undefined && front !== undefined && tab.inFront && front.bundleId === viewer.bundleId;
   const why = frontWhy ?? tab.whyUnknown ?? (viewer ? undefined : 'the viewer app is unknown');
-  return { visible, frontmost: front?.name ?? 'unknown', ...(why && !visible ? { unknownWhy: why } : {}) };
+  const hidden = tab.hiddenSpace && viewer && !visible
+    ? { hiddenSpace: tab.hiddenSpace, hiddenWhy: `the tab is in ${viewer.name} Space ${tab.hiddenSpace}, which is not the one showing` }
+    : {};
+  return { visible, frontmost: front?.name ?? 'unknown', ...(why && !visible ? { unknownWhy: why } : {}), ...hidden };
 }
 
 export const FRONTMOST_JXA = `const front = Application('System Events').applicationProcesses.whose({ frontmost: true })();

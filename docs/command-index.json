@@ -2630,7 +2630,7 @@
         },
         {
           "flags": "--json",
-          "description": "Output machine-readable JSON: via, profile or app, reused, visible, frontmost (the app in front, or unknown off macOS) and notification",
+          "description": "Output machine-readable JSON: via, profile or app, reused, visible, frontmost (the app in front, or unknown off macOS), notification, and hiddenSpace and hiddenWhy when the tab is in an Arc Space its window is not showing",
           "long": "--json",
           "required": false,
           "optional": false,

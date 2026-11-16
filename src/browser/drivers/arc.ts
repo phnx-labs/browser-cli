@@ -327,29 +327,30 @@ export function closeArcTab(ref: ArcNativeTabRef): Promise<'closed' | 'missing'>
 
 export const ARC_APP = { name: 'Arc', bundleId: APP_ID } as const;
 
-export interface ArcSelection { selected: boolean; frontWindow: boolean }
+export interface ArcSelection { selected: boolean; frontWindow: boolean; hiddenSpace?: string }
 
-/** Selects the tab in its window. Never `activate`: Arc stays wherever the owner left it among their apps. */
-export function selectArcTab(ref: ArcNativeTabRef): Promise<ArcSelection> {
-  return serialized(async () => parse<ArcSelection>(await execAppleScript(selectArcTabScript(ref))));
+/** Selects the tab in its window. Never `activate` or switch Spaces, which can bring Arc forward; `hiddenSpace` names the tab's Space when another is showing. */
+export async function selectArcTab(ref: ArcNativeTabRef): Promise<ArcSelection> {
+  const { hiddenSpace, ...selection } = await serialized(async () => parse<ArcSelection>(await execAppleScript(selectArcTabScript(ref))));
+  return hiddenSpace ? { ...selection, hiddenSpace } : selection;
 }
 
 export function selectArcTabScript(ref: ArcNativeTabRef): string {
   const tab = identity(ref.tabId, 'tab');
   return script(`${lookup(ref)}
 select targetTab
-if (id of active tab of window targetWindowIndex as text) is not ${tab} then
-  try
-    tell space targetSpaceIndex of window targetWindowIndex to focus
-  end try
-  select targetTab
-end if
 set isSelected to (id of active tab of window targetWindowIndex as text) is ${tab}
+set hiddenSpace to ""
+if not isSelected then
+  try
+    if (id of active space of window targetWindowIndex as text) is not (item targetSpaceIndex of spaceIds as text) then set hiddenSpace to title of targetSpace
+  end try
+end if
 set isFront to false
 try
   set isFront to ((id of window 1 as text) is (item targetWindowIndex of windowIds as text)) and (visible of window 1)
 end try
-return "{\\"selected\\":" & (isSelected as text) & ",\\"frontWindow\\":" & (isFront as text) & "}"`);
+return "{\\"selected\\":" & (isSelected as text) & ",\\"frontWindow\\":" & (isFront as text) & ",\\"hiddenSpace\\":" & my jsonString(hiddenSpace) & "}"`);
 }
 
 /** AppleScript that selects `tabId` in whatever Space of window `targetWindowIndex` holds it; returns "true"/"false". */

@@ -271,7 +271,6 @@ export function isSameFile(a: string, b: string): boolean {
 
 const PACKAGE_ENTRY = /[^"'\s]*node_modules[\\/]@phnx-labs[\\/]browser-cli[\\/]bin[\\/]browser\.cjs/g;
 
-/** The `bin/browser.cjs` an npm, pnpm or yarn shim (sh, `.cmd`, `.ps1`) or bun's Windows `browser.exe` + `.bunx` runs. */
 export function launcherTarget(file: string): string | undefined {
   const dir = path.dirname(file);
   const bunx = path.join(dir, path.basename(file, path.extname(file)) + '.bunx');
@@ -457,7 +456,6 @@ export function isCI(env: NodeJS.ProcessEnv = process.env): boolean {
   return Boolean(env.CI || env.BUILD_NUMBER || env.RUN_ID);
 }
 
-/** gh's rule: none when opted out, in CI or Codespaces, or unless stdout and stderr are both terminals; plus `--json`. */
 export function noticeAllowed(
   argv: string[],
   env: NodeJS.ProcessEnv = process.env,

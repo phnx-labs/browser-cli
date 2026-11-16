@@ -33,7 +33,8 @@ if (installed && process.platform !== 'win32' && /^(npm|bun)\//.test(agent)) {
 }
 
 const runByRoot = process.getuid && process.getuid() === 0;
-if (installed && !runByRoot) {
+const global = process.env.npm_config_global === 'true' || __dirname.split(path.sep).join('/').includes('/.bun/install/global/');
+if (installed && global && !runByRoot) {
   try {
     const head = Buffer.alloc(2);
     const fd = fs.openSync(launcher, 'r');

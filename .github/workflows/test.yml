@@ -16,7 +16,7 @@ jobs:
       # resolveFfmpeg tests exercise real resolution against a system ffmpeg; on
       # an ffmpeg-free runner the first call falls through to the installer and
       # times out. Provide the real binary the suite expects.
-      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg zsh
       - run: bun install --frozen-lockfile
       - name: Generate CLI documentation
         run: bash scripts/generate-cli-docs.sh --out-dir .agents/scratch/cli-docs

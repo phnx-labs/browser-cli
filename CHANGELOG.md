@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- The skill tells an agent what to do when a site defeats it: say what failed, offer to report it, and on a yes open a prefilled GitHub issue in the user's browser (`browser show`) for them to check and submit. The agent never files it itself, and the report carries the task, the command and its output, the version, browser and OS, and nothing private.
+
 ## 0.2.15
 
 - A relay refusal over `--device` names its reason. Rush's relay answers `{"error": "<message>", "code": "<CODE>"}`, but the relay client read `error.code` and `error.message` as if `error` were an object, so every refusal printed only its status: on 2026-11-14 a cloud run's `browser start --device zion` failed with `HTTP_409: relay refused the request` and then `HTTP_403`, which hid whether the Mac was offline (`DEVICE_OFFLINE`), the person had not approved the run (`DEVICE_REFUSED: APPROVAL_DENIED …`) or the browser was off on it. The test relay now answers in that real shape.

@@ -3,3 +3,9 @@ contact_links:
   - name: Report a security vulnerability
     url: https://github.com/phnx-labs/browser-cli/blob/main/SECURITY.md
     about: Email contact@phoenix.so instead of opening a public issue.
+  - name: Show what your agent did
+    url: https://github.com/phnx-labs/browser-cli/discussions/new?category=show-and-tell
+    about: A run you're proud of, or one that surprised you.
+  - name: A command or idea
+    url: https://github.com/phnx-labs/browser-cli/discussions/new?category=ideas
+    about: Something you expected browser-cli to do.

@@ -20,6 +20,7 @@ The command you ran and what it printed:
 - OS and version:
 - Browser and version (Chrome, Brave, Edge, Chromium, Comet, Firefox, Arc):
 - Local, `--device` over SSH, or `--endpoint`:
+- The agent (Claude Code, Codex, Cursor, other), if one ran the command:
 
 Recent errors from `jq -c 'select(.error)' ~/.agents/browser/logs/daemon.jsonl`
 often explain a failure. Remove anything private (URLs, account names) before

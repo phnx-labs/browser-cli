@@ -49,10 +49,11 @@ export interface Shadow {
   summary: string;
   fix: string;
   definedAt?: RcLocation;
+  executable?: string;
 }
 
 export interface InstallMethod {
-  method: 'npm' | 'bun' | 'brew' | 'unknown';
+  method: 'npm' | 'pnpm' | 'yarn' | 'bun' | 'brew' | 'unknown';
   upgrade: string;
   uninstall: string;
   binDir: string;
@@ -106,26 +107,48 @@ function withoutPackageManagerBins(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
   return { ...env, PATH };
 }
 
-export function resolveInShell(shell: string, env: NodeJS.ProcessEnv = process.env): ShellResolution | { error: string } {
+/** Output to a file, not a pipe, in its own process group: nothing the rc leaves running can hold this past the timeout. */
+async function runBounded(cmd: string, args: string[], env: NodeJS.ProcessEnv, timeoutMs: number): Promise<{ stdout: string; timedOut: boolean; error?: string }> {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'browser-doctor-'));
+  const fd = fs.openSync(path.join(dir, 'out'), 'w', 0o600);
+  try {
+    const ended = await new Promise<{ timedOut: boolean; error?: string }>((resolve) => {
+      const child = spawn(cmd, args, { detached: true, stdio: ['ignore', fd, 'ignore'], env });
+      const timer = setTimeout(() => {
+        try {
+          process.kill(-child.pid!, 'SIGKILL');
+        } catch {}
+        resolve({ timedOut: true });
+      }, timeoutMs);
+      child.on('error', (err) => { clearTimeout(timer); resolve({ timedOut: false, error: err.message }); });
+      child.on('exit', () => { clearTimeout(timer); resolve({ timedOut: false }); });
+    });
+    return { ...ended, stdout: fs.readFileSync(path.join(dir, 'out'), 'utf8') };
+  } finally {
+    fs.closeSync(fd);
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+export async function resolveInShell(
+  shell: string,
+  env: NodeJS.ProcessEnv = process.env,
+  timeoutMs = PROBE_TIMEOUT_MS,
+): Promise<ShellResolution | { error: string }> {
   const name = shellName(shell);
   if (!name) return { error: `${shell || '$SHELL'} is not zsh, bash or fish` };
   const login = name === 'zsh' || (name === 'bash' && process.platform === 'darwin');
-  const probe = spawnSync(shell, [...(login ? ['-l'] : []), '-i', '-c', PROBES[name]], {
-    encoding: 'utf8',
-    timeout: PROBE_TIMEOUT_MS,
-    stdio: ['ignore', 'pipe', 'pipe'],
-    env: { ...withoutPackageManagerBins(env), [NOTIFIER_OPT_OUT]: '1' },
-  });
-  if (probe.error && !probe.stdout) return { error: `could not run ${shell}: ${probe.error.message}` };
+  const probe = await runBounded(shell, [...(login ? ['-l'] : []), '-i', '-c', PROBES[name]], { ...withoutPackageManagerBins(env), [NOTIFIER_OPT_OUT]: '1' }, timeoutMs);
+  if (probe.error && !probe.stdout) return { error: `could not run ${shell}: ${probe.error}` };
   const fields = new Map<string, string>();
-  for (const line of (probe.stdout ?? '').split('\n')) {
+  for (const line of probe.stdout.split('\n')) {
     if (!line.startsWith(MARK)) continue;
     const rest = line.slice(MARK.length);
     const space = rest.indexOf(' ');
     fields.set(space < 0 ? rest : rest.slice(0, space), space < 0 ? '' : rest.slice(space + 1));
   }
   if (!fields.has('kind')) {
-    return { error: `${name} gave no answer${probe.signal ? ` within ${PROBE_TIMEOUT_MS / 1000}s` : ''}` };
+    return { error: `${name} gave no answer${probe.timedOut ? ` within ${timeoutMs / 1000}s` : ''}` };
   }
   const raw = fields.get('kind') || 'none';
   const kind: ShellResolution['kind'] = raw === 'alias' || raw === 'function' || raw === 'builtin' || raw === 'none'
@@ -246,6 +269,31 @@ export function isSameFile(a: string, b: string): boolean {
   return id !== undefined && id === fileIdentity(b);
 }
 
+const PACKAGE_ENTRY = /[^"'\s]*node_modules[\\/]@phnx-labs[\\/]browser-cli[\\/]bin[\\/]browser\.cjs/g;
+
+/** The `bin/browser.cjs` an npm, pnpm or yarn shim (sh, `.cmd`, `.ps1`) or bun's Windows `browser.exe` + `.bunx` runs. */
+export function launcherTarget(file: string): string | undefined {
+  const dir = path.dirname(file);
+  const bunx = path.join(dir, path.basename(file, path.extname(file)) + '.bunx');
+  let text: string;
+  try {
+    if (/\.exe$/i.test(file)) text = fs.readFileSync(bunx).toString('utf16le');
+    else if (fs.statSync(file).size > 64 * 1024) return undefined;
+    else text = fs.readFileSync(file, 'utf8');
+  } catch {
+    return undefined;
+  }
+  const targets = [...text.matchAll(PACKAGE_ENTRY)].map(([raw]) => path.isAbsolute(raw)
+    ? path.normalize(raw)
+    : path.join(dir, ...raw.replace(/^(?:%~?dp0%?|\$basedir|\$PSScriptRoot)(?=[\\/])/, '').split(/[\\/]+/).filter(Boolean)));
+  return targets.find((target) => fs.existsSync(target)) ?? targets[0];
+}
+
+function isThisInstall(file: string, self: string[]): boolean {
+  const target = launcherTarget(file);
+  return self.some((s) => isSameFile(s, file) || (target !== undefined && isSameFile(s, target)));
+}
+
 export function probeVersion(file: string): string | undefined {
   const run = spawnSync(file, ['--version'], {
     encoding: 'utf8',
@@ -257,39 +305,50 @@ export function probeVersion(file: string): string | undefined {
   return /^v?\d+\.\d+/.test(first) ? first.replace(/^v/, '') : undefined;
 }
 
-export function browsersOnPath(dirs: string[], self: string[], selfVersion: string): PathCopy[] {
-  const names = process.platform === 'win32' ? ['browser.exe', 'browser.cmd'] : ['browser'];
-  const copies: PathCopy[] = [];
-  const seen = new Set<string>();
+function* executablesOnPath(dirs: string[], platform: NodeJS.Platform): Generator<string> {
+  const names = platform === 'win32' ? ['browser.exe', 'browser.cmd'] : ['browser'];
   for (const dir of dirs) {
     for (const name of names) {
       const file = path.join(dir, name);
-      const id = fileIdentity(file);
-      if (!id || seen.has(id)) continue;
       try {
         if (!fs.statSync(file).isFile()) continue;
         fs.accessSync(file, fs.constants.X_OK);
       } catch {
         continue;
       }
-      seen.add(id);
-      const isSelf = self.some((s) => isSameFile(s, file));
-      copies.push({ file, self: isSelf, wins: copies.length === 0, version: isSelf ? selfVersion : probeVersion(file) });
+      yield file;
     }
+  }
+}
+
+export function browsersOnPath(dirs: string[], self: string[], selfVersion: string, platform = process.platform): PathCopy[] {
+  const copies: PathCopy[] = [];
+  const seen = new Set<string>();
+  for (const file of executablesOnPath(dirs, platform)) {
+    const id = fileIdentity(file)!;
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const isSelf = isThisInstall(file, self);
+    copies.push({ file, self: isSelf, wins: copies.length === 0, version: isSelf ? selfVersion : probeVersion(file) });
   }
   return copies;
 }
 
 export function installMethod(file: string): InstallMethod {
-  let real = file;
+  let real = launcherTarget(file) ?? file;
   try {
-    real = fs.realpathSync(file);
+    real = fs.realpathSync(real);
   } catch {}
   const unix = real.split(path.sep).join('/');
   const cellar = /\/Cellar\/([^/]+)\//.exec(unix);
   if (cellar) return { method: 'brew', upgrade: `brew upgrade ${cellar[1]}`, uninstall: `brew uninstall ${cellar[1]}`, binDir: path.dirname(file) };
   if (unix.includes('/.bun/install/global/')) {
     return { method: 'bun', upgrade: `bun add -g ${PACKAGE_NAME}@latest`, uninstall: `bun remove -g ${PACKAGE_NAME}`, binDir: path.join(unix.split('/.bun/')[0], '.bun', 'bin') };
+  }
+  const pnpm = /^(.*?)\/global\/\d+\/(?:\.pnpm|node_modules)\//.exec(unix);
+  if (pnpm) return { method: 'pnpm', upgrade: `pnpm add -g ${PACKAGE_NAME}@latest`, uninstall: `pnpm remove -g ${PACKAGE_NAME}`, binDir: pnpm[1] };
+  if (/\/yarn\/global\/node_modules\//.test(unix)) {
+    return { method: 'yarn', upgrade: `yarn global add ${PACKAGE_NAME}@latest`, uninstall: `yarn global remove ${PACKAGE_NAME}`, binDir: path.dirname(file) };
   }
   const npm = /^(.*)\/lib\/node_modules\/@phnx-labs\/browser-cli/.exec(unix);
   if (npm || unix.includes('/node_modules/@phnx-labs/browser-cli')) {
@@ -326,17 +385,22 @@ export function findShadow(resolution: ShellResolution, self: string[], env: Nod
     };
   }
   const other = resolution.executable;
-  if (resolution.kind !== 'file' || !other || self.length === 0 || self.some((s) => isSameFile(s, other))) return undefined;
+  if (resolution.kind !== 'file' || !other || self.length === 0 || isThisInstall(other, self)) return undefined;
   const version = probeVersion(other);
   return {
     shell,
     kind: 'file',
+    executable: other,
     summary: `${shell} runs ${other}${version ? ` (${version})` : ''}, not this install (${self[0]})`,
     fix: `remove that copy with \`${installMethod(other).uninstall}\`, or put ${installMethod(self[0]).binDir} before ${path.dirname(other)} in PATH`,
   };
 }
 
-export function shadowStillPresent(shadow: Shadow): boolean {
+export function shadowStillPresent(shadow: Shadow, env: NodeJS.ProcessEnv = process.env): boolean {
+  if (shadow.kind === 'file') {
+    const [first] = executablesOnPath((env.PATH ?? '').split(path.delimiter).filter(Boolean), process.platform);
+    return Boolean(first && shadow.executable && isSameFile(first, shadow.executable));
+  }
   if (!shadow.definedAt) return true;
   return readLine(shadow.definedAt.file, shadow.definedAt.line) === shadow.definedAt.text;
 }
@@ -378,8 +442,11 @@ export function readInstallCheckCache(): InstallCheckCache | undefined {
 
 export function writeInstallCheckCache(cache: InstallCheckCache): boolean {
   try {
-    fs.mkdirSync(path.dirname(installCheckCachePath()), { recursive: true });
-    fs.writeFileSync(installCheckCachePath(), JSON.stringify(cache, null, 2) + '\n', { mode: 0o600 });
+    const file = installCheckCachePath();
+    const tmp = `${file}.${process.pid}.tmp`;
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(tmp, JSON.stringify(cache, null, 2) + '\n', { mode: 0o600 });
+    fs.renameSync(tmp, file);
     return true;
   } catch {
     return false;
@@ -400,10 +467,16 @@ export function noticeAllowed(
   return tty.stdout && tty.stderr && !argv.includes('--json');
 }
 
-export function noticeLine(cache: InstallCheckCache, current: string, self: string[], hubDevice?: string): string | undefined {
+export function noticeLine(
+  cache: InstallCheckCache,
+  current: string,
+  self: string[],
+  hubDevice?: string,
+  env: NodeJS.ProcessEnv = process.env,
+): string | undefined {
   const hide = `${NOTIFIER_OPT_OUT}=1 hides this`;
   const sameInstall = (cache.self ?? '') === (self[0] ?? '');
-  if (sameInstall && cache.shadow && shadowStillPresent(cache.shadow)) {
+  if (sameInstall && cache.shadow && shadowStillPresent(cache.shadow, env)) {
     return `browser: ${cache.shadow.summary}. Run \`browser doctor\` for the fix (${hide}).`;
   }
   const upgrade = installMethod(self[0] ?? '').upgrade;
@@ -462,7 +535,7 @@ export async function checkInstallHealth(opts: InstallHealthOptions): Promise<In
 
   const resolved = process.platform === 'win32'
     ? { error: 'Windows shells are not checked' }
-    : resolveInShell(env.SHELL ?? '', env);
+    : await resolveInShell(env.SHELL ?? '', env);
   if ('error' in resolved) {
     checks.push({ label: 'shell', ok: true, detail: `not checked: ${resolved.error}` });
   } else {

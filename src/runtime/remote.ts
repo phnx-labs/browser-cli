@@ -62,8 +62,8 @@ export function streamOnHost(target: HostTarget, remoteCmd: string, interactive:
 }
 
 /** Run a remote command over ssh and capture its output. */
-export function captureOnHost(target: HostTarget, remoteCmd: string): SshExecResult {
-  return sshExec(sshTargetFor(target), remoteCmd, { extraSshArgs: target.sshArgs });
+export function captureOnHost(target: HostTarget, remoteCmd: string, timeoutMs?: number): SshExecResult {
+  return sshExec(sshTargetFor(target), remoteCmd, { extraSshArgs: target.sshArgs, timeoutMs });
 }
 
 /**

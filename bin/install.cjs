@@ -34,7 +34,8 @@ if (installed && process.platform !== 'win32' && /^(npm|bun)\//.test(agent)) {
 
 const runByRoot = process.getuid && process.getuid() === 0;
 const global = process.env.npm_config_global === 'true' || __dirname.split(path.sep).join('/').includes('/.bun/install/global/');
-if (installed && global && !runByRoot) {
+const quiet = ['BROWSER_NO_UPDATE_NOTIFIER', 'CI', 'CODESPACES', 'BUILD_NUMBER', 'RUN_ID'].some((key) => process.env[key]);
+if (installed && global && !runByRoot && !quiet) {
   try {
     const head = Buffer.alloc(2);
     const fd = fs.openSync(launcher, 'r');

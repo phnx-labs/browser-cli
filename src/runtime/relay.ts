@@ -30,13 +30,13 @@ export function relayFromEnv(env: NodeJS.ProcessEnv = process.env): Relay | null
   return { url: url.replace(/\/+$/, ''), token };
 }
 
-async function post(relay: Relay, device: string, op: 'exec' | 'file', body: unknown): Promise<unknown> {
+async function post(relay: Relay, device: string, op: 'exec' | 'file', body: unknown, timeoutMs = RELAY_TIMEOUT_MS): Promise<unknown> {
   const response = await fetch(`${relay.url}/${encodeURIComponent(device)}/${op}`, {
     method: 'POST',
     headers: { authorization: `Bearer ${relay.token}`, 'content-type': 'application/json' },
     body: JSON.stringify(body),
     // Past the relay's own 90 s device wait, so its typed DEVICE_TIMEOUT arrives before this fires.
-    signal: AbortSignal.timeout(RELAY_TIMEOUT_MS),
+    signal: AbortSignal.timeout(timeoutMs),
   });
   const text = await response.text();
   let decoded: unknown;
@@ -58,9 +58,10 @@ export async function relayExec(
   device: string,
   argv: string[],
   env: Record<string, string>,
+  timeoutMs?: number,
 ): Promise<RelayResult> {
   const words = argv[0] === 'browser' ? argv.slice(1) : argv;
-  const result = await post(relay, device, 'exec', { argv: words, env }) as Partial<RelayResult>;
+  const result = await post(relay, device, 'exec', { argv: words, env }, timeoutMs) as Partial<RelayResult>;
   if (typeof result.code !== 'number') throw new Error(`Relay returned no exit code for device "${device}"`);
   return { code: result.code, stdout: result.stdout ?? '', stderr: result.stderr ?? '' };
 }

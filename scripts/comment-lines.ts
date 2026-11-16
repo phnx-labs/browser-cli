@@ -63,7 +63,6 @@ const CODE_EXTENSIONS = new Map<string, string>([
   ['.jsx', 'jsx'],
   ['.mjs', 'javascript'],
   ['.plist', 'xml'],
-  ['.ps1', 'shell'],
   ['.py', 'python'],
   ['.scss', 'css'],
   ['.sh', 'shell'],
@@ -76,14 +75,14 @@ const CODE_EXTENSIONS = new Map<string, string>([
   ['.zsh', 'shell'],
 ]);
 const IGNORED_EXTENSIONS = new Set([
-  '.after', '.b64', '.before', '.cmd', '.err', '.gif', '.ini', '.jpg', '.jpeg', '.json', '.jsonl',
+  '.after', '.b64', '.before', '.err', '.gif', '.ini', '.jpg', '.jpeg', '.json', '.jsonl',
   '.lock', '.log', '.md', '.mp3', '.mp4', '.ndjson', '.pdf', '.png', '.provisionprofile',
   '.sql', '.stderr', '.stdout', '.svg', '.tgz', '.tsv', '.txt', '.webp',
 ]);
 const IGNORED_BASENAMES = new Set([
   '.gitkeep', '.prettierrc', 'LICENSE', 'Local State', 'SHA256SUMS',
 ]);
-const IGNORED_PREFIXES = ['.agents/', 'docs/'];
+const IGNORED_PREFIXES = ['.agents/', 'docs/', 'src/runtime/testdata/install-health/shims/'];
 
 let indexedSource = '';
 let indexedLines: number[] = [];

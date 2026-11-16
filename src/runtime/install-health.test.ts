@@ -141,7 +141,6 @@ describe.skipIf(!ZSH)('browser doctor with a real zsh', () => {
   });
 });
 
-/** Copies the shims npm (cmd-shim 8) and pnpm 10 generate for this package; only the pnpm home path is anonymised. */
 function shimDir(name: string): string {
   const dir = path.join(home, 'shims', name);
   fs.cpSync(path.join(TESTDATA, 'shims', name), dir, { recursive: true });

@@ -89,6 +89,7 @@ Each open VS Code or VSCodium window running the Agents extension is a profile i
 ## When something fails
 
 - `browser status` lists the service and running tasks.
+- `browser` itself fails, or behaves like an older version: run `browser doctor` and pass its fix to the user. Never edit their shell rc files.
 - Service unresponsive, or IPC requests time out: `browser stop --service`, then retry the command.
 - `nothing is speaking CDP on port …`: that profile's browser is not running. Tell the user; do not switch browsers.
 - `Task "…" not found`: the task ended. Start a new one.

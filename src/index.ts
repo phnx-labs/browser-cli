@@ -12,16 +12,25 @@ import { assertBrowserHomeReady } from './runtime/state.js';
 import { unbindTask } from './browser/task-index.js';
 import { emit, rotateDaemonLog } from './runtime/events.js';
 import { pruneActions } from './runtime/session-store.js';
+import { installNotice, runningBinary } from './runtime/install-health.js';
+import { isFleetRemoteInvocation } from './browser/remote-control.js';
 
 export function buildProgram(): Command {
   const program = new Command()
     .name('browser')
     .description('Drive real browsers over CDP, WebDriver BiDi and native Arc')
     .version(version(), '-v, --version');
+  const isDoctor = (command: Command) => command.name() === 'doctor' && command.parent === program;
   program.hook('preAction', async (_, command) => {
+    if (isDoctor(command)) return;
     if (!(await migrateBrowserHome()) && command.name() === '__serve') assertBrowserHomeReady();
   });
   registerBrowserSubcommands(program);
+  program.hook('postAction', (_, command) => {
+    if (process.exitCode || isDoctor(command) || command.name() === '__serve' || isFleetRemoteInvocation()) return;
+    const self = runningBinary();
+    installNotice(process.argv, version(), [...(self ? [self] : [process.execPath, process.argv[1]]), 'doctor', '--json']);
+  });
   program
     .command('__serve', { hidden: true })
     .description('Run the browser IPC service in the foreground')

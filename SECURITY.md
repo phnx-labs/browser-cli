@@ -37,10 +37,13 @@ Only the latest published version is supported; check it with
   and `BROWSER_RELAY_TOKEN`.
 - **No telemetry.** browser-cli reports nothing to us or to any other service.
   Its network traffic goes to the browsers and machines you point it at, with
-  one exception: the first time a recording needs ffmpeg and finds none, it
+  two exceptions. The first time a recording needs ffmpeg and finds none, it
   installs ffmpeg with the system package manager (brew, winget, apt and
   others, through `sudo -n` when not root) or, failing that, runs
-  `npm install ffmpeg-static` into `~/.agents/.cache/ffmpeg`.
+  `npm install ffmpeg-static` into `~/.agents/.cache/ffmpeg`. And at most once
+  a day, when a command runs in a terminal (not in CI, not with `--json`), it
+  asks registry.npmjs.org for the latest version, sending nothing but that
+  request; `BROWSER_NO_UPDATE_NOTIFIER=1` turns it off.
 - **What it stores.** Everything is under `~/.agents/browser/` (or
   `$AGENTS_HOME/browser/`): profile definitions (`profiles/`, `local/`), the
   remote-control setting (`local/settings.yaml`), the browser data directories

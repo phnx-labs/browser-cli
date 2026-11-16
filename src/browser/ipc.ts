@@ -1244,18 +1244,33 @@ function failure(err: unknown): IPCResponse {
 
 let versionReconciledThisProcess = false;
 
-/** Recommend refresh only for an older daemon or unordered distinct versions; ignore unknown versions. */
-export function shouldRecommendDaemonRefresh(
-  daemonVersion: string | undefined,
-  clientVersion: string
-): boolean {
-  if (!daemonVersion || daemonVersion === 'unknown') return false;
-  if (daemonVersion === clientVersion) return false;
-  const cmp = compareVersions(daemonVersion, clientVersion);
-  if (cmp < 0) return true; // daemon older than client → upgrade forward
-  if (cmp > 0) return false; // daemon newer → older CLI rides it
-  // cmp === 0 but strings differ (unorderable tails like 0.0.0-dev.abc)
-  return true;
+/** How a peer (the local daemon or the browser.device hub) compares with this CLI; unordered distinct tails count as older. */
+export function versionSkew(peer: string | undefined, client: string): 'older' | 'newer' | undefined {
+  if (!peer || peer === 'unknown' || peer === client) return undefined;
+  return compareVersions(peer, client) > 0 ? 'newer' : 'older';
+}
+
+export function shouldRecommendDaemonRefresh(daemonVersion: string | undefined, clientVersion: string): boolean {
+  return versionSkew(daemonVersion, clientVersion) === 'older';
+}
+
+export function versionSkewNotice(
+  peer: string | undefined,
+  client: string,
+  hub?: { device: string; upgrade: string },
+): string | undefined {
+  const skew = versionSkew(peer, client);
+  if (!hub) {
+    if (skew !== 'older') return undefined;
+    return `daemon is ${peer}, CLI is ${client}: commands run on the older service, without the fixes since ${peer}. ` +
+      'If one fails or misbehaves, run browser stop --service once no other agent is using the browser; ' +
+      'a restart cuts off their running commands, recordings and captures.';
+  }
+  if (!skew) return undefined;
+  const where = `${hub.device} (browser.device) runs ${peer}, this machine ${client}`;
+  return skew === 'newer'
+    ? `${where}. To upgrade, run: ${hub.upgrade}`
+    : `${where}: commands forwarded there run the older CLI. Update it on ${hub.device}; \`browser doctor\` there prints the command`;
 }
 
 export function reconcileDaemonVersion(daemon: string | undefined): void {
@@ -1263,13 +1278,10 @@ export function reconcileDaemonVersion(daemon: string | undefined): void {
   versionReconciledThisProcess = true;
 
   const client = getCliVersion();
-  if (!shouldRecommendDaemonRefresh(daemon, client)) return;
+  const notice = versionSkewNotice(daemon, client);
+  if (!notice) return;
   emit('daemon.version_mismatch', { daemon, cli: client });
-  process.stderr.write(
-    `daemon is ${daemon}, CLI is ${client}: commands run on the older service, without the fixes since ${daemon}. ` +
-      'If one fails or misbehaves, run browser stop --service once no other agent is using the browser; ' +
-      'a restart cuts off their running commands, recordings and captures.\n',
-  );
+  process.stderr.write(notice + '\n');
 }
 
 async function logAction(request: IPCRequest, send: () => Promise<IPCResponse>): Promise<IPCResponse> {

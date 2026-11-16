@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- `browser doctor` checks the install itself. It asks your shell (zsh, bash or fish) what `browser` runs and names the rc file and line of an alias or function that gets there first, lists every `browser` on PATH with its version and which one wins, compares with the latest release on npm and with the `browser.device` hub, and prints the fix for each finding without editing rc files. A global npm or bun install runs the shell and PATH checks once. In a terminal, ordinary commands print one line when something shadows `browser`, the hub runs another version or a newer release is out, checked at most once a day; `BROWSER_NO_UPDATE_NOTIFIER=1` hides it, and it never prints in CI, under `--json` or when output is piped. On 2026-11-16 an alias in a `.zshrc` sent every `browser` call to a removed command, and the fallback copy on PATH was 0.1.24 while the hub ran 0.2.15; nothing said so.
 - The skill tells an agent what to do when a site defeats it: say what failed, offer to report it, and on a yes open a prefilled GitHub issue in the user's browser (`browser show`) for them to check and submit. The agent never files it itself, and the report carries the task, the command and the error it printed, the version, browser and OS, and no page text, account names, tokens or full URLs.
 
 ## 0.2.15

@@ -269,7 +269,7 @@ Read from each tool's own docs and code on 2026-11-07. The source for every cell
 ## Security and privacy
 
 - **An agent with `browser` acts as you.** It can read and click anything your signed-in profile can. Give it a dedicated profile, signed in only to the sites it needs, when it should not see your personal accounts.
-- **No telemetry.** `browser` talks only to the browsers and machines you point it at. The exceptions: the first recording on a machine without ffmpeg installs it, and once a day in a terminal it asks registry.npmjs.org for the latest version (`BROWSER_NO_UPDATE_NOTIFIER=1` turns that off).
+- **No telemetry.** `browser` talks only to the browsers and machines you point it at. The exceptions: the first recording on a machine without ffmpeg installs it, and once a day in a terminal it runs `browser doctor --json` in the background. That asks registry.npmjs.org for the latest version, runs your login shell (`$SHELL -l -i`, so your rc files) to see what `browser` resolves to, runs `--version` on each `browser` on PATH, and, with `browser.device` set, runs `browser --version` on that hub over ssh or the relay. A global npm install runs the shell and PATH checks once. `BROWSER_NO_UPDATE_NOTIFIER=1`, `CI`, `CODESPACES`, `BUILD_NUMBER` or `RUN_ID` turns all of it off.
 - **Remote control is off by default.** Another machine can drive this browser only after `browser remote-control on`.
 
 Details: [SECURITY.md](SECURITY.md).

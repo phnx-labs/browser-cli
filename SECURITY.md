@@ -42,8 +42,18 @@ Only the latest published version is supported; check it with
   others, through `sudo -n` when not root) or, failing that, runs
   `npm install ffmpeg-static` into `~/.agents/.cache/ffmpeg`. And at most once
   a day, when a command runs in a terminal (not in CI, not with `--json`), it
-  asks registry.npmjs.org for the latest version, sending nothing but that
-  request; `BROWSER_NO_UPDATE_NOTIFIER=1` turns it off.
+  starts `browser doctor --json` in the background, which:
+  - asks registry.npmjs.org for the latest version (3 s timeout), sending
+    nothing but that request;
+  - runs your shell as `$SHELL -l -i` (zsh, bash or fish), which executes your
+    rc files, to ask what `browser` resolves to (5 s timeout; the shell's
+    process group is killed after that);
+  - runs `--version` on every `browser` executable on PATH (5 s each);
+  - with `browser.device` set, runs `browser --version` on that hub over ssh,
+    or through the relay when `BROWSER_RELAY_URL` is set (15 s timeout).
+  A global npm install runs the shell and PATH checks once, with no network.
+  `BROWSER_NO_UPDATE_NOTIFIER=1`, `CI`, `CODESPACES`, `BUILD_NUMBER` or
+  `RUN_ID` turns all of it off, including the postinstall check.
 - **What it stores.** Everything is under `~/.agents/browser/` (or
   `$AGENTS_HOME/browser/`): profile definitions (`profiles/`, `local/`), the
   remote-control setting (`local/settings.yaml`), the browser data directories

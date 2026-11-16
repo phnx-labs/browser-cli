@@ -5,6 +5,7 @@ import * as path from 'node:path';
 import {
   browsersOnPath,
   checkInstallHealth,
+  launcherTarget,
   NOTIFIER_OPT_OUT,
   noticeAllowed,
   noticeLine,
@@ -52,9 +53,9 @@ describe.skipIf(!ZSH)('browser doctor with a real zsh', () => {
     expect(shell.fix).toBe(`delete line 5 of ${rc} (alias browser="agents browser"), then run \`unalias browser\` in shells already open`);
   });
 
-  it('follows source lines and skips commented-out definitions', () => {
+  it('follows source lines and skips commented-out definitions', async () => {
     const zdotdir = rcDir('zsh-sourced');
-    const resolved = resolveInShell(ZSH!, shellEnv(zdotdir));
+    const resolved = await resolveInShell(ZSH!, shellEnv(zdotdir));
     expect(resolved).toMatchObject({
       kind: 'alias',
       definition: 'agents browser',
@@ -91,12 +92,107 @@ describe.skipIf(!ZSH)('browser doctor with a real zsh', () => {
       { label: 'path', ok: true, detail: `${path.join(NEW, 'browser')} 0.2.15 (this install), wins` },
     ]);
   });
+
+  it('returns within its timeout when the rc runs a long foreground command, and kills what the rc started', async () => {
+    const zdotdir = rcDir('zsh-slow');
+    const started = Date.now();
+    const resolved = await resolveInShell(ZSH!, shellEnv(zdotdir), 1_000);
+    expect(Date.now() - started).toBeLessThan(2_000);
+    expect(resolved).toEqual({ error: 'zsh gave no answer within 1s' });
+    const group = Number(fs.readFileSync(path.join(zdotdir, 'pid'), 'utf8'));
+    await waitFor(() => !alive(-group));
+  });
+
+  it('answers when the rc leaves a daemon running with its stdout', async () => {
+    const zdotdir = rcDir('zsh-daemon');
+    const started = Date.now();
+    const resolved = await resolveInShell(ZSH!, shellEnv(zdotdir), 1_000);
+    process.kill(Number(fs.readFileSync(path.join(zdotdir, 'pid'), 'utf8')), 'SIGKILL');
+    expect(Date.now() - started).toBeLessThan(1_000);
+    expect(resolved).toMatchObject({ kind: 'none' });
+  });
+
+  it('counts the pnpm global shim of this install as this install', async () => {
+    const pnpmHome = shimDir('pnpm');
+    const entry = packageEntry(pnpmHome, 'global/5/.pnpm/@phnx-labs+browser-cli@0.2.15/node_modules', '0.2.15');
+    const health = await checkInstallHealth({
+      current: '0.2.15',
+      local: true,
+      self: [entry],
+      env: shellEnv(rcDir('empty-zdotdir'), [pnpmHome, ...SYSTEM_PATH]),
+    });
+    expect(health.checks).toEqual([
+      { label: 'shell', ok: true, detail: `zsh runs ${path.join(pnpmHome, 'browser')} (this install)` },
+      { label: 'path', ok: true, detail: `${path.join(pnpmHome, 'browser')} 0.2.15 (this install), wins` },
+    ]);
+  });
+
+  it('a pnpm shim of another install is removed with pnpm, not rm', async () => {
+    const pnpmHome = shimDir('pnpm');
+    packageEntry(pnpmHome, 'global/5/.pnpm/@phnx-labs+browser-cli@0.2.15/node_modules', '0.1.24');
+    const health = await checkInstallHealth({
+      current: '0.2.15',
+      local: true,
+      self: [path.join(NEW, 'browser')],
+      env: shellEnv(rcDir('empty-zdotdir'), [pnpmHome, NEW, ...SYSTEM_PATH]),
+    });
+    expect(health.shadow?.fix).toBe(`remove that copy with \`pnpm remove -g @phnx-labs/browser-cli\`, or put ${NEW} before ${pnpmHome} in PATH`);
+    expect(health.checks.flatMap((c) => c.fix ?? []).join('\n')).not.toContain('rm ');
+  });
+});
+
+/** Copies the shims npm (cmd-shim 8) and pnpm 10 generate for this package; only the pnpm home path is anonymised. */
+function shimDir(name: string): string {
+  const dir = path.join(home, 'shims', name);
+  fs.cpSync(path.join(TESTDATA, 'shims', name), dir, { recursive: true });
+  for (const file of fs.readdirSync(dir)) fs.chmodSync(path.join(dir, file), 0o755);
+  return dir;
+}
+
+function packageEntry(root: string, modules: string, version: string): string {
+  const entry = path.join(root, ...modules.split('/'), '@phnx-labs', 'browser-cli', 'bin', 'browser.cjs');
+  fs.mkdirSync(path.dirname(entry), { recursive: true });
+  fs.writeFileSync(entry, `#!/usr/bin/env node\nconsole.log('${version}');\n`, { mode: 0o755 });
+  return entry;
+}
+
+function alive(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function waitFor(done: () => boolean): Promise<void> {
+  const until = Date.now() + 2_000;
+  while (!done()) {
+    if (Date.now() > until) throw new Error('timed out');
+    await Bun.sleep(20);
+  }
+}
+
+describe('package-manager launchers', () => {
+  it('npm on Windows: browser.cmd, browser.ps1 and the sh shim all run this install', () => {
+    const prefix = shimDir('npm-windows');
+    const entry = packageEntry(prefix, 'node_modules', '0.2.15');
+    for (const shim of ['browser.cmd', 'browser.ps1', 'browser']) expect(launcherTarget(path.join(prefix, shim))).toBe(entry);
+    expect(browsersOnPath([prefix], [entry], '0.2.15', 'win32')).toEqual([
+      { file: path.join(prefix, 'browser.cmd'), version: '0.2.15', self: true, wins: true },
+    ]);
+  });
+
+  it('a native browser.exe is not a launcher', () => {
+    expect(launcherTarget(path.join(NEW, 'browser.exe'))).toBeUndefined();
+    expect(launcherTarget(path.join(NEW, 'browser'))).toBeUndefined();
+  });
 });
 
 describe.skipIf(process.platform !== 'linux' || !Bun.which('bash'))('browser doctor with a real bash', () => {
-  it('names ~/.bash_aliases and its line in the Debian layout, sourced from an indented line in ~/.bashrc', () => {
+  it('names ~/.bash_aliases and its line in the Debian layout, sourced from an indented line in ~/.bashrc', async () => {
     const dir = rcDir('bash-debian');
-    const resolved = resolveInShell(Bun.which('bash')!, { HOME: dir, PATH: SYSTEM_PATH.join(path.delimiter), TERM: 'dumb' });
+    const resolved = await resolveInShell(Bun.which('bash')!, { HOME: dir, PATH: SYSTEM_PATH.join(path.delimiter), TERM: 'dumb' });
     expect(resolved).toMatchObject({
       kind: 'alias',
       definition: 'agents browser',
@@ -141,6 +237,17 @@ describe('the one-line notice', () => {
     expect(noticeLine({ checkedAt: Date.now(), latest: '0.2.15' }, '0.2.15', [])).toBeUndefined();
     fs.writeFileSync(rc, 'alias browser="agents browser"\n');
     expect(noticeLine({ ...cache, self: path.join(OLD, 'browser') }, '0.2.15', [path.join(NEW, 'browser')])).toStartWith('A new release');
+  });
+
+  it('re-checks a cached shadowing copy against PATH, and goes quiet once it is removed', () => {
+    const stale = path.join(home, 'stale');
+    fs.cpSync(OLD, stale, { recursive: true });
+    const shadow: Shadow = { shell: 'zsh', kind: 'file', summary: `zsh runs ${stale}/browser (0.1.24), not this install`, fix: '', executable: path.join(stale, 'browser') };
+    const cache = { checkedAt: Date.now(), shadow };
+    expect(noticeLine(cache, '0.2.15', [], undefined, { PATH: [stale, NEW].join(path.delimiter) })).toStartWith(`browser: ${shadow.summary}.`);
+    expect(noticeLine(cache, '0.2.15', [], undefined, { PATH: [NEW, stale].join(path.delimiter) })).toBeUndefined();
+    fs.rmSync(path.join(stale, 'browser'));
+    expect(noticeLine(cache, '0.2.15', [], undefined, { PATH: [stale, NEW].join(path.delimiter) })).toBeUndefined();
   });
 
   it('names the hub when browser.device runs a newer version, and only that hub', () => {

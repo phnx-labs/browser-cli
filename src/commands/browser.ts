@@ -227,11 +227,12 @@ async function dispatchBrowserToDevice(
   device: string,
   forwardedArgs: string[],
   mode: 'stream' | 'capture',
-): Promise<{ code: number; stdout: string; stderr: string }> {
+  timeoutMs?: number,
+): Promise<{ code: number; stdout: string; stderr: string; timedOut?: boolean }> {
   const identityEnv = callerIdentityEnv(resolveCallerIdentity());
   const relay = relayFromEnv();
   if (relay) {
-    const result = await relayExec(relay, device, forwardedArgs, { ...identityEnv, [FLEET_REMOTE_ENV]: '1' });
+    const result = await relayExec(relay, device, forwardedArgs, { ...identityEnv, [FLEET_REMOTE_ENV]: '1' }, timeoutMs);
     if (mode === 'capture') return result;
     process.stdout.write(result.stdout);
     process.stderr.write(result.stderr);
@@ -250,11 +251,12 @@ async function dispatchBrowserToDevice(
     const interactive = isatty(1) && !process.argv.includes('--no-tty');
     return { code: streamOnHost(host, remoteCmd, interactive), stdout: '', stderr: '' };
   }
-  const result = captureOnHost(host, remoteCmd);
+  const result = captureOnHost(host, remoteCmd, timeoutMs);
   return {
     code: result.code ?? 1,
     stdout: result.stdout,
     stderr: result.stderr,
+    timedOut: result.timedOut,
   };
 }
 
@@ -540,9 +542,12 @@ function printChecks(checks: DoctorCheck[]): boolean {
   return checks.every((c) => c.ok);
 }
 
+const HUB_VERSION_TIMEOUT_MS = 15_000;
+
 async function hubVersion(hub: string): Promise<{ version?: string; error?: string }> {
   try {
-    const result = await dispatchBrowserToDevice(hub, ['browser', '--version'], 'capture');
+    const result = await dispatchBrowserToDevice(hub, ['browser', '--version'], 'capture', HUB_VERSION_TIMEOUT_MS);
+    if (result.timedOut) return { error: `no answer within ${HUB_VERSION_TIMEOUT_MS / 1000}s` };
     const version = result.stdout.trim().split('\n')[0]?.trim();
     if (result.code === 0 && version) return { version };
     return { error: (result.stderr || result.stdout).trim().split('\n').pop() || `browser --version exited ${result.code}` };

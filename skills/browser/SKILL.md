@@ -76,7 +76,7 @@ browser show https://example.com
 browser show ./report.html
 ```
 
-`show` opens it in the user's configured viewer and binds no task; on a box whose `browser.device` hub is another machine it copies a local file there and shows it on the hub, where the user is. It exits 1 with the reason when the viewer did not confirm the page; tell the user rather than retrying. After you update the page, run the same `show` again: it reloads and selects the tab already showing it instead of opening another (`--fresh` forces a new tab). A tab a task opened with `browser start` is never reused. In native Arc, `show` never brings Arc in front of the app the user is in, so tell them the page is open in Arc. Add `--json` to see which browser opened it and whether the tab was `reused`.
+`show` opens it in the user's configured viewer and binds no task; on a box whose `browser.device` hub is another machine it copies a local file there and shows it on the hub, where the user is. It exits 1 with the reason when the viewer did not confirm the page; tell the user rather than retrying. After you update the page, run the same `show` again: it reloads and selects the tab already showing it instead of opening another (`--fresh` forces a new tab). A tab a task opened with `browser start` is never reused. `show` never brings the browser in front of the app the user is in, so the page can be open and still out of sight. Tell the user where it is, in the words `show` prints: "It's in Arc, behind VSCodium; a notification is up, click it to switch", not "the page is open". Say it is in front of them only when `--json` reports `"visible": true`; `"frontmost": "unknown"` means nobody can tell, so tell them which browser and machine to look in.
 
 ## Arc
 

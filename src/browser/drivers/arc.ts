@@ -325,13 +325,38 @@ export function closeArcTab(ref: ArcNativeTabRef): Promise<'closed' | 'missing'>
   });
 }
 
+export const ARC_APP = { name: 'Arc', bundleId: APP_ID } as const;
+
+export interface ArcSelection { selected: boolean; frontWindow: boolean }
+
 /** Selects the tab in its window. Never `activate`: Arc stays wherever the owner left it among their apps. */
-export function selectArcTab(ref: ArcNativeTabRef): Promise<void> {
-  return serialized(async () => { await execAppleScript(selectArcTabScript(ref)); });
+export function selectArcTab(ref: ArcNativeTabRef): Promise<ArcSelection> {
+  return serialized(async () => parse<ArcSelection>(await execAppleScript(selectArcTabScript(ref))));
 }
 
 export function selectArcTabScript(ref: ArcNativeTabRef): string {
-  return script(`${lookup(ref)}\nselect targetTab\nreturn "selected"`);
+  const tab = identity(ref.tabId, 'tab');
+  return script(`${lookup(ref)}
+select targetTab
+if (id of active tab of window targetWindowIndex as text) is not ${tab} then
+  try
+    tell space targetSpaceIndex of window targetWindowIndex to focus
+  end try
+  select targetTab
+end if
+set isSelected to (id of active tab of window targetWindowIndex as text) is ${tab}
+set isFront to false
+try
+  set orderedIds to id of every window
+  set orderedVisible to visible of every window
+  repeat with wi from 1 to count of orderedIds
+    if item wi of orderedVisible then
+      set isFront to (item wi of orderedIds as text) is (item targetWindowIndex of windowIds as text)
+      exit repeat
+    end if
+  end repeat
+end try
+return "{\\"selected\\":" & (isSelected as text) & ",\\"frontWindow\\":" & (isFront as text) & "}"`);
 }
 
 /** AppleScript that selects `tabId` in whatever Space of window `targetWindowIndex` holds it; returns "true"/"false". */

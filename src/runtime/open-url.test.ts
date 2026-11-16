@@ -72,6 +72,14 @@ describe('describeShown', () => {
       .toBe('Opened in Arc (arc-work) on zion (Arc is in front, but another of its windows or tabs is showing); notification sent: https://example.com/report');
   });
 
+  test('a tab in a Space that is not showing names the Space; Spaces are never switched', () => {
+    const hidden = { hiddenSpace: 'Work', hiddenWhy: 'the tab is in Arc Space Work, which is not the one showing' };
+    expect(describeShown(arc(hidden), url))
+      .toBe('Opened in Arc (arc-work) on zion, Space Work (not the one showing), behind VSCodium; notification sent: https://example.com/report');
+    expect(describeShown(arc({ ...hidden, frontmost: 'Arc' }), url))
+      .toBe('Opened in Arc (arc-work) on zion, Space Work (not the one showing), with Arc in front; notification sent: https://example.com/report');
+  });
+
   test('the OS handler in front does not read as the page in front', () => {
     expect(describeShown({
       via: 'open', app: 'Safari', visible: false, frontmost: 'Safari', notification: 'clickable',

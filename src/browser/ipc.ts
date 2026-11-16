@@ -681,7 +681,7 @@ export class BrowserIPCServer {
         });
         return {
           ok: true, tabId: shown.tabId, created: !shown.reused, refreshed: shown.reused,
-          shown: { title: shown.title, viewer: shown.viewer, inFront: shown.inFront, whyUnknown: shown.whyUnknown },
+          shown: { title: shown.title, viewer: shown.viewer, inFront: shown.inFront, whyUnknown: shown.whyUnknown, hiddenSpace: shown.hiddenSpace },
         };
       }
 

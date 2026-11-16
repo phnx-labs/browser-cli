@@ -2341,7 +2341,7 @@ function registerTaskCommands(browser: Command): void {
     .option('-p, --profile <name>', 'Show it in this profile instead of browser.viewer')
     .option('--os-browser', 'Use the OS default handler instead of the configured viewer')
     .option('--fresh', 'Always open a new tab, even when one already shows this page (default: navigate and select that tab)')
-    .option('--json', 'Output machine-readable JSON: via, profile or app, reused, visible, frontmost (the app in front, or unknown off macOS) and notification')
+    .option('--json', 'Output machine-readable JSON: via, profile or app, reused, visible, frontmost (the app in front, or unknown off macOS), notification, and hiddenSpace and hiddenWhy when the tab is in an Arc Space its window is not showing')
     .action(async (url: string, opts: { profile?: string; osBrowser?: boolean; fresh?: boolean; json?: boolean }) => {
       // Binds no task: the reaper closes a task's tabs when its session ends, and a person is reading this one.
       const { showUrl, showFile, describeShown } = await import('../runtime/open-url.js');

@@ -20,6 +20,13 @@ describe('judgeShown', () => {
     expect(judgeShown(undefined, { inFront: true }, arc).visible).toBe(false);
   });
 
+  test('a tab in a Space its window is not showing names that Space, with the app in front or not', () => {
+    const tab = { inFront: false, hiddenSpace: 'Work' };
+    const hidden = { hiddenSpace: 'Work', hiddenWhy: 'the tab is in Arc Space Work, which is not the one showing' };
+    expect(judgeShown(arc, tab, codium)).toEqual({ visible: false, frontmost: 'VSCodium', ...hidden });
+    expect(judgeShown(arc, tab, arc)).toEqual({ visible: false, frontmost: 'Arc', ...hidden });
+  });
+
   test('an app in front that has not settled is unknown, never visible', () => {
     expect(judgeShown(arc, { inFront: true }, undefined, 'Arc had not finished launching after 5 s')).toEqual({
       visible: false, frontmost: 'unknown', unknownWhy: 'Arc had not finished launching after 5 s',
@@ -81,11 +88,11 @@ test.skipIf(process.platform === 'darwin')('off macOS nothing claims the page is
   });
 });
 
-const RAISES = /\bactivate\b|\bset\s+frontmost\b|\bfrontmost\s*=(?!=)|\breopen\b/i;
+const RAISES = /\bactivate\b|\bset\s+frontmost\b|\bfrontmost\s*=(?!=)|\breopen\b|\bto\s+focus\b/i;
 
 describe('no script show runs can raise an app', () => {
   test('the pattern catches every spelling', () => {
-    for (const raising of ['activate', 'tell app "Arc" to activate', 'app.activate()', 'Application("Arc").activate', 'set frontmost of p to true', 'proc.frontmost = true', 'reopen']) {
+    for (const raising of ['activate', 'tell app "Arc" to activate', 'app.activate()', 'Application("Arc").activate', 'set frontmost of p to true', 'proc.frontmost = true', 'reopen', 'tell space 2 of window 1 to focus']) {
       expect(raising).toMatch(RAISES);
     }
     expect('activeTabIndex; whose({ frontmost: true }); p.frontmost === true').not.toMatch(RAISES);

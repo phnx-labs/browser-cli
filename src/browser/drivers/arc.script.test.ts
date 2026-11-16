@@ -26,12 +26,15 @@ describe('selectArcTab script', () => {
     expect(script).toContain('select targetTab');
     expect(script).not.toContain('set index of window');
   });
-  test('focuses the Space only when select left another tab showing, then reads back where the tab is', () => {
+  test('selects once and never switches Spaces; names the tab\'s Space only when another Space is showing', () => {
     const script = selectArcTabScript(ref);
-    const check = script.indexOf('if (id of active tab of window targetWindowIndex as text) is not ("T-1") then');
-    expect(check).toBeGreaterThan(script.indexOf('select targetTab'));
-    expect(script.indexOf('to focus')).toBeGreaterThan(check);
-    expect(script.indexOf('set isSelected')).toBeGreaterThan(script.indexOf('to focus'));
+    expect(script.split('select targetTab')).toHaveLength(2);
+    expect(script.indexOf('set isSelected')).toBeGreaterThan(script.indexOf('select targetTab'));
+    const unselected = script.indexOf('if not isSelected then');
+    expect(unselected).toBeGreaterThan(script.indexOf('set isSelected'));
+    expect(script.indexOf('id of active space of window targetWindowIndex')).toBeGreaterThan(unselected);
+    expect(script).toContain('set hiddenSpace to title of targetSpace');
+    expect(script).toContain('\\"hiddenSpace\\":');
     expect(script).toContain('\\"frontWindow\\":');
     expect(script).toContain('id of window 1 as text');
   });

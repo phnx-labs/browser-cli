@@ -461,7 +461,7 @@ export interface IPCResponse {
   refreshed?: boolean;
   /** Task-level named-start reuse; a no-URL retry performs no page refresh. */
   reused?: boolean;
-  shown?: { title: string; viewer?: { name: string; bundleId: string }; inFront: boolean; whyUnknown?: string };
+  shown?: { title: string; viewer?: { name: string; bundleId: string }; inFront: boolean; whyUnknown?: string; hiddenSpace?: string };
   windowTargetId?: string;
   /** `tab-list` rows; `task` is absent for a tab no agents-cli task owns (`--all`). */
   tabs?: ProfileTabInfo[];

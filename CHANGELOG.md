@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- The skill tells an agent what to do when a site defeats it: say what failed, offer to report it, and on a yes open a prefilled GitHub issue in the user's browser (`browser show`) for them to check and submit. The agent never files it itself, and the report carries the task, the command and its output, the version, browser and OS, and nothing private.
+- The skill tells an agent what to do when a site defeats it: say what failed, offer to report it, and on a yes open a prefilled GitHub issue in the user's browser (`browser show`) for them to check and submit. The agent never files it itself, and the report carries the task, the command and the error it printed, the version, browser and OS, and no page text, account names, tokens or full URLs.
 
 ## 0.2.15
 

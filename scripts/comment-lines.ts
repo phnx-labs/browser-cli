@@ -63,6 +63,7 @@ const CODE_EXTENSIONS = new Map<string, string>([
   ['.jsx', 'jsx'],
   ['.mjs', 'javascript'],
   ['.plist', 'xml'],
+  ['.ps1', 'shell'],
   ['.py', 'python'],
   ['.scss', 'css'],
   ['.sh', 'shell'],
@@ -75,7 +76,7 @@ const CODE_EXTENSIONS = new Map<string, string>([
   ['.zsh', 'shell'],
 ]);
 const IGNORED_EXTENSIONS = new Set([
-  '.after', '.b64', '.before', '.err', '.gif', '.ini', '.jpg', '.jpeg', '.json', '.jsonl',
+  '.after', '.b64', '.before', '.cmd', '.err', '.gif', '.ini', '.jpg', '.jpeg', '.json', '.jsonl',
   '.lock', '.log', '.md', '.mp3', '.mp4', '.ndjson', '.pdf', '.png', '.provisionprofile',
   '.sql', '.stderr', '.stdout', '.svg', '.tgz', '.tsv', '.txt', '.webp',
 ]);
@@ -688,7 +689,7 @@ export function classifyPath(path: string, source?: string): string | null {
   if (IGNORED_PREFIXES.some((prefix) => path.startsWith(prefix))) return null;
   const name = basename(path);
   if (name.startsWith('Dockerfile')) return 'shell';
-  if (name === 'Makefile' || name === 'CODEOWNERS' || name === '.gitignore' || name === '.npmignore') return 'shell';
+  if (name === 'Makefile' || name === 'CODEOWNERS' || name === '.gitignore' || name === '.gitattributes' || name === '.npmignore') return 'shell';
   if (/^\.(zshenv|zprofile|zshrc|zlogin|bashrc|bash_aliases|bash_profile|profile)$/.test(name)) return 'shell';
   const language = CODE_EXTENSIONS.get(extname(name).toLowerCase());
   if (language) return language;

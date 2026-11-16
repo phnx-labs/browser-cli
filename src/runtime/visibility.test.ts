@@ -2,18 +2,40 @@ import { describe, expect, test } from 'bun:test';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { findNotifier, isVisible, notificationCommand, pageLabel, seeShown } from './visibility.js';
+import { createArcTabScript, selectArcTabScript, selectForCaptureScript } from '../browser/drivers/arc.js';
+import { readScript, selectChromiumTabScript } from '../browser/drivers/chromium-mac.js';
+import {
+  findNotifier, FRONTMOST_JXA, handlerScript, judgeShown, launchedScript, notificationCommand, OS_HANDLER_BLIND, osHandlerTab, pageLabel, seeShown,
+} from './visibility.js';
 
 const arc = { name: 'Arc', bundleId: 'company.thebrowser.Browser' };
 const codium = { name: 'VSCodium', bundleId: 'com.vscodium' };
 
-describe('isVisible', () => {
+describe('judgeShown', () => {
   test('only the selected tab of the front window, in the app in front, is visible', () => {
-    expect(isVisible(arc, true, arc)).toBe(true);
-    expect(isVisible(arc, true, codium)).toBe(false);
-    expect(isVisible(arc, false, arc)).toBe(false);
-    expect(isVisible(arc, true, undefined)).toBe(false);
-    expect(isVisible(undefined, true, arc)).toBe(false);
+    expect(judgeShown(arc, { inFront: true }, arc).visible).toBe(true);
+    expect(judgeShown(arc, { inFront: true }, codium).visible).toBe(false);
+    expect(judgeShown(arc, { inFront: false }, arc).visible).toBe(false);
+    expect(judgeShown(arc, { inFront: true }, undefined).visible).toBe(false);
+    expect(judgeShown(undefined, { inFront: true }, arc).visible).toBe(false);
+  });
+
+  test('an app in front that has not settled is unknown, never visible', () => {
+    expect(judgeShown(arc, { inFront: true }, undefined, 'Arc had not finished launching after 5 s')).toEqual({
+      visible: false, frontmost: 'unknown', unknownWhy: 'Arc had not finished launching after 5 s',
+    });
+  });
+});
+
+describe('osShow verdict', () => {
+  const safari = { name: 'Safari', bundleId: 'com.apple.Safari' };
+  test('the OS handler in front is not the page in front: nobody read its tab', () => {
+    expect(judgeShown(safari, osHandlerTab(safari), safari)).toEqual({ visible: false, frontmost: 'Safari', unknownWhy: OS_HANDLER_BLIND });
+  });
+  test('with no handler app named, it says so', () => {
+    expect(judgeShown(undefined, osHandlerTab(undefined), safari)).toEqual({
+      visible: false, frontmost: 'Safari', unknownWhy: 'macOS named no app that opens it',
+    });
   });
 });
 
@@ -53,8 +75,35 @@ test('pageLabel prefers the title, else the file name or host and path', () => {
 });
 
 test.skipIf(process.platform === 'darwin')('off macOS nothing claims the page is visible, and no notification is posted', async () => {
-  expect(await seeShown(arc, true, 'Board')).toEqual({
+  expect(await seeShown(arc, { inFront: true }, 'Board')).toEqual({
     visible: false, frontmost: 'unknown', notification: 'none',
     unknownWhy: `only macOS reports the app in front, and this is ${process.platform}`,
   });
+});
+
+const RAISES = /\bactivate\b|\bset\s+frontmost\b|\bfrontmost\s*=(?!=)|\breopen\b/i;
+
+describe('no script show runs can raise an app', () => {
+  test('the pattern catches every spelling', () => {
+    for (const raising of ['activate', 'tell app "Arc" to activate', 'app.activate()', 'Application("Arc").activate', 'set frontmost of p to true', 'proc.frontmost = true', 'reopen']) {
+      expect(raising).toMatch(RAISES);
+    }
+    expect('activeTabIndex; whose({ frontmost: true }); p.frontmost === true').not.toMatch(RAISES);
+  });
+
+  const ref = { windowId: 'W-1', spaceId: 'S-1', tabId: 'T-1' };
+  const scripts: Record<string, string> = {
+    selectArcTab: selectArcTabScript(ref),
+    createArcTab: createArcTabScript(ref, 'https://agents-browser.invalid/m'),
+    selectForCapture: selectForCaptureScript(ref),
+    chromiumRead: readScript(4242),
+    chromiumSelect: selectChromiumTabScript('com.google.Chrome', '22', 1),
+    frontmost: FRONTMOST_JXA,
+    handler: handlerScript('https://example.com/'),
+    launched: launchedScript('com.apple.Safari'),
+    plainNotification: notificationCommand(arc, 'Board', undefined).argv.join(' '),
+  };
+  for (const [name, script] of Object.entries(scripts)) {
+    test(name, () => expect(script).not.toMatch(RAISES));
+  }
 });

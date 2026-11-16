@@ -347,14 +347,7 @@ end if
 set isSelected to (id of active tab of window targetWindowIndex as text) is ${tab}
 set isFront to false
 try
-  set orderedIds to id of every window
-  set orderedVisible to visible of every window
-  repeat with wi from 1 to count of orderedIds
-    if item wi of orderedVisible then
-      set isFront to (item wi of orderedIds as text) is (item targetWindowIndex of windowIds as text)
-      exit repeat
-    end if
-  end repeat
+  set isFront to ((id of window 1 as text) is (item targetWindowIndex of windowIds as text)) and (visible of window 1)
 end try
 return "{\\"selected\\":" & (isSelected as text) & ",\\"frontWindow\\":" & (isFront as text) & "}"`);
 }

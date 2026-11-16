@@ -9,7 +9,7 @@ Every `browser` command and subcommand, with its argument names and one-line des
 - Full option lists live in [`command-index.json`](command-index.json); the searchable page is [`command-reference.html`](command-reference.html).
 - `browser <command> --help` shows the help for one command.
 
-_42 command groups · 65 commands._
+_43 command groups · 66 commands._
 
 ## click: Click an element by ref, by its visible name with --text, or raw coordinates with --at X,Y
 
@@ -33,6 +33,12 @@ browser devices  List available device presets
 
 ```
 browser dialog <answer>  Answer the confirm() or prompt() the page is showing: `browser dialog accept` or `browser dialog dismiss`
+```
+
+## doctor: Check this install: what your shell runs for `browser` (an alias, a function or another copy), every `browser` on PATH and its version, whether npm has a newer release, and the version on the browser.device hub. Prints the fix for each finding and never edits rc files; exits 1 when something needs fixing
+
+```
+browser doctor  Check this install: what your shell runs for `browser` (an alias, a function or another copy), every `browser` on PATH and its version, whether npm has a newer release, and the version on the browser.device hub. Prints the fix for each finding and never edits rc files; exits 1 when something needs fixing
 ```
 
 ## done: Complete a task and close its tabs (resolves from caller identity when --task is omitted)

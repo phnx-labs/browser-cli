@@ -9,8 +9,8 @@ const path = require('node:path');
 
 const agent = process.env.npm_config_user_agent || '';
 const installed = __dirname.split(path.sep).includes('node_modules');
+const launcher = path.join(__dirname, 'browser.cjs');
 if (installed && process.platform !== 'win32' && /^(npm|bun)\//.test(agent)) {
-  const launcher = path.join(__dirname, 'browser.cjs');
   const staged = path.join(__dirname, '.browser-native');
   try {
     const { version } = require('../package.json');
@@ -30,4 +30,27 @@ if (installed && process.platform !== 'win32' && /^(npm|bun)\//.test(agent)) {
   }
   // rename() leaves both names when they are already one file (a reinstall).
   fs.rmSync(staged, { force: true });
+}
+
+const runByRoot = process.getuid && process.getuid() === 0;
+if (installed && !runByRoot) {
+  try {
+    const head = Buffer.alloc(2);
+    const fd = fs.openSync(launcher, 'r');
+    fs.readSync(fd, head, 0, 2, 0);
+    fs.closeSync(fd);
+    const viaNode = head.toString() === '#!';
+    const doctor = spawnSync(viaNode ? process.execPath : launcher, [...(viaNode ? [launcher] : []), 'doctor', '--local'], {
+      encoding: 'utf8',
+      timeout: 20000,
+      env: { ...process.env, BROWSER_NO_UPDATE_NOTIFIER: '1' },
+    });
+    if (doctor.status === 1 && doctor.stdout) {
+      let terminalOrStderr = 2;
+      try {
+        terminalOrStderr = fs.openSync('/dev/tty', 'w');
+      } catch {}
+      fs.writeSync(terminalOrStderr, '\n@phnx-labs/browser-cli: `browser doctor --local` found a problem with this install:\n' + doctor.stdout + '\n');
+    }
+  } catch {}
 }

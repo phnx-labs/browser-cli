@@ -88,7 +88,8 @@ import { relayExec, relayFetchFile, relayFromEnv } from '../runtime/relay.js';
 import { browserTaskPicker, type BrowserTask } from './browser-picker.js';
 import { assertRemoteControlAllowed, FLEET_REMOTE_ENV, isFleetRemoteInvocation } from '../browser/remote-control.js';
 import { getConfigValue, setConfigValue, unsetConfigValue } from '../runtime/device-config.js';
-import { isInteractiveTerminal, printLine } from '@phnx-labs/tui';
+import { isInteractiveTerminal, printJson, printLine } from '@phnx-labs/tui';
+import { checkInstallHealth, writeInstallCheckCache, type DoctorCheck } from '../runtime/install-health.js';
 import { registerCommandGroups, setHelpSections } from '../runtime/help.js';
 import { buildHar } from '../browser/har.js';
 import { getCliVersion } from '../version.js';
@@ -447,7 +448,7 @@ const BROWSER_HELP_GROUPS = [
     names: ['console', 'errors', 'requests', 'responsebody', 'record', 'pdf'],
   },
   { title: 'History and discovery', names: ['sessions', 'history', 'refs'] },
-  { title: 'Help and skill', names: ['help', 'skills'] },
+  { title: 'Help and skill', names: ['help', 'skills', 'doctor'] },
 ] as const;
 
 export function registerBrowserCommand(program: Command): void {
@@ -526,8 +527,49 @@ export function registerBrowserSubcommands(program: Command): void {
   registerProfilesCommands(program);
   registerTaskCommands(program);
   registerSkillsCommand(program);
+  registerDoctorCommand(program);
   registerHelpJsonCommand(program);
   registerCommandGroups(program, BROWSER_HELP_GROUPS);
+}
+
+function printChecks(checks: DoctorCheck[]): boolean {
+  for (const c of checks) {
+    console.log(`${c.ok ? 'OK  ' : 'FAIL'}  ${c.label.padEnd(15)} ${c.detail}`);
+    if (c.fix) console.log(`${' '.repeat(22)}fix: ${c.fix}`);
+  }
+  return checks.every((c) => c.ok);
+}
+
+async function hubVersion(hub: string): Promise<{ version?: string; error?: string }> {
+  try {
+    const result = await dispatchBrowserToDevice(hub, ['browser', '--version'], 'capture');
+    const version = result.stdout.trim().split('\n')[0]?.trim();
+    if (result.code === 0 && version) return { version };
+    return { error: (result.stderr || result.stdout).trim().split('\n').pop() || `browser --version exited ${result.code}` };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+function registerDoctorCommand(program: Command): void {
+  program
+    .command('doctor')
+    .description('Check this install: what your shell runs for `browser` (an alias, a function or another copy), every `browser` on PATH and its version, whether npm has a newer release, and the version on the browser.device hub. Prints the fix for each finding and never edits rc files; exits 1 when something needs fixing')
+    .option('--local', 'Only the checks on this machine (shell and PATH), with no network; npm postinstall runs this')
+    .option('--json', 'Output machine-readable JSON')
+    .action(async (opts: { local?: boolean; json?: boolean }) => {
+      const hub = opts.local ? undefined : defaultBrowserHub();
+      const health = await checkInstallHealth({
+        current: getCliVersion(),
+        local: opts.local,
+        hub: hub ? { device: hub, version: () => hubVersion(hub) } : undefined,
+      });
+      if (!opts.local) writeInstallCheckCache({ checkedAt: Date.now(), latest: health.latest, shadow: health.shadow, hub: health.hub });
+      const ok = health.checks.every((c) => c.ok);
+      if (opts.json) printJson({ ok, ...health });
+      else printChecks(health.checks);
+      if (!ok) process.exitCode = 1;
+    });
 }
 
 interface BrowserUseOptions {
@@ -1405,7 +1447,7 @@ function registerProfilesCommands(browser: Command): void {
         }
       }
 
-      const checks: Array<{ label: string; ok: boolean; detail: string }> = [];
+      const checks: DoctorCheck[] = [];
 
       // 0. Declaration topology. An identity-bearing profile declared by a
       //    different device cannot be diagnosed through a loopback CDP endpoint
@@ -1427,18 +1469,14 @@ function registerProfilesCommands(browser: Command): void {
       );
 
       if (misfiled.misfiled) {
-        for (const c of checks) {
-          const marker = c.ok ? 'OK  ' : 'FAIL';
-          console.log(`${marker}  ${c.label.padEnd(15)} ${c.detail}`);
-        }
+        printChecks(checks);
         process.exit(1);
       }
 
       if (profile.browser === 'editor') {
         const open = isProfileLaunchableHere(profile);
         checks.push({ label: 'editor window', ok: open, detail: open ? (profile.label ?? 'open') : 'not open on this machine; run `browser profiles list`' });
-        for (const check of checks) console.log(`${check.ok ? 'OK  ' : 'FAIL'}  ${check.label.padEnd(15)} ${check.detail}`);
-        if (!checks.every((check) => check.ok)) process.exit(1);
+        if (!printChecks(checks)) process.exit(1);
         return;
       }
 
@@ -1454,11 +1492,7 @@ function registerProfilesCommands(browser: Command): void {
           ok: running,
           detail: running ? 'running; native automation attaches without launching or restarting Arc' : 'not running — start Arc normally',
         });
-        const allOk = checks.every((check) => check.ok);
-        for (const check of checks) {
-          console.log(`${check.ok ? 'OK  ' : 'FAIL'}  ${check.label.padEnd(15)} ${check.detail}`);
-        }
-        if (!allOk) process.exit(1);
+        if (!printChecks(checks)) process.exit(1);
         return;
       }
 
@@ -1630,12 +1664,7 @@ function registerProfilesCommands(browser: Command): void {
         }
       }
 
-      const allOk = checks.every((c) => c.ok);
-      for (const c of checks) {
-        const marker = c.ok ? 'OK  ' : 'FAIL';
-        console.log(`${marker}  ${c.label.padEnd(15)} ${c.detail}`);
-      }
-      if (!allOk) process.exit(1);
+      if (!printChecks(checks)) process.exit(1);
     });
 
 }

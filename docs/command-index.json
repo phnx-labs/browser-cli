@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "command": "browser",
   "description": "Drive real browsers with their profiles and cookies from the command line. Agents use a persistent task to navigate pages, inspect elements, interact with forms, capture screenshots and network traffic, then close the task. A local IPC service manages browser processes and tabs, using Chrome DevTools Protocol, Firefox WebDriver BiDi or native Arc control; tasks can also run on another machine over SSH.",
-  "groups": 42,
-  "commands": 65,
+  "groups": 43,
+  "commands": 66,
   "root": {
     "name": "browser",
     "path": "",
@@ -259,6 +259,44 @@
           "description": "With accept: the text to answer a prompt() with",
           "long": "--text",
           "required": true,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "-h, --help",
+          "description": "display help for command",
+          "short": "-h",
+          "long": "--help",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "name": "doctor",
+      "path": "doctor",
+      "aliases": [],
+      "description": "Check this install: what your shell runs for `browser` (an alias, a function or another copy), every `browser` on PATH and its version, whether npm has a newer release, and the version on the browser.device hub. Prints the fix for each finding and never edits rc files; exits 1 when something needs fixing",
+      "args": [],
+      "options": [
+        {
+          "flags": "--local",
+          "description": "Only the checks on this machine (shell and PATH), with no network; npm postinstall runs this",
+          "long": "--local",
+          "required": false,
+          "optional": false,
+          "variadic": false,
+          "negate": false
+        },
+        {
+          "flags": "--json",
+          "description": "Output machine-readable JSON",
+          "long": "--json",
+          "required": false,
           "optional": false,
           "variadic": false,
           "negate": false

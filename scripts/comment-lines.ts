@@ -689,6 +689,7 @@ export function classifyPath(path: string, source?: string): string | null {
   const name = basename(path);
   if (name.startsWith('Dockerfile')) return 'shell';
   if (name === 'Makefile' || name === 'CODEOWNERS' || name === '.gitignore' || name === '.npmignore') return 'shell';
+  if (/^\.(zshenv|zprofile|zshrc|zlogin|bashrc|bash_profile|profile)$/.test(name)) return 'shell';
   const language = CODE_EXTENSIONS.get(extname(name).toLowerCase());
   if (language) return language;
   if (!extname(name) && source?.startsWith('#!')) return 'shell';

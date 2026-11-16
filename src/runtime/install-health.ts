@@ -180,7 +180,7 @@ export function startupFiles(shell: ShellName, env: NodeJS.ProcessEnv = process.
 
 const ALIAS_LINE = /^\s*alias\s+(?:-[a-zA-Z]+\s+)*['"]?browser(?:=|['"]?\s)/;
 const FUNCTION_LINE = /^\s*(?:function\s+browser\b|browser\s*\(\s*\))/;
-const SOURCE_LINE = /(?:^|[;&|{]\s*|\bthen\s+)(?:source|\.)\s+(\S+)/;
+const SOURCE_LINE = /(?:^\s*|[;&|{]\s*|\bthen\s+)(?:source|\.)\s+(\S+)/;
 
 function expandSourced(word: string, from: string, env: NodeJS.ProcessEnv): string | undefined {
   const h = home(env);
@@ -357,6 +357,7 @@ export async function latestRelease(timeoutMs = 3_000): Promise<string | undefin
 
 export interface InstallCheckCache {
   checkedAt: number;
+  self?: string;
   latest?: string;
   shadow?: Shadow;
   hub?: { device: string; version?: string };
@@ -375,11 +376,14 @@ export function readInstallCheckCache(): InstallCheckCache | undefined {
   }
 }
 
-export function writeInstallCheckCache(cache: InstallCheckCache): void {
+export function writeInstallCheckCache(cache: InstallCheckCache): boolean {
   try {
     fs.mkdirSync(path.dirname(installCheckCachePath()), { recursive: true });
     fs.writeFileSync(installCheckCachePath(), JSON.stringify(cache, null, 2) + '\n', { mode: 0o600 });
-  } catch {}
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function isCI(env: NodeJS.ProcessEnv = process.env): boolean {
@@ -396,13 +400,14 @@ export function noticeAllowed(
   return tty.stdout && tty.stderr && !argv.includes('--json');
 }
 
-export function noticeLine(cache: InstallCheckCache, current: string, self: string[]): string | undefined {
+export function noticeLine(cache: InstallCheckCache, current: string, self: string[], hubDevice?: string): string | undefined {
   const hide = `${NOTIFIER_OPT_OUT}=1 hides this`;
-  if (cache.shadow && shadowStillPresent(cache.shadow)) {
+  const sameInstall = (cache.self ?? '') === (self[0] ?? '');
+  if (sameInstall && cache.shadow && shadowStillPresent(cache.shadow)) {
     return `browser: ${cache.shadow.summary}. Run \`browser doctor\` for the fix (${hide}).`;
   }
   const upgrade = installMethod(self[0] ?? '').upgrade;
-  const hub = cache.hub && versionSkewNotice(cache.hub.version, current, { device: cache.hub.device, upgrade });
+  const hub = sameInstall && cache.hub && cache.hub.device === hubDevice && versionSkewNotice(cache.hub.version, current, { device: cache.hub.device, upgrade });
   if (hub) return `browser: ${hub} (${hide}).`;
   if (cache.latest && compareVersions(cache.latest, current) > 0) {
     return `A new release of browser is available: ${current} → ${cache.latest}. To upgrade, run: ${upgrade} (${hide}).`;
@@ -410,17 +415,20 @@ export function noticeLine(cache: InstallCheckCache, current: string, self: stri
   return undefined;
 }
 
-export function installNotice(argv: string[], current: string, refreshArgv: string[]): void {
+export function installNotice(argv: string[], current: string, refreshArgv: string[], hubDevice?: string): void {
   if (!noticeAllowed(argv)) return;
   const cache = readInstallCheckCache();
   if (!cache || Date.now() - cache.checkedAt >= CHECK_INTERVAL_MS) {
-    writeInstallCheckCache({ ...cache, checkedAt: Date.now() });
-    try {
-      const [cmd, ...args] = refreshArgv;
-      spawn(cmd, args, { detached: true, stdio: 'ignore', env: { ...process.env, [NOTIFIER_OPT_OUT]: '1' } }).unref();
-    } catch {}
+    const [cmd, ...args] = refreshArgv;
+    if (writeInstallCheckCache({ ...cache, checkedAt: Date.now() })) {
+      try {
+        const child = spawn(cmd, args, { detached: true, stdio: 'ignore', env: { ...process.env, [NOTIFIER_OPT_OUT]: '1' } });
+        child.on('error', () => {});
+        child.unref();
+      } catch {}
+    }
   }
-  const line = cache && noticeLine(cache, current, selfExecutables());
+  const line = cache && noticeLine(cache, current, selfExecutables(), hubDevice);
   if (line) process.stderr.write(line + '\n');
 }
 

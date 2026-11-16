@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
-import { registerBrowserSubcommands } from './commands/browser.js';
+import { defaultBrowserHub, registerBrowserSubcommands } from './commands/browser.js';
 import { version } from './version.js';
 import { loadContext } from './runtime/context.js';
 import { claimServiceLock, clearServicePid, writeServicePid } from './runtime/service.js';
@@ -29,7 +29,7 @@ export function buildProgram(): Command {
   program.hook('postAction', (_, command) => {
     if (process.exitCode || isDoctor(command) || command.name() === '__serve' || isFleetRemoteInvocation()) return;
     const self = runningBinary();
-    installNotice(process.argv, version(), [...(self ? [self] : [process.execPath, process.argv[1]]), 'doctor', '--json']);
+    installNotice(process.argv, version(), [...(self ? [self] : [process.execPath, process.argv[1]]), 'doctor', '--json'], defaultBrowserHub());
   });
   program
     .command('__serve', { hidden: true })

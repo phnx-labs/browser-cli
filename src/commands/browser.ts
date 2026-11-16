@@ -89,7 +89,7 @@ import { browserTaskPicker, type BrowserTask } from './browser-picker.js';
 import { assertRemoteControlAllowed, FLEET_REMOTE_ENV, isFleetRemoteInvocation } from '../browser/remote-control.js';
 import { getConfigValue, setConfigValue, unsetConfigValue } from '../runtime/device-config.js';
 import { isInteractiveTerminal, printJson, printLine } from '@phnx-labs/tui';
-import { checkInstallHealth, writeInstallCheckCache, type DoctorCheck } from '../runtime/install-health.js';
+import { checkInstallHealth, selfExecutables, writeInstallCheckCache, type DoctorCheck } from '../runtime/install-health.js';
 import { registerCommandGroups, setHelpSections } from '../runtime/help.js';
 import { buildHar } from '../browser/har.js';
 import { getCliVersion } from '../version.js';
@@ -564,7 +564,7 @@ function registerDoctorCommand(program: Command): void {
         local: opts.local,
         hub: hub ? { device: hub, version: () => hubVersion(hub) } : undefined,
       });
-      if (!opts.local) writeInstallCheckCache({ checkedAt: Date.now(), latest: health.latest, shadow: health.shadow, hub: health.hub });
+      if (!opts.local) writeInstallCheckCache({ checkedAt: Date.now(), self: selfExecutables()[0], latest: health.latest, shadow: health.shadow, hub: health.hub });
       const ok = health.checks.every((c) => c.ok);
       if (opts.json) printJson({ ok, ...health });
       else printChecks(health.checks);

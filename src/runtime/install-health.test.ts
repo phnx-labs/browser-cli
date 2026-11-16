@@ -93,6 +93,18 @@ describe.skipIf(!ZSH)('browser doctor with a real zsh', () => {
   });
 });
 
+describe.skipIf(process.platform !== 'linux' || !Bun.which('bash'))('browser doctor with a real bash', () => {
+  it('names ~/.bash_aliases and its line in the Debian layout, sourced from an indented line in ~/.bashrc', () => {
+    const dir = rcDir('bash-debian');
+    const resolved = resolveInShell(Bun.which('bash')!, { HOME: dir, PATH: SYSTEM_PATH.join(path.delimiter), TERM: 'dumb' });
+    expect(resolved).toMatchObject({
+      kind: 'alias',
+      definition: 'agents browser',
+      definedAt: { file: path.join(dir, '.bash_aliases'), line: 2, text: 'alias browser="agents browser"' },
+    });
+  });
+});
+
 it('a shadowed copy that loses on PATH is listed with the copy that wins', () => {
   const copies = browsersOnPath([NEW, OLD], [path.join(NEW, 'browser')], '0.2.15');
   expect(copies.map((c) => [c.version, c.wins])).toEqual([['0.2.15', true], ['0.1.24', false]]);
@@ -127,10 +139,14 @@ describe('the one-line notice', () => {
       `A new release of browser is available: 0.2.15 → 9.0.0. To upgrade, run: npm install -g @phnx-labs/browser-cli@latest (${NOTIFIER_OPT_OUT}=1 hides this).`,
     );
     expect(noticeLine({ checkedAt: Date.now(), latest: '0.2.15' }, '0.2.15', [])).toBeUndefined();
+    fs.writeFileSync(rc, 'alias browser="agents browser"\n');
+    expect(noticeLine({ ...cache, self: path.join(OLD, 'browser') }, '0.2.15', [path.join(NEW, 'browser')])).toStartWith('A new release');
   });
 
-  it('names the hub when browser.device runs a newer version', () => {
-    expect(noticeLine({ checkedAt: Date.now(), hub: { device: 'zion', version: '0.2.16' } }, '0.2.15', [])).toBe(
+  it('names the hub when browser.device runs a newer version, and only that hub', () => {
+    const cache = { checkedAt: Date.now(), hub: { device: 'zion', version: '0.2.16' } };
+    expect(noticeLine(cache, '0.2.15', [], 'other-hub')).toBeUndefined();
+    expect(noticeLine(cache, '0.2.15', [], 'zion')).toBe(
       `browser: zion (browser.device) runs 0.2.16, this machine 0.2.15. To upgrade, run: npm install -g @phnx-labs/browser-cli@latest (${NOTIFIER_OPT_OUT}=1 hides this).`,
     );
   });

@@ -3,6 +3,9 @@
 ## Unreleased
 
 - The skill tells an agent what to do when a site defeats it: say what failed, offer to report it, and on a yes open a prefilled GitHub issue in the user's browser (`browser show`) for them to check and submit. The agent never files it itself, and the report carries the task, the command and the error it printed, the version, browser and OS, and no page text, account names, tokens or full URLs.
+- `browser show` says whether the person can see the page. On 2026-11-16 a `show` printed `{"profile":"arc-work","device":"zion","reused":false}` while the tab sat unselected in Arc behind VSCodium, and the agent told the person the page was open. Now `--json` carries `visible` (true only when the tab is selected in its app's front window and that app is in front), `frontmost` (the app in front, or `unknown` off macOS), `app` and `notification`, and the line reads `Opened in Arc (arc-work) on zion (behind VSCodium); notification sent: <url>`. When the page is not in front on macOS, a notification `Page ready in Arc: <title>` goes out; with `terminal-notifier` installed, clicking it brings Arc up on the page, and without it the notification only tells. Nothing raises or activates a window.
+- `show` selects the tab it opened or reused: in Arc it also switches the window to the tab's Space when selecting alone left another tab showing, and in Chrome, Brave and other Chromium browsers on macOS it selects through the app's AppleScript, not CDP's `Target.activateTarget`, which raised the window over the app in use. Off macOS a reused tab is reloaded but no longer activated, since `Target.activateTarget` is the only way to select it and it raises the window. The OS default handler opens in the background on macOS (`open -g`).
+- A caller whose `browser.device` hub runs an older browser-cli reports `visible: false` and `frontmost: "unknown"` with the reason, instead of a bare success.
 
 ## 0.2.15
 

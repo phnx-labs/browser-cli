@@ -128,7 +128,10 @@ import {
   restoreArcSelection,
   selectWindowTab,
   selectArcTab,
+  type ArcNativeTab,
+  ARC_APP,
 } from './drivers/arc.js';
+import { selectChromiumTab } from './drivers/chromium-mac.js';
 import { discoverArcProfiles } from './arc-discovery.js';
 import { resolveEditorWsUrl } from './editor-discovery.js';
 
@@ -162,15 +165,24 @@ export function sameShownPage(a: string, b: string): boolean {
   return key(a) === key(b);
 }
 
+export interface ShownTab {
+  tabId: string;
+  reused: boolean;
+  title: string;
+  viewer?: { name: string; bundleId: string };
+  inFront: boolean;
+  whyUnknown?: string;
+}
+
 const ARC_SHOW_CONFIRM_MS = 5_000;
 
 /** Arc accepts `set URL` and can still leave the tab where it was, and commits asynchronously. */
-async function confirmArcShows(ref: ArcNativeTabRef, url: string, before: string): Promise<void> {
+async function confirmArcShows(ref: ArcNativeTabRef, url: string, before: string): Promise<ArcNativeTab> {
   const deadline = Date.now() + ARC_SHOW_CONFIRM_MS;
   for (;;) {
     const tab = await resolveArcTab(ref);
     if (!tab) throw new Error(`Arc closed the tab before it showed ${url}.`);
-    if (sameShownPage(tab.url, url) || (tab.url && tab.url !== before)) return;
+    if (sameShownPage(tab.url, url) || (tab.url && tab.url !== before)) return tab;
     if (Date.now() >= deadline) throw new Error(`Arc did not show ${url}: its tab still reports ${tab.url || 'no page'} after ${ARC_SHOW_CONFIRM_MS / 1000} s.`);
     await new Promise((r) => setTimeout(r, 200));
   }
@@ -5983,14 +5995,12 @@ export class BrowserService {
     });
   }
 
-  /** Open a user-owned viewer tab outside task tracking, so agent exit, reaping and done never close
-   * it. An unowned tab already showing the page is reloaded and fronted instead, unless `fresh`;
-   * `reused` says which. */
+  /** A viewer tab no task owns, so agent exit, reaping and done never close it; reuses an unowned tab showing the page unless `fresh`. */
   async showUrl(
     profileName: ProfileName,
     url: string,
     opts: { endpointName?: string; fleetRemote?: boolean; actor?: string; probe?: DeviceProbe; fresh?: boolean } = {},
-  ): Promise<{ profile: ProfileName; key: ConnectionKey; tabId: string; device: string; reused: boolean }> {
+  ): Promise<ShownTab & { profile: ProfileName; key: ConnectionKey; device: string }> {
     // Same consent gate as start(): this opens a browser, so a fleet-remote
     // caller needs the target machine's opt-in.
     assertRemoteControlAllowedForRequest(opts.fleetRemote, { actor: opts.actor });
@@ -6029,13 +6039,7 @@ export class BrowserService {
     const shown = conn.backend === 'arc-native'
       ? await this.showInArc(conn, url, opts.fresh === true)
       : await this.showInCdp(conn, url, opts.fresh === true);
-    return {
-      profile: profileName,
-      key: effectiveKey,
-      tabId: shown.tabId,
-      device: routed.device,
-      reused: shown.reused,
-    };
+    return { ...shown, profile: profileName, key: effectiveKey, device: routed.device };
   }
 
   /** The live page target no task owns that shows `url`, or undefined. */
@@ -6047,7 +6051,7 @@ export class BrowserService {
     return targets.find((t) => t.type === 'page' && !this.targetIsClaimed(conn, t.targetId) && sameShownPage(t.url, url));
   }
 
-  private async showInCdp(conn: CdpProfileConnection, url: string, fresh: boolean): Promise<{ tabId: string; reused: boolean }> {
+  private async showInCdp(conn: CdpProfileConnection, url: string, fresh: boolean): Promise<ShownTab> {
     return this.runExclusive(`show:${conn.key}`, async () => {
       if (!fresh) {
         const { targetInfos } = (await conn.cdp.send('Target.getTargets')) as {
@@ -6060,16 +6064,38 @@ export class BrowserService {
           if (!this.targetIsClaimed(conn, match.targetId)) {
             await conn.cdp.send('Page.navigate', { url }, sessionId);
             if (onlyFragmentMoves(match.url, url)) await this.reloadAfterFragmentMove(conn, sessionId, url);
-            await conn.cdp.send('Target.activateTarget', { targetId: match.targetId });
-            return { tabId: match.targetId, reused: true };
+            return { tabId: match.targetId, reused: true, ...(await this.selectViewerTab(conn, match.targetId, url, true)) };
           }
         }
       }
       // createPageTarget refuses Arc with an actionable error rather than crashing it.
       const created = await this.createPageTarget(conn, { url });
       this.invalidateTargetCache(conn);
-      return { tabId: created.targetId, reused: false };
+      return { tabId: created.targetId, reused: false, ...(await this.selectViewerTab(conn, created.targetId, url, false)) };
     });
+  }
+
+  /** Off macOS only CDP's activateTarget selects an existing tab, and it raises the window, so a reused tab is left unselected. */
+  private async selectViewerTab(
+    conn: CdpProfileConnection,
+    targetId: string,
+    url: string,
+    reused: boolean,
+  ): Promise<Omit<ShownTab, 'tabId' | 'reused'>> {
+    const { targetInfo } = (await conn.cdp.send('Target.getTargetInfo', { targetId })) as { targetInfo: { title?: string } };
+    const title = targetInfo.title ?? '';
+    if (process.platform !== 'darwin') return { title, inFront: false };
+    if (!conn.pid) return { title, inFront: false, whyUnknown: 'the browser process is not known, so its app cannot be asked' };
+    try {
+      const window = (await conn.cdp.send('Browser.getWindowForTarget', { targetId }).catch(() => undefined)) as { windowId?: number } | undefined;
+      const picked = await selectChromiumTab(
+        conn.pid, (candidate) => sameShownPage(candidate, url), window?.windowId === undefined ? undefined : String(window.windowId), !reused,
+      );
+      if (!picked) return { title, inFront: false, whyUnknown: `no app owns browser process ${conn.pid}` };
+      return { title, viewer: picked.app, inFront: picked.selected && picked.frontWindow };
+    } catch (error) {
+      return { title, inFront: false, whyUnknown: error instanceof Error ? error.message : String(error) };
+    }
   }
 
   /** `Page.reload` before the browser commits the fragment move reloads the old URL; wait for it, bounded. */
@@ -6087,7 +6113,7 @@ export class BrowserService {
 
   /** Native Arc: a tab no task owns in one of the profile's visible Spaces that shows
    * `url` is navigated to it and selected; otherwise a tab is created where a task's would be. */
-  private async showInArc(conn: ArcProfileConnection, url: string, fresh: boolean): Promise<{ tabId: string; reused: boolean }> {
+  private async showInArc(conn: ArcProfileConnection, url: string, fresh: boolean): Promise<ShownTab> {
     return this.runExclusive('arc-native:host-app', async () => {
       const recorded = this.readArcAgentWindow();
       const agentWindows = new Set(recorded ? [recorded.windowId, ...recorded.retired] : []);
@@ -6105,9 +6131,9 @@ export class BrowserService {
         if (match) {
           await navigateArcTab(match, url);
           if (onlyFragmentMoves(match.url, url)) await executeJavaScript(match, 'location.reload()');
-          await selectArcTab(match);
-          await confirmArcShows(match, url, match.url);
-          return { tabId: match.tabId, reused: true };
+          const selection = await selectArcTab(match);
+          const tab = await confirmArcShows(match, url, match.url);
+          return { tabId: match.tabId, reused: true, title: tab.title, viewer: ARC_APP, inFront: selection.selected && selection.frontWindow };
         }
       }
       const space = pickShowSpace(this.arcProfileSpaces(conn.arcProfile), all, agentWindows)
@@ -6115,8 +6141,9 @@ export class BrowserService {
       const created = await createArcTab(space, arcCreateMarker(url));
       try {
         if (!url.startsWith('file:')) await navigateArcTab(created, url);
-        await selectArcTab(created);
-        await confirmArcShows(created, url, url.startsWith('file:') ? '' : created.url);
+        const selection = await selectArcTab(created);
+        const tab = await confirmArcShows(created, url, url.startsWith('file:') ? '' : created.url);
+        return { tabId: created.tabId, reused: false, title: tab.title, viewer: ARC_APP, inFront: selection.selected && selection.frontWindow };
       } catch (error) {
         // No task owns this tab, so nothing would ever close a marker tab left behind.
         const message = error instanceof Error ? error.message : String(error);
@@ -6126,7 +6153,6 @@ export class BrowserService {
         );
         throw new Error(`${message}${cleanup}`);
       }
-      return { tabId: created.tabId, reused: false };
     });
   }
 

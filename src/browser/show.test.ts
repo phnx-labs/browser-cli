@@ -22,7 +22,7 @@ describe('sameShownPage', () => {
 
 const chrome = process.env.AGENTS_TEST_CHROME;
 
-test.skipIf(!chrome)('show reloads and focuses the tab already showing the page, never a task tab', async () => {
+test.skipIf(!chrome)('show reloads the tab already showing the page without activating it, never a task tab', async () => {
   const directory = mkdtempSync(join(tmpdir(), 'browser-show-'));
   try {
     const child = Bun.spawn([process.execPath, join(import.meta.dir, 'testdata/show-reuse-live.ts'), chrome!], {
@@ -34,7 +34,7 @@ test.skipIf(!chrome)('show reloads and focuses the tab already showing the page,
     ]);
     expect(error).toBe('');
     expect(code).toBe(0);
-    expect(output.trim()).toBe('reused: reloaded and visible; fragment: lands on #section-3 and reloads; claimed mid-lookup: new tab; task tab: left alone; --fresh: new tab');
+    expect(output.trim()).toBe('reused: reloaded, never activated; fragment: lands on #section-3 and reloads; claimed mid-lookup: new tab; task tab: left alone; --fresh: new tab');
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }

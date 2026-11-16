@@ -328,13 +328,18 @@ async function showOnHub(
       '--json',
     ], 'capture');
     process.stderr.write(result.stderr);
+    let shown: ShowOutcome;
     try {
-      return { ...(JSON.parse(result.stdout) as ShowOutcome), device: hub };
+      shown = JSON.parse(result.stdout) as ShowOutcome;
     } catch {
-      return { via: 'none', device: hub, reason: result.stderr.trim().split('\n').pop() || `browser show exited ${result.code}` };
+      return { via: 'none', device: hub, reason: result.stderr.trim().split('\n').pop() || `browser show exited ${result.code}`, visible: false };
     }
+    if (shown.via !== 'none' && typeof (shown as { visible?: unknown }).visible !== 'boolean') {
+      return { ...shown, visible: false, frontmost: 'unknown', notification: 'none', unknownWhy: `${hub} runs an older browser-cli that does not report it; update browser-cli there`, device: hub };
+    }
+    return { ...shown, device: hub };
   } catch (err) {
-    return { via: 'none', device: hub, reason: err instanceof Error ? err.message : String(err) };
+    return { via: 'none', device: hub, reason: err instanceof Error ? err.message : String(err), visible: false };
   }
 }
 
@@ -2332,16 +2337,14 @@ function registerTaskCommands(browser: Command): void {
 
   browser
     .command('show <url>')
-    .description('Open a URL or file for a human to read in browser.viewer (default: browser.profile), on the browser.device hub when one is set; reloads and selects a tab already showing it (native Arc stays behind the app in use); fails unless the viewer confirms it opened. Binds no task')
+    .description('Open a URL or file for a human to read in browser.viewer (default: browser.profile), on the browser.device hub when one is set; reloads and selects a tab already showing it. Never brings the browser in front: says whether the page is visible (macOS: --json visible and frontmost) and, when it is not, posts a notification. Fails unless the viewer confirms it opened. Binds no task')
     .option('-p, --profile <name>', 'Show it in this profile instead of browser.viewer')
     .option('--os-browser', 'Use the OS default handler instead of the configured viewer')
     .option('--fresh', 'Always open a new tab, even when one already shows this page (default: navigate and select that tab)')
-    .option('--json', 'Output machine-readable JSON')
+    .option('--json', 'Output machine-readable JSON: via, profile or app, reused, visible, frontmost (the app in front, or unknown off macOS) and notification')
     .action(async (url: string, opts: { profile?: string; osBrowser?: boolean; fresh?: boolean; json?: boolean }) => {
-      // The entry point external tools need. `navigate` binds a task, which the
-      // abandoned-task reaper closes when the calling session ends — wrong for a
-      // page a person is reading. This does not.
-      const { showUrl, showFile } = await import('../runtime/open-url.js');
+      // Binds no task: the reaper closes a task's tabs when its session ends, and a person is reading this one.
+      const { showUrl, showFile, describeShown } = await import('../runtime/open-url.js');
       // `+` not `*` on the scheme body: `[a-z][a-z0-9+.-]*:` matches a Windows
       // drive letter (`C:\Users\me\plan.html`), so a real path was treated as a
       // URL. A scheme is at least two characters.
@@ -2366,10 +2369,8 @@ function registerTaskCommands(browser: Command): void {
       } else if (outcome.via === 'none') {
         const where = `${outcome.profile ? ` in ${outcome.profile}` : ''}${outcome.device ? ` on ${outcome.device}` : ''}`;
         console.error(`Could not show it${where}${outcome.reason ? `: ${outcome.reason}` : ''}\nOpen this yourself:\n  ${url}`);
-      } else if (outcome.via === 'profile') {
-        console.log(`${outcome.reused ? 'Showed it in the tab already open' : 'Shown'} in ${outcome.profile}${outcome.device ? ` on ${outcome.device}` : ''}: ${url}`);
       } else {
-        console.log(`Opened in the OS default browser${outcome.device ? ` on ${outcome.device}` : ''}: ${url}`);
+        console.log(describeShown(outcome, url));
       }
       if (outcome.via === 'none') process.exit(1);
     });

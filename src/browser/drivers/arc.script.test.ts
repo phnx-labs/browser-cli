@@ -27,6 +27,14 @@ describe('selectArcTab script', () => {
     expect(script).not.toContain('set index of window');
     expect(script).not.toContain('\nactivate');
   });
+  test('focuses the Space only when select left another tab showing, then reads back where the tab is', () => {
+    const script = selectArcTabScript(ref);
+    const check = script.indexOf('if (id of active tab of window targetWindowIndex as text) is not ("T-1") then');
+    expect(check).toBeGreaterThan(script.indexOf('select targetTab'));
+    expect(script.indexOf('to focus')).toBeGreaterThan(check);
+    expect(script.indexOf('set isSelected')).toBeGreaterThan(script.indexOf('to focus'));
+    expect(script).toContain('\\"frontWindow\\":');
+  });
 });
 
 describe('selectForCaptureScript', () => {

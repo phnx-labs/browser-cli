@@ -58,7 +58,8 @@ try {
   const before = await pages();
 
   const shown = await (service as any).showInCdp(conn, boardUrl, false);
-  assert.deepEqual(shown, { tabId: viewer.targetId, reused: true });
+  assert.deepEqual({ tabId: shown.tabId, reused: shown.reused, title: shown.title }, { tabId: viewer.targetId, reused: true, title: 'Board' });
+  if (process.platform !== 'darwin') assert.equal(shown.inFront, false);
   assert.equal(await pages(), before);
   let reloaded = false;
   for (let attempt = 0; attempt < 40 && !reloaded; attempt++) {
@@ -66,8 +67,8 @@ try {
     if (!reloaded) await Bun.sleep(25);
   }
   assert.ok(reloaded, 'the reused tab must be reloaded');
-  assert.equal(await evaluate(viewer.targetId, 'document.visibilityState'), 'visible');
-  const reused = 'reused: reloaded and visible';
+  assert.equal(await evaluate(viewer.targetId, 'document.visibilityState'), process.platform === 'darwin' ? 'visible' : 'hidden');
+  const reused = 'reused: reloaded, never activated';
 
   const loadedFresh = async () => {
     for (let attempt = 0; attempt < 40; attempt++) {
@@ -79,7 +80,7 @@ try {
   for (const round of [1, 2]) {
     await evaluate(viewer.targetId, 'window.__beforeShow = 1');
     const toSection = await (service as any).showInCdp(conn, `${boardUrl}#section-3`, false);
-    assert.deepEqual(toSection, { tabId: viewer.targetId, reused: true }, `fragment round ${round}`);
+    assert.deepEqual({ tabId: toSection.tabId, reused: toSection.reused }, { tabId: viewer.targetId, reused: true }, `fragment round ${round}`);
     assert.ok(await loadedFresh(), `fragment round ${round}: the page must reload, not only scroll`);
     assert.equal(await evaluate(viewer.targetId, 'location.hash'), '#section-3');
   }

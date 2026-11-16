@@ -193,10 +193,10 @@ browser set device <device-name>       Emulate a device (iPhone 14, iPad, MacBoo
 browser set viewport <width> <height>  Set viewport size
 ```
 
-## show: Open a URL or file for a human to read in browser.viewer (default: browser.profile), on the browser.device hub when one is set; reloads and selects a tab already showing it (native Arc stays behind the app in use); fails unless the viewer confirms it opened. Binds no task
+## show: Open a URL or file for a human to read in browser.viewer (default: browser.profile), on the browser.device hub when one is set; reloads and selects a tab already showing it. Never brings the browser in front: says whether the page is visible (macOS: --json visible and frontmost) and, when it is not, posts a notification. Fails unless the viewer confirms it opened. Binds no task
 
 ```
-browser show <url>  Open a URL or file for a human to read in browser.viewer (default: browser.profile), on the browser.device hub when one is set; reloads and selects a tab already showing it (native Arc stays behind the app in use); fails unless the viewer confirms it opened. Binds no task
+browser show <url>  Open a URL or file for a human to read in browser.viewer (default: browser.profile), on the browser.device hub when one is set; reloads and selects a tab already showing it. Never brings the browser in front: says whether the page is visible (macOS: --json visible and frontmost) and, when it is not, posts a notification. Fails unless the viewer confirms it opened. Binds no task
 ```
 
 ## skills: The browser skill installed with this CLI: where it is, what it contains, and its documents

@@ -679,7 +679,10 @@ export class BrowserIPCServer {
           actor: request.actor,
           fresh: request.fresh,
         });
-        return { ok: true, tabId: shown.tabId, created: !shown.reused, refreshed: shown.reused };
+        return {
+          ok: true, tabId: shown.tabId, created: !shown.reused, refreshed: shown.reused,
+          shown: { title: shown.title, viewer: shown.viewer, inFront: shown.inFront, whyUnknown: shown.whyUnknown },
+        };
       }
 
       case 'start': {

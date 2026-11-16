@@ -72,6 +72,13 @@ describe('describeShown', () => {
       .toBe('Opened in Arc (arc-work) on zion (Arc is in front, but another of its windows or tabs is showing); notification sent: https://example.com/report');
   });
 
+  test('the OS handler in front does not read as the page in front', () => {
+    expect(describeShown({
+      via: 'open', app: 'Safari', visible: false, frontmost: 'Safari', notification: 'clickable',
+      unknownWhy: 'the OS default handler opened it and cannot be asked which tab or window is showing',
+    }, url)).toBe('Opened in Safari; Safari is in front, but cannot tell whether it shows the page (the OS default handler opened it and cannot be asked which tab or window is showing); notification sent: https://example.com/report');
+  });
+
   test('a notification that cannot open the page, or none at all, is said', () => {
     expect(describeShown(arc({ notification: 'plain' }), url)).toBe(
       'Opened in Arc (arc-work) on zion (behind VSCodium); notification sent, but clicking it does not open the page (install terminal-notifier for that): https://example.com/report');

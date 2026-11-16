@@ -193,10 +193,10 @@ browser set device <device-name>       Emulate a device (iPhone 14, iPad, MacBoo
 browser set viewport <width> <height>  Set viewport size
 ```
 
-## show: Open a URL or file for a human to read in browser.viewer (default: browser.profile), on the browser.device hub when one is set; reloads and selects a tab already showing it. Never brings the browser in front: says whether the page is visible (macOS: --json visible and frontmost) and, when it is not, posts a notification. Fails unless the viewer confirms it opened. Binds no task
+## show: Open a URL or file for a human to read in browser.viewer (default: browser.profile), on the browser.device hub when one is set; reloads a tab already showing it. On macOS it never brings the browser in front: it selects the tab, says whether the page is visible (--json visible and frontmost) and, when it is not, posts a notification. On Windows and Linux the OS handler and a new tab may raise the browser, a reused tab is reloaded but not selected, and visibility is unknown. Fails unless the viewer confirms it opened. Binds no task
 
 ```
-browser show <url>  Open a URL or file for a human to read in browser.viewer (default: browser.profile), on the browser.device hub when one is set; reloads and selects a tab already showing it. Never brings the browser in front: says whether the page is visible (macOS: --json visible and frontmost) and, when it is not, posts a notification. Fails unless the viewer confirms it opened. Binds no task
+browser show <url>  Open a URL or file for a human to read in browser.viewer (default: browser.profile), on the browser.device hub when one is set; reloads a tab already showing it. On macOS it never brings the browser in front: it selects the tab, says whether the page is visible (--json visible and frontmost) and, when it is not, posts a notification. On Windows and Linux the OS handler and a new tab may raise the browser, a reused tab is reloaded but not selected, and visibility is unknown. Fails unless the viewer confirms it opened. Binds no task
 ```
 
 ## skills: The browser skill installed with this CLI: where it is, what it contains, and its documents

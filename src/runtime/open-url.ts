@@ -5,7 +5,7 @@ import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { getConfigValue } from './device-config.js';
 import { encodePwshBase64 } from './pwsh.js';
-import { handlerApp, pageLabel, seeShown, type Seen } from './visibility.js';
+import { handlerApp, osHandlerTab, pageLabel, seeShown, untilLaunched, type Seen } from './visibility.js';
 
 export type ShowOutcome =
   | ({ via: 'profile'; profile: string; tabId?: string; reused: boolean; app?: string } & Seen)
@@ -23,6 +23,7 @@ export function describeShown(outcome: Exclude<ShowOutcome, { via: 'none' }> & {
   if (outcome.visible) state = `, selected in its front window with ${outcome.app} in front`;
   else if (outcome.frontmost === 'unknown' || !outcome.app) state = `; cannot tell whether the user can see it (${outcome.unknownWhy ?? 'the app in front is unknown'})`;
   else if (outcome.frontmost !== outcome.app) state = ` (behind ${outcome.frontmost})`;
+  else if (outcome.unknownWhy) state = `; ${outcome.app} is in front, but cannot tell whether it shows the page (${outcome.unknownWhy})`;
   else state = ` (${outcome.frontmost} is in front, but another of its windows or tabs is showing)`;
   const notified = outcome.notification === 'clickable'
     ? '; notification sent'
@@ -93,7 +94,8 @@ async function osShow(target: string): Promise<Extract<ShowOutcome, { via: 'open
   const viewer = await handlerApp(target);
   const opened = await osOpen(target);
   if (opened.via === 'none') return { ...opened, visible: false };
-  const seen = await seeShown(viewer, true, pageLabel('', target), 'macOS named no app that opens it');
+  const unsettled = viewer ? await untilLaunched(viewer) : undefined;
+  const seen = await seeShown(viewer, osHandlerTab(viewer), pageLabel('', target), unsettled);
   return { via: 'open', ...(viewer ? { app: viewer.name } : {}), ...seen };
 }
 
@@ -138,8 +140,9 @@ export async function showUrl(url: string, opts: ShowOptions = {}): Promise<Show
   if (!response.ok) return { via: 'none', profile: viewer.profile, reason: response.error, visible: false };
   const shown = response.shown;
   const seen = await seeShown(
-    shown?.viewer, shown?.inFront ?? false, pageLabel(shown?.title ?? '', url),
-    shown ? shown.whyUnknown : 'the running browser service predates this CLI and does not report it',
+    shown?.viewer,
+    shown ? { inFront: shown.inFront, whyUnknown: shown.whyUnknown } : { inFront: false, whyUnknown: 'the running browser service predates this CLI and does not report it' },
+    pageLabel(shown?.title ?? '', url),
   );
   return {
     via: 'profile', profile: viewer.profile, tabId: response.tabId, reused: response.refreshed === true,

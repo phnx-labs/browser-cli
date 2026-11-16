@@ -6064,14 +6064,13 @@ export class BrowserService {
           if (!this.targetIsClaimed(conn, match.targetId)) {
             await conn.cdp.send('Page.navigate', { url }, sessionId);
             if (onlyFragmentMoves(match.url, url)) await this.reloadAfterFragmentMove(conn, sessionId, url);
-            return { tabId: match.targetId, reused: true, ...(await this.selectViewerTab(conn, match.targetId, url, true)) };
+            return { tabId: match.targetId, reused: true, ...(await this.selectViewerTab(conn, match.targetId, url)) };
           }
         }
       }
-      // createPageTarget refuses Arc with an actionable error rather than crashing it.
       const created = await this.createPageTarget(conn, { url });
       this.invalidateTargetCache(conn);
-      return { tabId: created.targetId, reused: false, ...(await this.selectViewerTab(conn, created.targetId, url, false)) };
+      return { tabId: created.targetId, reused: false, ...(await this.selectViewerTab(conn, created.targetId, url)) };
     });
   }
 
@@ -6080,22 +6079,51 @@ export class BrowserService {
     conn: CdpProfileConnection,
     targetId: string,
     url: string,
-    reused: boolean,
   ): Promise<Omit<ShownTab, 'tabId' | 'reused'>> {
     const { targetInfo } = (await conn.cdp.send('Target.getTargetInfo', { targetId })) as { targetInfo: { title?: string } };
     const title = targetInfo.title ?? '';
     if (process.platform !== 'darwin') return { title, inFront: false };
     if (!conn.pid) return { title, inFront: false, whyUnknown: 'the browser process is not known, so its app cannot be asked' };
+    let restoreTitle: (() => Promise<unknown>) | undefined;
     try {
       const window = (await conn.cdp.send('Browser.getWindowForTarget', { targetId }).catch(() => undefined)) as { windowId?: number } | undefined;
+      const marker = await this.markIfTwinned(conn, targetId, url);
+      restoreTitle = marker?.restore;
       const picked = await selectChromiumTab(
-        conn.pid, (candidate) => sameShownPage(candidate, url), window?.windowId === undefined ? undefined : String(window.windowId), !reused,
+        conn.pid,
+        marker ? (tab) => tab.title === marker.title : (tab) => sameShownPage(tab.url, url),
+        window?.windowId === undefined ? undefined : String(window.windowId),
       );
       if (!picked) return { title, inFront: false, whyUnknown: `no app owns browser process ${conn.pid}` };
+      if (!picked.found) {
+        const why = marker ? 'another tab shows the same page and the viewer tab could not be told apart' : `${picked.app.name} lists no tab showing it`;
+        return { title, viewer: picked.app, inFront: false, whyUnknown: why };
+      }
       return { title, viewer: picked.app, inFront: picked.selected && picked.frontWindow };
     } catch (error) {
       return { title, inFront: false, whyUnknown: error instanceof Error ? error.message : String(error) };
+    } finally {
+      await restoreTitle?.().catch(() => undefined);
     }
+  }
+
+  /** AppleScript has no CDP target id: a tab twinned on the page, maybe a task's, is told apart by a one-off title set after load. */
+  private async markIfTwinned(conn: CdpProfileConnection, targetId: string, url: string): Promise<{ title: string; restore: () => Promise<unknown> } | undefined> {
+    const { targetInfos } = (await conn.cdp.send('Target.getTargets')) as { targetInfos: Array<{ targetId: string; type: string; url: string }> };
+    if (!targetInfos.some((t) => t.type === 'page' && t.targetId !== targetId && sameShownPage(t.url, url))) return undefined;
+    const sessionId = await this.getSessionId(conn, targetId);
+    await this.waitForDocumentOn(conn, sessionId);
+    const title = `browser show ${crypto.randomUUID()}`;
+    const { result } = (await conn.cdp.send('Runtime.evaluate', {
+      expression: `(() => { const was = document.title; document.title = ${JSON.stringify(title)}; return was; })()`, returnByValue: true,
+    }, sessionId)) as { result: { value?: string } };
+    const was = result.value ?? '';
+    return {
+      title,
+      restore: () => conn.cdp.send('Runtime.evaluate', {
+        expression: `if (document.title === ${JSON.stringify(title)}) document.title = ${JSON.stringify(was)}`,
+      }, sessionId),
+    };
   }
 
   /** `Page.reload` before the browser commits the fragment move reloads the old URL; wait for it, bounded. */

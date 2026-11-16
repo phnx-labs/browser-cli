@@ -92,7 +92,7 @@ Each open VS Code or VSCodium window running the Agents extension is a profile i
 - Service unresponsive, or IPC requests time out: `browser stop --service`, then retry the command.
 - `nothing is speaking CDP on port …`: that profile's browser is not running. Tell the user; do not switch browsers.
 - `Task "…" not found`: the task ended. Start a new one.
-- A site you could not read, click or type into, after `--snapshot` and its site guide: tell the user what failed and offer to report it. If they agree, open the report in their browser for them to check and submit; never file it yourself. The body names the task, the command and what it printed, `browser --version`, and the browser and OS, with nothing private (no account names, tokens or private URLs):
+- A site you could not read, click or type into, after `--snapshot` and its site guide: tell the user what failed and offer, once per site in a task, to report it. If they agree, open the report in their browser for them to check and submit; never file it yourself. The title names the site by hostname only. The body names the task, the command and the error it printed, `browser --version`, and the browser and OS, with nothing private: no page text from a signed-in page, account names, tokens or full URLs. Encode the title and body with `encodeURIComponent` (a newline is `%0A`) and keep the URL under about 2,000 characters:
 
   ```bash
   browser show "https://github.com/phnx-labs/browser-cli/issues/new?title=<site>%3A%20<what failed>&body=<url-encoded report>"

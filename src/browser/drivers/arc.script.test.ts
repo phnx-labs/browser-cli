@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { RAISES } from '../../runtime/visibility.test.js';
 import { createArcTabScript, selectArcTabScript, selectForCaptureScript } from './arc.js';
 
 // Arc reorders `every window` when a tab is made in a window not in front, so an
@@ -22,11 +21,10 @@ describe('createArcTab script', () => {
 
 describe('selectArcTab script', () => {
   const ref = { windowId: 'W-1', spaceId: 'S-1', tabId: 'T-1' };
-  test('only selects: never brings Arc to the front or sets a window index (Arc refuses it)', () => {
+  test('only selects: never sets a window index (Arc refuses it); raising is checked in visibility.test.ts', () => {
     const script = selectArcTabScript(ref);
     expect(script).toContain('select targetTab');
     expect(script).not.toContain('set index of window');
-    expect(script).not.toMatch(RAISES);
   });
   test('focuses the Space only when select left another tab showing, then reads back where the tab is', () => {
     const script = selectArcTabScript(ref);
@@ -41,9 +39,8 @@ describe('selectArcTab script', () => {
 
 describe('selectForCaptureScript', () => {
   const script = selectForCaptureScript({ windowId: 'W-agent', spaceId: 'S-1', tabId: 'T-1' });
-  test('never raises a window or brings Arc to the front', () => {
+  test('never raises a window by index; activating is checked in visibility.test.ts', () => {
     expect(script).not.toContain('set index of window');
-    expect(script).not.toMatch(RAISES);
   });
   test('refuses before selecting when another window shows the tab', () => {
     const refuse = script.indexOf('Another Arc window is showing this tab');

@@ -88,7 +88,7 @@ type Tool = {
   real: () => string;
   setup?: (ctx: Ctx, run: (args: string[]) => string) => void;
   probe: string;
-  allow?: string[]; // Bash rules beyond `<cmd>:*` for command shapes the tool's own skill prescribes
+  skillCommandShapes?: string[];
 };
 
 const venvBin = (venv: string, name: string) => join(TOOLS_DIR, venv, 'bin', name);
@@ -135,7 +135,7 @@ const TOOLS: Record<string, Tool> = {
     skill: () => join(sitePackages('browser-harness'), 'browser_harness', 'SKILL.md'),
     env: (ctx) => ({ HOME: ctx.home, BU_CDP_URL: `http://127.0.0.1:${ctx.port}`, ANONYMIZED_TELEMETRY: 'false' }),
     probe: "browser-harness <<'PY'\nnew_tab('https://example.com/')\nprint(page_info())\nPY",
-    allow: ['Bash(BH_OWNER=*)'],
+    skillCommandShapes: ['Bash(BH_OWNER=*)'],
   },
   'agent-browser': {
     name: 'agent-browser',
@@ -202,9 +202,8 @@ type AgentResult = {
   permissionDenials: unknown[];
 };
 
-// Run from inside Claude Code, the runner's own session would otherwise reach every agent's tools.
-const RUNNER_SESSION = /^(CLAUDECODE|CLAUDE_PID|CLAUDE_CODE_(ENTRYPOINT|SESSION_ID|CHILD_SESSION|SESSION_ATTENDED|MESSAGING_\w+))$/;
-const outsideClaudeCode = () => Object.fromEntries(Object.entries(process.env).filter(([k]) => !RUNNER_SESSION.test(k)));
+const RUNNER_CLAUDE_SESSION_VARS = /^(CLAUDECODE|CLAUDE_PID|CLAUDE_CODE_(ENTRYPOINT|SESSION_ID|CHILD_SESSION|SESSION_ATTENDED|MESSAGING_\w+))$/;
+const outsideClaudeCode = () => Object.fromEntries(Object.entries(process.env).filter(([k]) => !RUNNER_CLAUDE_SESSION_VARS.test(k)));
 
 async function runAgent(tool: Tool, ctx: Ctx, prompt: string): Promise<AgentResult> {
   const startedAt = new Date().toISOString();
@@ -217,7 +216,7 @@ async function runAgent(tool: Tool, ctx: Ctx, prompt: string): Promise<AgentResu
       '--output-format', 'stream-json', '--verbose',
       '--setting-sources', 'project',
       '--strict-mcp-config',
-      '--allowedTools', `Bash(${tool.cmd}:*)`, ...(tool.allow ?? []), 'Skill',
+      '--allowedTools', `Bash(${tool.cmd}:*)`, ...(tool.skillCommandShapes ?? []), 'Skill',
       '--disallowedTools', 'WebFetch', 'WebSearch', 'Task', 'Agent', 'Write', 'Edit', 'NotebookEdit',
       '--max-turns', '60',
     ],

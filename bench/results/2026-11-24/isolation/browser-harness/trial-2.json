@@ -1,0 +1,85 @@
+{
+  "kind": "isolation",
+  "tool": "browser-harness",
+  "toolVersion": "0.1.14",
+  "trial": 2,
+  "model": "claude-sonnet-5-5",
+  "wallSeconds": 15.004,
+  "agents": [
+    {
+      "task": "books",
+      "correct": true,
+      "grade": "expected \"The Girl You Lost\" at \u00a312.29",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-24T09:12:50.787Z",
+      "seconds": 9.432573980999997,
+      "turns": 4,
+      "costUsd": 0.0413508,
+      "tokens": {
+        "input": 6,
+        "cacheCreation": 8010,
+        "cacheRead": 43888,
+        "output": 491,
+        "total": 52395
+      },
+      "answer": "The cheapest five-star book in the Mystery category is **The Girl You Lost**, at **\u00a312.29**.\n\nI checked all 32 Mystery books across every page of the category. Five of them are rated five stars. The next cheapest is The Silkworm (Cormoran Strike #2) at \u00a323.05. I left my tab open on the last Mystery page, not on this book's page.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 2,
+      "sawOtherAgentsTab": false,
+      "leakingCommands": []
+    },
+    {
+      "task": "pizza",
+      "correct": true,
+      "grade": "all fields submitted",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-24T09:12:50.788Z",
+      "seconds": 11.446043034999999,
+      "turns": 5,
+      "costUsd": 0.049853400000000006,
+      "tokens": {
+        "input": 8,
+        "cacheCreation": 9016,
+        "cacheRead": 63034,
+        "output": 747,
+        "total": 72805
+      },
+      "answer": "I submitted the pizza order, and httpbin accepted it. The response page echoed back these values:\n\n- **Customer name:** Ada Lovelace\n- **Telephone:** 555-0100\n- **Email:** ada@example.com\n- **Size:** large\n- **Toppings:** bacon and cheese (the form labels the second one \"Extra Cheese\")\n- **Delivery time:** 19:45\n- **Delivery instructions:** Ring twice\n\nI worked only in the tab I opened. It's still open on the response page at https://httpbin.org/post.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 3,
+      "sawOtherAgentsTab": false,
+      "leakingCommands": []
+    },
+    {
+      "task": "saucedemo",
+      "correct": true,
+      "grade": "checkout-complete page open",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-24T09:12:50.789Z",
+      "seconds": 15.000988936999999,
+      "turns": 6,
+      "costUsd": 0.056391500000000004,
+      "tokens": {
+        "input": 10,
+        "cacheCreation": 9025,
+        "cacheRead": 83015,
+        "output": 1197,
+        "total": 93247
+      },
+      "answer": "The order is complete. The confirmation page says \"Thank you for your order!\" and I left it open in the tab I opened.\n\nI logged in as standard_user and sorted the products by price from low to high. I added the Sauce Labs Backpack ($29.99) and the Sauce Labs Bike Light ($9.99) to the cart, then checked out as Ada Lovelace with postal code 10001. The order overview showed an item total of $39.98, tax of $3.20 and a total of $43.18.\n\nI didn't mark the tab as a deliverable. That call was guarded by a name check, and I didn't confirm it ran. I also didn't release or close any tabs.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 4,
+      "sawOtherAgentsTab": false,
+      "leakingCommands": []
+    }
+  ]
+}

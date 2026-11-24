@@ -1,0 +1,47 @@
+{
+  "kind": "suite",
+  "tool": "agent-browser",
+  "toolVersion": "0.44.0",
+  "task": "demoblaze",
+  "trial": 1,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "confirmation open: true, its Amount 1180; answer gives 1180: true",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-24T08:52:38.366Z",
+  "seconds": 32.43518213500001,
+  "turns": 16,
+  "costUsd": 0.1167658,
+  "tokens": {
+    "input": 30,
+    "cacheCreation": 15819,
+    "cacheRead": 334698,
+    "output": 1996,
+    "total": 352543
+  },
+  "answer": "The order went through as Ada Lovelace, and the confirmation is still showing in the open browser tab.\n\n- **Id:** 7856047\n- **Amount:** 1180 USD\n\nThe cart held the Samsung galaxy s6 ($360) and the Nokia lumia 1520 ($820), which add up to the 1180 USD total.",
+  "claudeVersion": "2.1.301",
+  "error": null,
+  "permissionDenials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_019xzXPczCkVU9RiFWQKHfXG",
+      "tool_input": {
+        "command": "S=$(agent-browser session id --scope worktree --prefix task); echo $S; agent-browser --session $S open https://www.demoblaze.com && agent-browser --session $S snapshot -i -u"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01JgnWRsws21LkehYkgf5aaH",
+      "tool_input": {
+        "command": "S=task-cbae52ec4a3b; B=\"agent-browser --session $S\"; $B fill @e116 \"Ada Lovelace\"; $B fill @e117 \"UK\"; $B fill @e118 \"London\"; $B fill @e119 \"4111111111111111\"; $B fill @e120 \"11\"; $B fill @e121 \"2026\"; $B click @e115; $B wait --text \"Thank you for your purchase\"; $B get text \".sweet-alert\""
+      }
+    }
+  ],
+  "toolCalls": 14,
+  "openTabs": [
+    "https://www.demoblaze.com/cart.html"
+  ]
+}

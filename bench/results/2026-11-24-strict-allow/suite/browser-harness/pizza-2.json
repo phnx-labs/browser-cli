@@ -1,0 +1,41 @@
+{
+  "kind": "suite",
+  "tool": "browser-harness",
+  "toolVersion": "0.1.14",
+  "task": "pizza",
+  "trial": 2,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "all fields submitted",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-24T08:57:28.573Z",
+  "seconds": 18.152002148000058,
+  "turns": 8,
+  "costUsd": 0.0675853,
+  "tokens": {
+    "input": 14,
+    "cacheCreation": 9994,
+    "cacheRead": 123313,
+    "output": 1525,
+    "total": 134846
+  },
+  "answer": "I submitted the pizza order, and httpbin.org accepted it. Its response page echoed back these form values:\n\n- **Customer name:** Ada Lovelace\n- **Telephone:** 555-0100\n- **Email:** ada@example.com\n- **Size:** large\n- **Toppings:** bacon, cheese\n- **Delivery time:** 19:45\n- **Delivery instructions:** Ring twice\n\nThe response page, `https://httpbin.org/post`, is still open in its tab. I tried to mark that tab as the one to keep, and the command printed nothing but a BH_OWNER warning, so I can't confirm the mark took. I didn't close the tab or release any tabs.\n\nI filled the form by setting field values from a script rather than typing into it. I also called `submit()` on the form directly instead of clicking the submit button.",
+  "claudeVersion": "2.1.301",
+  "error": null,
+  "permissionDenials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_013hKThH4QAwDUoP5ZfsA69V",
+      "tool_input": {
+        "command": "BH_OWNER=pizza browser-harness <<'PY'\nprint(js(\"\"\"\nconst f=(n,v)=>{const e=document.querySelector(`[name=${n}]`);e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}))};\nf('custname','Ada Lovelace');f('custtel','555-0100');f('custemail','ada@example.com');f('delivery','19:45');f('comments','Ring twice');\ndocument.querySelector('[name=size][value=large]').click();\ndocument.querySelector('[name=topping][value=bacon]').click();\ndocument.querySelector('[name=topping][value=cheese]').click();\n[...document.querySelectorAll('input,textarea')].filter(e=>e.type!='radio'&&e.type!='checkbox'||e.checked).map(e=>e.name+'='+e.value).join('|')\n\"\"\"))\nPY"
+      }
+    }
+  ],
+  "toolCalls": 6,
+  "openTabs": [
+    "https://httpbin.org/post",
+    "about:blank"
+  ]
+}

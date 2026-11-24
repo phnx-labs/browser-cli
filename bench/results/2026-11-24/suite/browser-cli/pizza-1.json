@@ -1,0 +1,33 @@
+{
+  "kind": "suite",
+  "tool": "browser-cli",
+  "toolVersion": "0.2.16 (d723c32)",
+  "task": "pizza",
+  "trial": 1,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "all fields submitted",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-24T08:46:37.144Z",
+  "seconds": 11.725797957999996,
+  "turns": 5,
+  "costUsd": 0.043477199999999994,
+  "tokens": {
+    "input": 8,
+    "cacheCreation": 8254,
+    "cacheRead": 61552,
+    "output": 429,
+    "total": 70243
+  },
+  "answer": "I submitted the pizza order, and httpbin.org echoed it back on `https://httpbin.org/post`. That page is still open in its tab.\n\nThe echoed form data was:\n- **Customer name:** Ada Lovelace\n- **Telephone:** 555-0100\n- **Email:** ada@example.com\n- **Size:** large\n- **Toppings:** bacon and extra cheese\n- **Delivery time:** 19:45\n- **Delivery instructions:** Ring twice",
+  "claudeVersion": "2.1.301",
+  "error": null,
+  "permissionDenials": [],
+  "toolCalls": 3,
+  "openTabs": [
+    "https://httpbin.org/post",
+    "about:blank"
+  ]
+}

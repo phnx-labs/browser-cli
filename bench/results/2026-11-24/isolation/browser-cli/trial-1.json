@@ -1,0 +1,85 @@
+{
+  "kind": "isolation",
+  "tool": "browser-cli",
+  "toolVersion": "0.2.16 (d723c32)",
+  "trial": 1,
+  "model": "claude-sonnet-5-5",
+  "wallSeconds": 15.654,
+  "agents": [
+    {
+      "task": "books",
+      "correct": true,
+      "grade": "expected \"The Girl You Lost\" at \u00a312.29",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-24T09:08:25.817Z",
+      "seconds": 11.017920215999998,
+      "turns": 5,
+      "costUsd": 0.043495900000000004,
+      "tokens": {
+        "input": 8,
+        "cacheCreation": 7904,
+        "cacheRead": 61639,
+        "output": 570,
+        "total": 70121
+      },
+      "answer": "The cheapest five-star book in the Mystery category is **The Girl You Lost**, at **\u00a312.29**.\n\nI checked both pages of the category. Five books there are rated five stars, and the others cost \u00a323.05 to \u00a352.30. I read the second page through a fetch rather than opening it in the tab, so the tab I left open shows page 1 of the category.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 3,
+      "sawOtherAgentsTab": false,
+      "leakingCommands": []
+    },
+    {
+      "task": "pizza",
+      "correct": true,
+      "grade": "all fields submitted",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-24T09:08:25.818Z",
+      "seconds": 13.887536447000006,
+      "turns": 6,
+      "costUsd": 0.046521200000000006,
+      "tokens": {
+        "input": 10,
+        "cacheCreation": 8388,
+        "cacheRead": 80492,
+        "output": 490,
+        "total": 89380
+      },
+      "answer": "I submitted the pizza order, and httpbin's response shows it received the values below. I left the final page (`https://httpbin.org/post`) open in the tab I opened.\n\n- **Customer name:** Ada Lovelace\n- **Telephone:** 555-0100\n- **Email:** ada@example.com\n- **Size:** Large\n- **Toppings:** Bacon and Extra Cheese\n- **Delivery time:** 19:45\n- **Delivery instructions:** Ring twice",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 4,
+      "sawOtherAgentsTab": false,
+      "leakingCommands": []
+    },
+    {
+      "task": "saucedemo",
+      "correct": true,
+      "grade": "checkout-complete page open",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-24T09:08:25.819Z",
+      "seconds": 15.651305594999998,
+      "turns": 6,
+      "costUsd": 0.04880989999999999,
+      "tokens": {
+        "input": 10,
+        "cacheCreation": 8598,
+        "cacheRead": 81679,
+        "output": 623,
+        "total": 90910
+      },
+      "answer": "The order is complete. The final page, \"Checkout: Complete! Thank you for your order!\", is still open in the tab I opened.\n\nI logged in as standard_user and sorted by price from low to high. I added the Sauce Labs Bike Light ($9.99) and the Sauce Labs Backpack ($29.99). I checked out as Ada Lovelace, postal code 10001. The order came to $39.98 for the items plus $3.20 tax, for a total of $43.18.\n\nThe browser tool reported that the mouse wasn't reaching the buttons, so it sent plain click events instead. Each click still worked: the cart count went to 2, and every checkout step advanced.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 4,
+      "sawOtherAgentsTab": false,
+      "leakingCommands": []
+    }
+  ]
+}

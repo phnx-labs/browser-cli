@@ -1,0 +1,32 @@
+{
+  "kind": "suite",
+  "tool": "browser-use",
+  "toolVersion": "1.0.8",
+  "task": "bun",
+  "trial": 2,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "expected bun-v1.4.5, 38 or 40 assets, 51.3 MB; tag true, count true, size true",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-24T08:57:56.528Z",
+  "seconds": 13.1781155689999,
+  "turns": 6,
+  "costUsd": 0.0507062,
+  "tokens": {
+    "input": 10,
+    "cacheCreation": 9062,
+    "cacheRead": 82782,
+    "output": 616,
+    "total": 92470
+  },
+  "answer": "The latest oven-sh/bun release is **bun-v1.4.5** (\"Release Bun v1.4.5\").\n\n- **Tag:** `bun-v1.4.5`\n- **Assets:** 40, which is the count GitHub shows next to \"Assets\".\n- **bun-linux-x64.zip:** 49 MB, as GitHub shows it.\n\nThe release page is still open in its tab at https://github.com/oven-sh/bun/releases/tag/bun-v1.4.5.",
+  "claudeVersion": "2.1.301",
+  "error": null,
+  "permissionDenials": [],
+  "toolCalls": 4,
+  "openTabs": [
+    "https://github.com/oven-sh/bun/releases/tag/bun-v1.4.5"
+  ]
+}

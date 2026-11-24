@@ -1,0 +1,110 @@
+{
+  "kind": "isolation",
+  "tool": "browser-use",
+  "toolVersion": "1.0.8",
+  "trial": 2,
+  "model": "claude-sonnet-5-5",
+  "wallSeconds": 36.637,
+  "agents": [
+    {
+      "task": "books",
+      "correct": true,
+      "grade": "expected \"The Girl You Lost\" at \u00a312.29",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-24T09:10:43.267Z",
+      "seconds": 10.11230681899999,
+      "turns": 4,
+      "costUsd": 0.041045899999999996,
+      "tokens": {
+        "input": 6,
+        "cacheCreation": 7943,
+        "cacheRead": 43919,
+        "output": 487,
+        "total": 52355
+      },
+      "answer": "The cheapest five-star book in the Mystery category is **\"The Girl You Lost\"**, at **\u00a312.29**.\n\nThe category has 32 books across its pages, and five of them are rated five stars. The next cheapest is \"The Silkworm (Cormoran Strike #2)\" at \u00a323.05. I worked in a tab I opened myself, and it's still open. It ended on the last page of the category listing, not on the book's own page.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 2,
+      "sawOtherAgentsTab": false,
+      "leakingCommands": []
+    },
+    {
+      "task": "pizza",
+      "correct": true,
+      "grade": "all fields submitted",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-24T09:10:43.268Z",
+      "seconds": 18.236866553,
+      "turns": 8,
+      "costUsd": 0.0759052,
+      "tokens": {
+        "input": 14,
+        "cacheCreation": 12055,
+        "cacheRead": 128172,
+        "output": 1484,
+        "total": 141725
+      },
+      "answer": "The pizza order is submitted, and httpbin.org accepted it. The response page shows these fields:\n\n- **Customer name:** Ada Lovelace\n- **Telephone:** 555-0100\n- **Email:** ada@example.com\n- **Size:** large\n- **Toppings:** bacon and cheese (the form's \"Extra Cheese\" option)\n- **Delivery time:** 19:45\n- **Delivery instructions:** Ring twice\n\nPartway through, the browser tool's attached tab switched to another agent's tab (saucedemo.com). My first fill attempt ran there and failed, so nothing on that page changed. I switched back to my own tab and did the rest there.\n\nThe confirmation page (https://httpbin.org/post) is still open in my tab.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 6,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "browser-use <<'PY'\nprint(current_tab()); print(page_info()); print(list_tabs())\nPY",
+          "seen": [
+            "books.toscrape.com",
+            "Books to Scrape",
+            "saucedemo.com",
+            "Swag Labs"
+          ]
+        }
+      ]
+    },
+    {
+      "task": "saucedemo",
+      "correct": true,
+      "grade": "checkout-complete page open",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-24T09:10:43.269Z",
+      "seconds": 36.63435342099998,
+      "turns": 12,
+      "costUsd": 0.10219879999999999,
+      "tokens": {
+        "input": 22,
+        "cacheCreation": 13009,
+        "cacheRead": 211288,
+        "output": 2899,
+        "total": 227218
+      },
+      "answer": "The order is complete. The confirmation page says \"Thank you for your order!\" and is still open in the tab I opened (`https://www.saucedemo.com/checkout-complete.html`).\n\n- **Login:** I signed in as standard_user.\n- **Sort:** I sorted by price from low to high.\n- **Cart:** I added Sauce Labs Backpack ($29.99) and Sauce Labs Bike Light ($9.99).\n- **Checkout:** I checked out as Ada Lovelace, postal code 10001. The order total was $43.18.\n\nI only worked in the saucedemo tab.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 10,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "browser-use <<'PY'\nnew_tab(\"https://www.saucedemo.com\")\nwait_for_load()\nprint(page_info())\nPY",
+          "seen": [
+            "httpbin.org"
+          ]
+        },
+        {
+          "command": "browser-use <<'PY'\nprint(current_tab())\nfor t in list_tabs(): print(t)\nPY",
+          "seen": [
+            "books.toscrape.com",
+            "Books to Scrape",
+            "httpbin.org"
+          ]
+        }
+      ]
+    }
+  ]
+}

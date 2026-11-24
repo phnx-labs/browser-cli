@@ -1,0 +1,40 @@
+{
+  "kind": "suite",
+  "tool": "agent-browser",
+  "toolVersion": "0.44.0",
+  "task": "wikipedia",
+  "trial": 2,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "infobox figures 3121707, 13971006, 16366641; place true, population true",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-24T09:06:16.190Z",
+  "seconds": 14.128039695999817,
+  "turns": 8,
+  "costUsd": 0.0678352,
+  "tokens": {
+    "input": 14,
+    "cacheCreation": 11841,
+    "cacheRead": 128632,
+    "output": 758,
+    "total": 141245
+  },
+  "answer": "Argentina won the 2022 FIFA World Cup. Its capital is Buenos Aires, and the Buenos Aires Wikipedia article gives the population of the capital and autonomous city as **3,121,707** (2022 census).\n\nThe article's urban figure is 13,971,006 and its metro figure is 16,366,641.\n\nThe Buenos Aires article is still open in the browser tab.",
+  "claudeVersion": "2.1.301",
+  "error": null,
+  "permissionDenials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01BhoasQhYEvD2ZGfHgRaGv2",
+      "tool_input": {
+        "command": "S=$(agent-browser session id --scope worktree --prefix task); agent-browser --session $S open https://en.wikipedia.org/wiki/2022_FIFA_World_Cup && agent-browser --session $S eval \"document.querySelector('.infobox')?.innerText.slice(0,600)\""
+      }
+    }
+  ],
+  "toolCalls": 6,
+  "openTabs": [
+    "https://en.wikipedia.org/wiki/Buenos_Aires"
+  ]
+}

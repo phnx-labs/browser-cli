@@ -1,0 +1,32 @@
+{
+  "kind": "suite",
+  "tool": "browser-use",
+  "toolVersion": "1.0.8",
+  "task": "saucedemo",
+  "trial": 1,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "checkout-complete page open",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-24T08:48:49.344Z",
+  "seconds": 20.32148311199999,
+  "turns": 7,
+  "costUsd": 0.0687411,
+  "tokens": {
+    "input": 12,
+    "cacheCreation": 10785,
+    "cacheRead": 104071,
+    "output": 1517,
+    "total": 116385
+  },
+  "answer": "The order is complete. The final page, https://www.saucedemo.com/checkout-complete.html, shows \"Thank you for your order!\" and is still open in its tab.\n\nI logged in as standard_user, sorted by price low to high, and added the Sauce Labs Backpack and Sauce Labs Bike Light. I checked out as Ada Lovelace, postal code 10001. The order total was $43.18.",
+  "claudeVersion": "2.1.301",
+  "error": null,
+  "permissionDenials": [],
+  "toolCalls": 5,
+  "openTabs": [
+    "https://www.saucedemo.com/checkout-complete.html"
+  ]
+}

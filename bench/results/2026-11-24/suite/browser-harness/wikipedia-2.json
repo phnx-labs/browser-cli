@@ -1,0 +1,34 @@
+{
+  "kind": "suite",
+  "tool": "browser-harness",
+  "toolVersion": "0.1.14",
+  "task": "wikipedia",
+  "trial": 2,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "infobox figures 3121707, 13971006, 16366641; place true, population true",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-24T09:19:42.036Z",
+  "seconds": 11.370198463000008,
+  "turns": 5,
+  "costUsd": 0.0459864,
+  "tokens": {
+    "input": 8,
+    "cacheCreation": 8532,
+    "cacheRead": 63024,
+    "output": 554,
+    "total": 72118
+  },
+  "answer": "Argentina won the 2022 FIFA World Cup. Its capital is Buenos Aires, and the city's Wikipedia article gives its population as 3,121,707 (2022 census). That figure is for the capital and autonomous city itself, not the wider metropolitan area.\n\nThe Buenos Aires article is still open in the browser tab. I didn't close it.",
+  "claudeVersion": "2.1.301",
+  "error": null,
+  "permissionDenials": [],
+  "toolCalls": 3,
+  "openTabs": [
+    "https://en.wikipedia.org/wiki/Buenos_Aires",
+    "https://en.wikipedia.org/wiki/2022_FIFA_World_Cup",
+    "about:blank"
+  ]
+}

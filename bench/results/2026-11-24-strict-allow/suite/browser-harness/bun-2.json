@@ -1,0 +1,41 @@
+{
+  "kind": "suite",
+  "tool": "browser-harness",
+  "toolVersion": "0.1.14",
+  "task": "bun",
+  "trial": 2,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "expected bun-v1.4.5, 38 or 40 assets, 51.3 MB; tag true, count true, size true",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-24T08:58:09.970Z",
+  "seconds": 55.21788688699994,
+  "turns": 10,
+  "costUsd": 0.0950418,
+  "tokens": {
+    "input": 18,
+    "cacheCreation": 15087,
+    "cacheRead": 169078,
+    "output": 1775,
+    "total": 185958
+  },
+  "answer": "The latest release of oven-sh/bun is tag `bun-v1.4.5` (titled \"Bun v1.4.5\"). `github.com/oven-sh/bun/releases/latest` redirects to it, and I left that tab open.\n\n- **Assets:** 40. This is the count GitHub shows on the page. It includes the two auto-generated \"Source code\" archives (zip and tar.gz).\n- **`bun-linux-x64.zip`:** 49 MB, as GitHub lists it.\n\nThe page's asset list never finished loading in the browser. I got the file size by fetching GitHub's own asset-list fragment for this release from inside the page and reading the entry there. The page was not scrolled or expanded to show it.",
+  "claudeVersion": "2.1.301",
+  "error": null,
+  "permissionDenials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01Cxy7BEaSTnmfxDTce9gQ4q",
+      "tool_input": {
+        "command": "BH_OWNER=main browser-harness <<'PY'\nimport time\ntime.sleep(3)\nprint(js(\"\"\"(()=>{const t=document.body.innerText;const i=t.indexOf('bun-linux-x64.zip');return t.slice(i-100,i+200)})()\"\"\"))\nprint(js(\"\"\"(()=>{const t=document.body.innerText;const i=t.indexOf('Assets');return t.slice(i,i+100)})()\"\"\"))\nPY"
+      }
+    }
+  ],
+  "toolCalls": 8,
+  "openTabs": [
+    "https://github.com/oven-sh/bun/releases/tag/bun-v1.4.5",
+    "about:blank"
+  ]
+}

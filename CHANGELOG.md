@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.17
+
+- The README, the benchmark page and its charts report the 2026-11-24 run: browser-cli 0.2.16 against each other tool's latest release (Browser Use 1.0.8, browser-harness 0.1.14, agent-browser 0.44.0). browser-cli took 13.8 s and $0.047 per task, against 15.8 s and $0.051 for Browser Use; every run's record is in `bench/results/2026-11-24/`. The comparison table now says browser-harness gives each agent its own tabs from 0.1.14. No change to the CLI itself.
+
 ## 0.2.16
 
 - `browser doctor` checks the install itself. It asks your shell (zsh, bash or fish) what `browser` runs and names the rc file and line of an alias or function that gets there first, lists every `browser` on PATH with its version and which one wins, compares with the latest release on npm and with the `browser.device` hub, and prints the fix for each finding without editing rc files. The launcher npm, pnpm, yarn or bun puts on PATH counts as this install. A global npm or bun install runs the shell and PATH checks once, unless `BROWSER_NO_UPDATE_NOTIFIER=1` or a CI variable is set. In a terminal, ordinary commands print one line when something shadows `browser`, the hub runs another version or a newer release is out, checked at most once a day; `BROWSER_NO_UPDATE_NOTIFIER=1` hides it, and it never prints in CI, under `--json` or when output is piped. On 2026-11-16 an alias in a `.zshrc` sent every `browser` call to a removed command, and the fallback copy on PATH was 0.1.24 while the hub ran 0.2.15; nothing said so.

@@ -1,0 +1,41 @@
+{
+  "kind": "suite",
+  "tool": "browser-harness",
+  "toolVersion": "0.1.14",
+  "task": "bun",
+  "trial": 1,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "expected bun-v1.4.5, 38 or 40 assets, 51.3 MB; tag true, count true, size true",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-24T08:47:41.892Z",
+  "seconds": 50.187959569,
+  "turns": 9,
+  "costUsd": 0.0738749,
+  "tokens": {
+    "input": 16,
+    "cacheCreation": 11417,
+    "cacheRead": 147949,
+    "output": 1338,
+    "total": 160720
+  },
+  "answer": "The latest release of oven-sh/bun is tagged **bun-v1.4.5** (titled \"Bun v1.4.5\").\n\n- **Assets:** 40. This is the count on the release page, and the assets list I fetched also had 40 entries.\n- **bun-linux-x64.zip:** 49 MB, as GitHub shows it.\n\nI read the asset list from the page's own asset-list URL, not by scrolling, because the list wasn't rendering in the tab. The release page is still open in its tab.",
+  "claudeVersion": "2.1.301",
+  "error": null,
+  "permissionDenials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_018JrMaftt58ruLMpJwkhnix",
+      "tool_input": {
+        "command": "BH_OWNER=main browser-harness <<'PY'\nprint(list_tabs())\nprint(page_info())\nPY"
+      }
+    }
+  ],
+  "toolCalls": 7,
+  "openTabs": [
+    "https://github.com/oven-sh/bun/releases/tag/bun-v1.4.5",
+    "about:blank"
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "kind": "suite",
+  "tool": "browser-harness",
+  "toolVersion": "0.1.14",
+  "task": "bun",
+  "trial": 2,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "expected bun-v1.4.5, 38 or 40 assets, 51.3 MB; tag true, count true, size true",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-24T09:16:51.960Z",
+  "seconds": 76.00949218800001,
+  "turns": 13,
+  "costUsd": 0.10307630000000001,
+  "tokens": {
+    "input": 24,
+    "cacheCreation": 14686,
+    "cacheRead": 240143,
+    "output": 2027,
+    "total": 256880
+  },
+  "answer": "The latest release of oven-sh/bun is **bun-v1.4.5**, titled \"Bun v1.4.5\".\n\n- **Assets:** The Assets header on the release page shows **40**. Only 38 of those are download links, which are the uploaded files. The other two are probably the auto-generated source archives, but I didn't check.\n- **bun-linux-x64.zip:** GitHub shows **49 MB**.\n\nThe page's asset list wouldn't load in the background tab. I fetched GitHub's own `expanded_assets` list for this release and put it into the open page. The 49 MB comes from that list. The tab is still open on https://github.com/oven-sh/bun/releases/tag/bun-v1.4.5.",
+  "claudeVersion": "2.1.301",
+  "error": null,
+  "permissionDenials": [],
+  "toolCalls": 11,
+  "openTabs": [
+    "https://github.com/oven-sh/bun/releases/tag/bun-v1.4.5",
+    "https://github.com/oven-sh/bun/releases/tag/bun-v1.4.5",
+    "about:blank"
+  ]
+}

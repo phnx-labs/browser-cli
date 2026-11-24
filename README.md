@@ -21,7 +21,7 @@ Agents usually get a fresh browser that is signed in to nothing, so they stop at
 - **Several agents, no collisions.** Every `browser start` opens a task that owns its tabs, so agents sharing one browser don't read, type into or close each other's pages.
 - **Passwords stay on their site.** `browser type --secret stripe.com/PASSWORD` types a saved password the agent never sees, and a bundle named after a site types only on that site: on any other page it is refused and nothing is typed ([how](docs/use-cases/fill-forms-and-check-out.md)).
 
-**Measured, with every run published:** on eight web tasks in Claude Code (2026-11-07, browser-cli 0.2.3), browser-cli was the fastest (17.1 s per task) and cheapest ($0.047) of four tools, against Browser Use, browser-harness and agent-browser; browser-harness took slightly fewer turns. With three agents in one browser (rerun 2026-11-11, browser-cli 0.2.8), none of its 6 runs saw another agent's tab, against 4 to 6 of 6 for the other three, and it was fastest on average (25 s per trial, against 36 s for Browser Use, 41 s for browser-harness and 112 s for agent-browser). [Benchmark](#benchmark)
+**Measured, with every run published:** on eight web tasks in Claude Code (2026-11-24, each tool's latest release), browser-cli 0.2.16 was the fastest (13.8 s per task) and cheapest ($0.047) of four tools, against 15.8 s and $0.051 for Browser Use, 23.8 s and $0.083 for agent-browser, and 25.0 s and $0.059 for browser-harness. [Benchmark](#benchmark)
 
 <p align="center">
   <img src="docs/assets/three-agents.gif" alt="Three Claude Code agents work at once in one Brave window, each in its own tab: one finds the cheapest mystery book, one fills a pizza order form, one checks out two items. Each pane shows the agent's current browser command, then its answer." width="100%">
@@ -230,23 +230,23 @@ Each clip is a real run, sped up. Its page shows the task, the commands and what
 
 ## Benchmark
 
-Four browser tools on eight web tasks, Claude Sonnet 5.5 in Claude Code, 2 runs per task, 2026-11-07:
+Four browser tools on eight web tasks, Claude Sonnet 5.5 in Claude Code, 2 runs per task, each tool's latest release on 2026-11-24:
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/benchmark-dark.svg">
-  <img src="docs/assets/benchmark-light.svg" alt="Turns, seconds and tokens per task for browser-cli and three other browser tools over 8 tasks on 2026-11-07; browser-cli is fastest at 17.1 s, browser-harness takes the fewest turns (5.6) and tokens (82k)" width="100%">
+  <img src="docs/assets/benchmark-light.svg" alt="Seconds, cost and tokens per task for browser-cli and three other browser tools over 8 tasks on 2026-11-24; browser-cli is fastest at 13.8 s, cheapest at $0.047 and uses the fewest tokens (82k)" width="100%">
 </picture>
 
-- **Fastest and cheapest:** browser-cli 0.2.3 took 17.1 s and $0.047 per task, against 19.7 s and $0.058 for Browser Use and 20.4 s and $0.050 for browser-harness.
-- **Close on turns and tokens:** browser-cli took 5.9 turns and 89k tokens per task; browser-harness took the fewest, 5.6 and 82k.
+- **Fastest and cheapest:** browser-cli 0.2.16 took 13.8 s and $0.047 per task, against 15.8 s and $0.051 for Browser Use 1.0.8, 23.8 s and $0.083 for agent-browser 0.44.0, and 25.0 s and $0.059 for browser-harness 0.1.14.
+- **Fewest tokens and turns:** browser-cli used 82k tokens and 5.5 turns per task, against 84k and 5.6 for Browser Use.
 - **Every tool answered all 16 runs correctly.**
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/crossed-tabs-dark.svg">
-  <img src="docs/assets/crossed-tabs-light.svg" alt="Runs where an agent saw another agent's tab, out of 6: browser-cli 0, browser-harness 6, Browser Use 4, agent-browser 6" width="100%">
+  <img src="docs/assets/crossed-tabs-light.svg" alt="Runs where an agent saw another agent's tab, out of 6, on 2026-11-24: browser-cli 0, browser-harness 0, Browser Use 5, agent-browser 6" width="100%">
 </picture>
 
-- **No agent saw another's tabs with browser-cli** when three agents worked in one browser at once, and with 0.2.8 it was also the fastest at it on average: 25 s per trial (16 and 34 s), against 36 s for Browser Use, 41 s for browser-harness and 112 s for agent-browser (2026-11-11 rerun).
+- **No agent saw another's tabs with browser-cli or browser-harness** when three agents worked in one browser at once; browser-harness keeps each agent to its own tabs from 0.1.14. With Browser Use and agent-browser, agents saw each other's tabs in 5 and 6 of 6 runs.
 
 Method, per-task results and the run records: [Benchmarks](docs/benchmarks/README.md). Rerun it with [`bench/`](bench/README.md).
 
@@ -255,7 +255,7 @@ Method, per-task results and the run records: [Benchmarks](docs/benchmarks/READM
 | Tool | Several agents in one browser | Another machine | Your signed-in browser |
 | --- | --- | --- | --- |
 | **browser-cli** | [Each task owns its tabs](docs/use-cases/several-agents.md) | [Over SSH](docs/guide/remote.md) | [Yes, any profile](docs/guide/profiles.md) |
-| [browser-harness](https://github.com/browser-use/browser-harness) | One current tab; agents can race | Any CDP URL | Yes, after Chrome's Allow dialog |
+| [browser-harness](https://github.com/browser-use/browser-harness) | [Each agent's own tabs (`BH_OWNER`), from 0.1.14](https://github.com/browser-use/browser-harness/blob/78dca5346138ab2bebd372308eeaeba6788f14cc/SKILL.md?plain=1#L28-L30) | Any CDP URL | Yes, after Chrome's Allow dialog |
 | [agent-browser](https://agent-browser.dev) | [A browser per session, or opt-in `--pin-tab`](https://agent-browser.dev/sessions) | [Any CDP URL](https://agent-browser.dev/cdp-mode) | [Copies or attaches to your profile](https://agent-browser.dev/sessions) |
 | [Browserbase `browse`](https://github.com/browserbase/stagehand/tree/main/packages/cli) | A browser per session | Any CDP URL | `--auto-connect` to local Chrome |
 | [Playwright CLI](https://github.com/microsoft/playwright-cli) | A browser per session | CDP URL or Playwright server | After Chrome's toggle, or the extension |
@@ -264,7 +264,7 @@ Method, per-task results and the run records: [Benchmarks](docs/benchmarks/READM
 | [Claude in Chrome](https://code.claude.com/docs/en/chrome) | [A tab group per session](https://code.claude.com/docs/en/chrome) | Not documented | [Yes, through the extension](https://code.claude.com/docs/en/chrome) |
 | [Playwriter](https://playwriter.dev) | [Tabs shared across sessions](https://playwriter.dev/docs/sessions) | [`playwriter serve` over a LAN or tunnel](https://playwriter.dev/docs/remote-access) | [Yes, through the extension](https://playwriter.dev) |
 
-Read from each tool's own docs and code on 2026-11-07. The source for every cell is in [docs/comparison.md](docs/comparison.md).
+Read from each tool's own docs and code on 2026-11-07; browser-harness re-read at 0.1.14 on 2026-11-24. The source for every cell is in [docs/comparison.md](docs/comparison.md).
 
 ## Security and privacy
 

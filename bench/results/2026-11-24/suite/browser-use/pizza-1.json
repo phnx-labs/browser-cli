@@ -1,0 +1,32 @@
+{
+  "kind": "suite",
+  "tool": "browser-use",
+  "toolVersion": "1.0.8",
+  "task": "pizza",
+  "trial": 1,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "all fields submitted",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-24T08:46:49.114Z",
+  "seconds": 12.946016679000008,
+  "turns": 6,
+  "costUsd": 0.05443900000000001,
+  "tokens": {
+    "input": 10,
+    "cacheCreation": 9234,
+    "cacheRead": 82430,
+    "output": 924,
+    "total": 92598
+  },
+  "answer": "I submitted the pizza order, and httpbin accepted it. The response page lists these form values:\n\n- **Customer name:** Ada Lovelace\n- **Telephone:** 555-0100\n- **Email:** ada@example.com\n- **Size:** large\n- **Toppings:** bacon and cheese (the form's value for Extra Cheese)\n- **Delivery time:** 19:45\n- **Delivery instructions:** Ring twice\n\nThe final page, `https://httpbin.org/post`, is still open in its tab.",
+  "claudeVersion": "2.1.301",
+  "error": null,
+  "permissionDenials": [],
+  "toolCalls": 4,
+  "openTabs": [
+    "https://httpbin.org/post"
+  ]
+}

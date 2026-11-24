@@ -1,0 +1,109 @@
+{
+  "kind": "isolation",
+  "tool": "browser-harness",
+  "toolVersion": "0.1.14",
+  "trial": 2,
+  "model": "claude-sonnet-5-5",
+  "wallSeconds": 8.291,
+  "agents": [
+    {
+      "task": "books",
+      "correct": false,
+      "grade": "expected \"The Girl You Lost\" at \u00a312.29",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-24T09:08:41.800Z",
+      "seconds": 7.6508958339999955,
+      "turns": 4,
+      "costUsd": 0.0403491,
+      "tokens": {
+        "input": 6,
+        "cacheCreation": 7767,
+        "cacheRead": 43891,
+        "output": 488,
+        "total": 52152
+      },
+      "answer": "I couldn't complete the task. The command that drives the browser needs approval, and that approval wasn't given, so nothing ran. The script would have opened my own tab on the Mystery category, paged through every page and collected the five-star books. I have no title or price to give you.\n\nIf you approve the command, I'll run it again. I'd then leave the final tab open and report the answer.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [
+        {
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_01SfCbjXqZQg7B92EeCs9khy",
+          "tool_input": {
+            "command": "BH_OWNER=mystery browser-harness <<'PY'\nt=new_tab(\"https://books.toscrape.com/catalogue/category/books/mystery_3/index.html\")\nwait_for_load()\nres=[]\nwhile True:\n    r=js(\"\"\"[...document.querySelectorAll('article.product_pod')].map(a=>[a.querySelector('h3 a').title,a.querySelector('p.star-rating').className,a.querySelector('.price_color').textContent])\"\"\")\n    res+=r\n    nxt=js(\"(document.querySelector('li.next a')||{}).href||null\")\n    if not nxt: break\n    goto_url(nxt); wait_for_load()\nf=[x for x in res if 'Five' in x[1]]\nprint(len(res),sorted(f,key=lambda x:float(x[2][1:])))\nPY"
+          }
+        }
+      ],
+      "toolCalls": 2,
+      "sawOtherAgentsTab": false,
+      "leakingCommands": []
+    },
+    {
+      "task": "pizza",
+      "correct": false,
+      "grade": "no open tab on httpbin.org/post",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-24T09:08:41.801Z",
+      "seconds": 7.608157357000004,
+      "turns": 4,
+      "costUsd": 0.0383659,
+      "tokens": {
+        "input": 6,
+        "cacheCreation": 7637,
+        "cacheRead": 44059,
+        "output": 340,
+        "total": 52042
+      },
+      "answer": "The browser command needs your approval before it can run, and it was not approved. I haven't opened the page or placed the order.\n\nPlease approve the `browser-harness` command, or tell me if you want me to take a different approach. Once it's approved, I'll fill in the form with the details you gave, submit it, and leave the result tab open.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [
+        {
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_01TeiUPqqcdjjz6YmXCy1ymu",
+          "tool_input": {
+            "command": "BH_OWNER=pizza browser-harness <<'PY'\nt=new_tab(\"https://httpbin.org/forms/post\")\nwait_for_load()\nprint(js(\"\"\"[...document.querySelectorAll('input,textarea,select')].map(e=>e.name+'|'+e.type+'|'+e.value+'|'+(e.min||'')+'|'+(e.step||'')).join('\\\\n')\"\"\"))\nPY"
+          }
+        }
+      ],
+      "toolCalls": 2,
+      "sawOtherAgentsTab": false,
+      "leakingCommands": []
+    },
+    {
+      "task": "saucedemo",
+      "correct": false,
+      "grade": "no open tab on checkout-complete.html",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-24T09:08:41.801Z",
+      "seconds": 8.288492690999993,
+      "turns": 4,
+      "costUsd": 0.04107329999999999,
+      "tokens": {
+        "input": 6,
+        "cacheCreation": 7714,
+        "cacheRead": 44053,
+        "output": 580,
+        "total": 52353
+      },
+      "answer": "I couldn't do any of the checkout. The only browser tool I was given is `browser-harness`, run through Bash, and my first command needed approval that wasn't granted. That command opened a new tab on saucedemo.com and tried to log in as standard_user. Nothing ran, so no tab is open, nothing is in the cart, and no order was placed.\n\nI haven't retried or tried another route, because you told me to use only that browser tool. If you approve the `browser-harness` command, I'll do the whole flow in my own tab. That means logging in, sorting by price low to high, adding the Backpack and Bike Light, checking out as Ada Lovelace with postal code 10001, and leaving the confirmation page open.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [
+        {
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_01UnbHjkGbkNGKeHZdQaTrjW",
+          "tool_input": {
+            "command": "BH_OWNER=ada browser-harness <<'PY'\nnew_tab(\"https://www.saucedemo.com\")\nwait_for_load()\njs(\"\"\"\nconst s=(sel,v)=>{const e=document.querySelector(sel);const set=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;set.call(e,v);e.dispatchEvent(new Event('input',{bubbles:true}));};\ns('#user-name','standard_user');s('#password','secret_sauce');document.querySelector('#login-button').click();\n\"\"\")\nimport time;time.sleep(2)\nprint(page_info())\nPY"
+          }
+        }
+      ],
+      "toolCalls": 2,
+      "sawOtherAgentsTab": false,
+      "leakingCommands": []
+    }
+  ]
+}

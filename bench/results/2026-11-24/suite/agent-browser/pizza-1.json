@@ -1,0 +1,40 @@
+{
+  "kind": "suite",
+  "tool": "agent-browser",
+  "toolVersion": "0.44.0",
+  "task": "pizza",
+  "trial": 1,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "all fields submitted",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-24T08:46:20.404Z",
+  "seconds": 16.436742515000006,
+  "turns": 9,
+  "costUsd": 0.076945,
+  "tokens": {
+    "input": 16,
+    "cacheCreation": 13005,
+    "cacheRead": 152330,
+    "output": 966,
+    "total": 166317
+  },
+  "answer": "I submitted the pizza order, and httpbin's response confirms it received these values:\n\n- **Customer name:** Ada Lovelace\n- **Telephone:** 555-0100\n- **Email:** ada@example.com\n- **Size:** large\n- **Toppings:** bacon, cheese (Bacon and Extra Cheese)\n- **Delivery time:** 19:45\n- **Delivery instructions:** \"Ring twice\"\n\nThe response page (`https://httpbin.org/post`) is still open in the browser tab.",
+  "claudeVersion": "2.1.301",
+  "error": null,
+  "permissionDenials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01WJ39wwMxkpNJNr3phMY1XA",
+      "tool_input": {
+        "command": "S=$(agent-browser session id --scope worktree --prefix task); echo $S; agent-browser --session $S open https://httpbin.org/forms/post && agent-browser --session $S snapshot -i"
+      }
+    }
+  ],
+  "toolCalls": 7,
+  "openTabs": [
+    "https://httpbin.org/post"
+  ]
+}

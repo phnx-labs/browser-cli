@@ -1,0 +1,41 @@
+{
+  "kind": "suite",
+  "tool": "browser-harness",
+  "toolVersion": "0.1.14",
+  "task": "pizza",
+  "trial": 1,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": false,
+  "grade": "no open tab on httpbin.org/post",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-24T08:46:09.995Z",
+  "seconds": 10.153843223999997,
+  "turns": 5,
+  "costUsd": 0.047988100000000006,
+  "tokens": {
+    "input": 8,
+    "cacheCreation": 8925,
+    "cacheRead": 62321,
+    "output": 604,
+    "total": 71858
+  },
+  "answer": "The command needed approval, and it wasn't granted, so I haven't submitted the order. The page is open at https://httpbin.org/forms/post, and I haven't filled in any fields.\n\nI can retry the same fill-and-submit step if you approve it. I can also try a different approach if you'd prefer.",
+  "claudeVersion": "2.1.301",
+  "error": null,
+  "permissionDenials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_0183CtXHWX1KMMW2fKt3j4QS",
+      "tool_input": {
+        "command": "BH_OWNER=pizza browser-harness <<'PY'\njs(\"\"\"\nconst f=document.forms[0];\nf.custname.value='Ada Lovelace';f.custtel.value='555-0100';f.custemail.value='ada@example.com';\nf.querySelector('[name=size][value=large]').checked=true;\nf.querySelector('[value=bacon]').checked=true;f.querySelector('[value=cheese]').checked=true;\nf.delivery.value='19:45';f.comments.value='Ring twice';\n\"\"\")\nprint(js(\"return new URLSearchParams(new FormData(document.forms[0])).toString()\"))\njs(\"document.querySelector('button').click()\")\nwait_for_load()\nprint(page_info())\nprint(js(\"return document.body.innerText\"))\nPY"
+      }
+    }
+  ],
+  "toolCalls": 3,
+  "openTabs": [
+    "https://httpbin.org/forms/post",
+    "about:blank"
+  ]
+}

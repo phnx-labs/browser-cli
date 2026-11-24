@@ -1,0 +1,40 @@
+{
+  "kind": "suite",
+  "tool": "agent-browser",
+  "toolVersion": "0.44.0",
+  "task": "instagram",
+  "trial": 1,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "page shows 104M followers",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-24T08:54:11.517Z",
+  "seconds": 15.538385782999917,
+  "turns": 9,
+  "costUsd": 0.056410999999999996,
+  "tokens": {
+    "input": 16,
+    "cacheCreation": 8965,
+    "cacheRead": 132190,
+    "output": 730,
+    "total": 141901
+  },
+  "answer": "The profile is **NASA** (username `@nasa`), and the page shows **104M followers**.\n\nThe page header says \"104M followers\". The page's meta description says \"104M Followers\". I left the profile open in its browser tab.",
+  "claudeVersion": "2.1.301",
+  "error": null,
+  "permissionDenials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01Guxekiw11LHWzADXc9NtzD",
+      "tool_input": {
+        "command": "S=$(agent-browser session id --scope worktree --prefix task); agent-browser --session $S open https://www.instagram.com/nasa/ && agent-browser --session $S snapshot -i | head -60"
+      }
+    }
+  ],
+  "toolCalls": 7,
+  "openTabs": [
+    "https://www.instagram.com/nasa/"
+  ]
+}

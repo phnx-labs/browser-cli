@@ -1,0 +1,125 @@
+{
+  "kind": "isolation",
+  "tool": "browser-use",
+  "toolVersion": "1.0.8",
+  "trial": 1,
+  "model": "claude-sonnet-5-5",
+  "wallSeconds": 29.286,
+  "agents": [
+    {
+      "task": "books",
+      "correct": true,
+      "grade": "expected \"The Girl You Lost\" at \u00a312.29",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-24T09:06:45.007Z",
+      "seconds": 19.823162385,
+      "turns": 8,
+      "costUsd": 0.0640579,
+      "tokens": {
+        "input": 14,
+        "cacheCreation": 10111,
+        "cacheRead": 120759,
+        "output": 1151,
+        "total": 132035
+      },
+      "answer": "The cheapest five-star book in the Mystery category is **\"The Girl You Lost\"**, at **\u00a312.29**.\n\nI checked both pages of the category, 32 books in total. Five of them are rated five stars. The other four cost \u00a323.05 or more. My tab is still open on the last page I loaded, which is page 3 of the category (it has no books).",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 6,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "browser-use <<'PY'\nprint(page_info())\nprint(js(\"document.body.innerText.slice(0,300)\"))\nPY",
+          "seen": [
+            "saucedemo.com",
+            "Swag Labs"
+          ]
+        },
+        {
+          "command": "browser-use <<'PY'\nprint(current_tab())\nfor t in list_tabs(): print(t)\nPY",
+          "seen": [
+            "httpbin.org",
+            "saucedemo.com",
+            "Swag Labs"
+          ]
+        }
+      ]
+    },
+    {
+      "task": "pizza",
+      "correct": true,
+      "grade": "all fields submitted",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-24T09:06:45.008Z",
+      "seconds": 23.084400277999997,
+      "turns": 9,
+      "costUsd": 0.0864898,
+      "tokens": {
+        "input": 16,
+        "cacheCreation": 13191,
+        "cacheRead": 146538,
+        "output": 1904,
+        "total": 161649
+      },
+      "answer": "I submitted the pizza order, and httpbin's response echoed back the values I entered:\n\n- **Customer:** Ada Lovelace\n- **Telephone:** 555-0100\n- **Email:** ada@example.com\n- **Size:** large\n- **Toppings:** bacon and cheese (the form's \"Extra Cheese\" checkbox, whose value is `cheese`)\n- **Delivery time:** 19:45\n- **Delivery instructions:** Ring twice\n\nThe response page (`https://httpbin.org/post`) is still open in the tab I opened.\n\nMy first tab for the form turned out to be one I couldn't confirm was mine, so I opened a second one and used only that. The browser's attached tab also switched to another agent's page once. My first fill attempt hit that tab and failed on a missing form field, so nothing was submitted from it. I switched back to my own tab and submitted from there. I left the first httpbin tab open, since I couldn't tell whether it belonged to me.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 7,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "browser-use <<'PY'\nprint(page_info()); print(list_tabs())\nprint(js(\"document.body.innerText.slice(0,500)\"))\nPY",
+          "seen": [
+            "saucedemo.com",
+            "Swag Labs"
+          ]
+        }
+      ]
+    },
+    {
+      "task": "saucedemo",
+      "correct": true,
+      "grade": "checkout-complete page open",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-24T09:06:45.008Z",
+      "seconds": 29.283076886,
+      "turns": 12,
+      "costUsd": 0.1091714,
+      "tokens": {
+        "input": 22,
+        "cacheCreation": 15163,
+        "cacheRead": 221754,
+        "output": 2630,
+        "total": 239569
+      },
+      "answer": "The order is complete. The confirmation page shows \"Thank you for your order!\", and it's still open in the tab I opened.\n\n- **Sort:** I sorted by Price (low to high).\n- **Items:** The cart held the Sauce Labs Backpack and the Sauce Labs Bike Light.\n- **Checkout:** I checked out as Ada Lovelace, postal code 10001.\n- **Total:** $43.18.\n\nAnother agent's activity switched the shared browser's attached tab while I worked. I switched back to my own saucedemo tab before each later step. I didn't touch the other tabs.",
+      "claudeVersion": "2.1.301",
+      "error": null,
+      "permissionDenials": [],
+      "toolCalls": 10,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "browser-use <<'PY'\nprint(current_tab()); print(page_info()); print(js(\"document.body.innerText.slice(0,200)\"))\nPY",
+          "seen": [
+            "books.toscrape.com",
+            "Books to Scrape"
+          ]
+        },
+        {
+          "command": "browser-use <<'PY'\nfor t in list_tabs(): print(t)\nPY",
+          "seen": [
+            "books.toscrape.com",
+            "Books to Scrape",
+            "httpbin.org"
+          ]
+        }
+      ]
+    }
+  ]
+}

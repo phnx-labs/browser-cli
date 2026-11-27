@@ -2,7 +2,7 @@
 
 ## 0.2.18
 
-- `browser text --grep` cuts long lines. On an article a line is a whole paragraph or a reference, so a match kept it whole along with two more like it: on 2026-11-27 one `--grep "Argentina won|champions"` on Wikipedia's 2022 World Cup page printed 105 lines and 18,144 characters, and browser-cli's Wikipedia task cost $0.11 against about $0.05 for the other tools. A matching line over 240 characters now keeps the 240 around its first match, and a context line over 120 its first 120, each marked `…` where text was cut. Short lines, such as table rows, infoboxes and forms, print as before. For a whole paragraph, use `--css` or `text` without `--grep`.
+- `browser text --grep` cuts long lines. On an article a line is a whole paragraph or a reference, so a match kept it whole along with two more like it: on 2026-11-27 one `--grep "Argentina won|champions"` on Wikipedia's 2022 World Cup page printed 105 lines and 18,144 characters, and browser-cli's Wikipedia task cost $0.11 against about $0.05 for the other tools. A matching line over 240 characters now keeps the 240 around its first match, and a context line over 120 its first 120, each marked `…` where text was cut. Short lines, such as table rows, infoboxes and forms, and values read with `--css … --attr`, such as links, print as before. For a whole paragraph, use `--css` or `text` without `--grep`.
 
 ## 0.2.17
 

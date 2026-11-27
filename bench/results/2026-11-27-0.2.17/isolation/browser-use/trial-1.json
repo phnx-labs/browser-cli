@@ -1,0 +1,254 @@
+{
+  "kind": "isolation",
+  "tool": "browser-use",
+  "toolVersion": "1.0.9",
+  "trial": 1,
+  "model": "claude-sonnet-5-5",
+  "wallSeconds": 30.742,
+  "agents": [
+    {
+      "task": "books",
+      "correct": true,
+      "grade": "expected \"The Girl You Lost\" at £12.29",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-27T15:50:41.216Z",
+      "seconds": 10.317104858999999,
+      "turns": 4,
+      "costUsd": 0.0505067,
+      "tokens": {
+        "input": 6,
+        "cacheCreation": 10198,
+        "cacheRead": 41527,
+        "output": 555,
+        "total": 52286
+      },
+      "answer": "The cheapest five-star book in the Mystery category is **The Girl You Lost**, at **£12.29**.\n\nI checked all 32 books across every page of the category. Five of them are rated five stars. The next cheapest is The Silkworm (Cormoran Strike #2) at £23.05. The tab I opened is still open on the category's last page.",
+      "claudeVersion": "2.1.301",
+      "skills": [
+        "browser-use",
+        "deep-research",
+        "design",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "workflow-authoring",
+        "run",
+        "run-skill-generator",
+        "plugin-authoring"
+      ],
+      "plugins": [
+        "cc-plugin-agents-md",
+        "cc-plugin-telemetry",
+        "cc-plugin-plugin-authoring"
+      ],
+      "error": null,
+      "tools": [
+        "Bash",
+        "CronCreate",
+        "CronDelete",
+        "CronList",
+        "DesignSync",
+        "EnterWorktree",
+        "ExitWorktree",
+        "ListAgents",
+        "Monitor",
+        "PushNotification",
+        "Read",
+        "RemoteTrigger",
+        "ReportFindings",
+        "ScheduleWakeup",
+        "SendMessage",
+        "Skill",
+        "TaskStop",
+        "ToolSearch",
+        "Workflow"
+      ],
+      "permissionDenials": [],
+      "toolCalls": 2,
+      "sawOtherAgentsTab": false,
+      "leakingCommands": []
+    },
+    {
+      "task": "pizza",
+      "correct": true,
+      "grade": "all fields submitted",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-27T15:50:41.217Z",
+      "seconds": 17.489426547,
+      "turns": 8,
+      "costUsd": 0.083707,
+      "tokens": {
+        "input": 14,
+        "cacheCreation": 14249,
+        "cacheRead": 125730,
+        "output": 1411,
+        "total": 141404
+      },
+      "answer": "I submitted the pizza order, and httpbin.org echoed the data back, so the form fields were received as entered.\n\nThe echoed form data was:\n- **Customer name:** Ada Lovelace\n- **Telephone:** 555-0100\n- **Email:** ada@example.com\n- **Size:** large\n- **Toppings:** bacon and cheese (the form's \"Extra Cheese\" option has the value `cheese`)\n- **Delivery time:** 19:45\n- **Delivery instructions:** Ring twice\n\nThe tab I opened is still open on the `https://httpbin.org/post` response page. Partway through, the browser's attached tab switched to another agent's tab. My first attempt failed there without changing anything. I switched back to my own tab and did the rest in it.",
+      "claudeVersion": "2.1.301",
+      "skills": [
+        "browser-use",
+        "deep-research",
+        "design",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "workflow-authoring",
+        "run",
+        "run-skill-generator",
+        "plugin-authoring"
+      ],
+      "plugins": [
+        "cc-plugin-agents-md",
+        "cc-plugin-telemetry",
+        "cc-plugin-plugin-authoring"
+      ],
+      "error": null,
+      "tools": [
+        "Bash",
+        "CronCreate",
+        "CronDelete",
+        "CronList",
+        "DesignSync",
+        "EnterWorktree",
+        "ExitWorktree",
+        "ListAgents",
+        "Monitor",
+        "PushNotification",
+        "Read",
+        "RemoteTrigger",
+        "ReportFindings",
+        "ScheduleWakeup",
+        "SendMessage",
+        "Skill",
+        "TaskStop",
+        "ToolSearch",
+        "Workflow"
+      ],
+      "permissionDenials": [],
+      "toolCalls": 6,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "browser-use <<'PY'\nprint(current_tab()); print(page_info()); print(list_tabs())\nPY",
+          "seen": [
+            "books.toscrape.com",
+            "Books to Scrape",
+            "saucedemo.com",
+            "Swag Labs"
+          ]
+        }
+      ]
+    },
+    {
+      "task": "saucedemo",
+      "correct": true,
+      "grade": "checkout-complete page open",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-27T15:50:41.218Z",
+      "seconds": 30.740028263,
+      "turns": 10,
+      "costUsd": 0.0982931,
+      "tokens": {
+        "input": 18,
+        "cacheCreation": 14647,
+        "cacheRead": 166391,
+        "output": 2303,
+        "total": 183359
+      },
+      "answer": "The order is complete. After checkout, the site showed \"Thank you for your order! Your order has been dispatched, and will arrive just as fast as the pony can get there!\"\n\n- **Login:** I logged in as `standard_user`.\n- **Sort:** I sorted by price, low to high.\n- **Cart:** I added the Sauce Labs Backpack ($29.99) and the Sauce Labs Bike Light ($9.99).\n- **Checkout:** I checked out as Ada Lovelace, postal code 10001. The order total was $43.18.\n\nThe confirmation page (`https://www.saucedemo.com/checkout-complete.html`) is still open in the tab I opened. I worked only in that tab.",
+      "claudeVersion": "2.1.301",
+      "skills": [
+        "browser-use",
+        "deep-research",
+        "design",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "workflow-authoring",
+        "run",
+        "run-skill-generator",
+        "plugin-authoring"
+      ],
+      "plugins": [
+        "cc-plugin-agents-md",
+        "cc-plugin-telemetry",
+        "cc-plugin-plugin-authoring"
+      ],
+      "error": null,
+      "tools": [
+        "Bash",
+        "CronCreate",
+        "CronDelete",
+        "CronList",
+        "DesignSync",
+        "EnterWorktree",
+        "ExitWorktree",
+        "ListAgents",
+        "Monitor",
+        "PushNotification",
+        "Read",
+        "RemoteTrigger",
+        "ReportFindings",
+        "ScheduleWakeup",
+        "SendMessage",
+        "Skill",
+        "TaskStop",
+        "ToolSearch",
+        "Workflow"
+      ],
+      "permissionDenials": [],
+      "toolCalls": 8,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "browser-use <<'PY'\nnew_tab(\"https://www.saucedemo.com\")\nwait_for_load()\nprint(page_info())\nPY",
+          "seen": [
+            "httpbin.org"
+          ]
+        },
+        {
+          "command": "browser-use <<'PY'\nprint(current_tab())\nfor t in list_tabs(): print(t)\nPY",
+          "seen": [
+            "books.toscrape.com",
+            "Books to Scrape",
+            "httpbin.org"
+          ]
+        }
+      ]
+    }
+  ]
+}

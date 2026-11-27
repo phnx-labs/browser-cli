@@ -1,0 +1,346 @@
+{
+  "kind": "isolation",
+  "tool": "agent-browser",
+  "toolVersion": "0.45.0",
+  "trial": 1,
+  "model": "claude-sonnet-5-5",
+  "wallSeconds": 50.121,
+  "agents": [
+    {
+      "task": "books",
+      "correct": true,
+      "grade": "expected \"The Girl You Lost\" at £12.29",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-27T16:51:53.798Z",
+      "seconds": 32.90435533800001,
+      "turns": 15,
+      "costUsd": 0.129911,
+      "tokens": {
+        "input": 28,
+        "cacheCreation": 17851,
+        "cacheRead": 296410,
+        "output": 2881,
+        "total": 317170
+      },
+      "answer": "The cheapest five-star book in the Mystery category is **The Girl You Lost**, at **£12.29**.\n\nThe category has 32 books across two pages, and I checked every one. Six are rated five stars:\n\n| Title | Price |\n|---|---|\n| The Girl You Lost | £12.29 |\n| The Silkworm (Cormoran Strike #2) | £23.05 |\n| What Happened on Beale Street (Secrets of the South Mysteries #2) | £25.37 |\n| A Time of Torment (Charlie Parker #14) | £48.35 |\n| The Bachelor Girl's Guide to Murder (Herringford and Watts Mysteries #1) | £52.30 |\n\nI opened the category in my own tab (t1) and left it open on page 2, the last page, which is where The Girl You Lost is listed. Partway through, the browser's active tab switched to another agent's page, so I switched back to t1 before reading the data and did not touch the other agents' tabs.",
+      "claudeVersion": "2.1.301",
+      "skills": [
+        "agent-browser",
+        "deep-research",
+        "design",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "workflow-authoring",
+        "run",
+        "run-skill-generator",
+        "plugin-authoring"
+      ],
+      "plugins": [
+        "cc-plugin-agents-md",
+        "cc-plugin-telemetry",
+        "cc-plugin-plugin-authoring"
+      ],
+      "error": null,
+      "tools": [
+        "Bash",
+        "CronCreate",
+        "CronDelete",
+        "CronList",
+        "DesignSync",
+        "EnterWorktree",
+        "ExitWorktree",
+        "ListAgents",
+        "Monitor",
+        "PushNotification",
+        "Read",
+        "RemoteTrigger",
+        "ReportFindings",
+        "ScheduleWakeup",
+        "SendMessage",
+        "Skill",
+        "TaskStop",
+        "ToolSearch",
+        "Workflow"
+      ],
+      "permissionDenials": [
+        {
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_018rYn3R9D4Gs5cCNvv4CKBV",
+          "tool_input": {
+            "command": "S=$(agent-browser session id --scope worktree --prefix task); echo $S; agent-browser --session $S open https://books.toscrape.com/catalogue/category/books/mystery_3/index.html; cat <<'EOF' | agent-browser --session $S eval --stdin\n(async()=>{let out=[];let url=location.href;while(url){const d=new DOMParser().parseFromString(await (await fetch(url)).text(),'text/html');d.querySelectorAll('article.product_pod').forEach(a=>out.push([a.querySelector('p.star-rating').className,a.querySelector('h3 a').title,a.querySelector('.price_color').textContent]));const n=d.querySelector('li.next a');url=n?new URL(n.getAttribute('href'),url).href:null}return out.filter(x=>x[0].includes('Five')).concat([['total',out.length]])})()\nEOF"
+          }
+        },
+        {
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_01RR1jhzmdxUDJXk94JzEWuv",
+          "tool_input": {
+            "command": "cat > <run>/q.js <<'EOF'\n(async()=>{let out=[];let url=location.href;while(url){const d=new DOMParser().parseFromString(await (await fetch(url)).text(),'text/html');d.querySelectorAll('article.product_pod').forEach(a=>out.push([a.querySelector('p.star-rating').className,a.querySelector('h3 a').title,a.querySelector('.price_color').textContent]));const n=d.querySelector('li.next a');url=n?new URL(n.getAttribute('href'),url).href:null}return out.filter(x=>x[0].includes('Five')).concat([['total',out.length]])})()\nEOF\nagent-browser --session task-18f1edcb5c23 eval --stdin < <run>/q.js"
+          }
+        }
+      ],
+      "toolCalls": 13,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "agent-browser --session task-18f1edcb5c23 snapshot -i -c | head -40; agent-browser --session task-18f1edcb5c23 tab",
+          "seen": [
+            "httpbin.org",
+            "saucedemo.com",
+            "Swag Labs"
+          ]
+        },
+        {
+          "command": "agent-browser --session task-18f1edcb5c23 open https://books.toscrape.com/catalogue/category/books/mystery_3/page-2.html; agent-browser --session task-18f1edcb5c23 tab; agent-browser --session task-18f1edcb5c23 eval \"Array.from(document.querySelectorAll('article.product_pod')).map(a=>a.querySelector",
+          "seen": [
+            "httpbin.org",
+            "saucedemo.com",
+            "Swag Labs"
+          ]
+        }
+      ]
+    },
+    {
+      "task": "pizza",
+      "correct": true,
+      "grade": "all fields submitted",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-27T16:51:53.798Z",
+      "seconds": 33.641750875,
+      "turns": 18,
+      "costUsd": 0.1476453,
+      "tokens": {
+        "input": 34,
+        "cacheCreation": 20194,
+        "cacheRead": 384013,
+        "output": 2840,
+        "total": 407081
+      },
+      "answer": "I submitted the pizza order, and httpbin accepted it. The response page (`https://httpbin.org/post`) is still open in the tab I opened, t2.\n\nThe server echoed back these fields:\n- **Customer name:** Ada Lovelace\n- **Telephone:** 555-0100\n- **Email:** ada@example.com\n- **Size:** large\n- **Toppings:** bacon and extra cheese (submitted as `bacon` and `cheese`)\n- **Delivery time:** 19:45\n- **Delivery instructions:** \"Ring twice\"\n\nThe session's first tab was on another site and the active tab kept switching to other agents' tabs. I switched back to t2 before each step and didn't touch their tabs.",
+      "claudeVersion": "2.1.301",
+      "skills": [
+        "agent-browser",
+        "deep-research",
+        "design",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "workflow-authoring",
+        "run",
+        "run-skill-generator",
+        "plugin-authoring"
+      ],
+      "plugins": [
+        "cc-plugin-agents-md",
+        "cc-plugin-telemetry",
+        "cc-plugin-plugin-authoring"
+      ],
+      "error": null,
+      "tools": [
+        "Bash",
+        "CronCreate",
+        "CronDelete",
+        "CronList",
+        "DesignSync",
+        "EnterWorktree",
+        "ExitWorktree",
+        "ListAgents",
+        "Monitor",
+        "PushNotification",
+        "Read",
+        "RemoteTrigger",
+        "ReportFindings",
+        "ScheduleWakeup",
+        "SendMessage",
+        "Skill",
+        "TaskStop",
+        "ToolSearch",
+        "Workflow"
+      ],
+      "permissionDenials": [
+        {
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_01GpUNA8EkNqNDdUUeRt4wRd",
+          "tool_input": {
+            "command": "S=$(agent-browser session id --scope worktree --prefix task); agent-browser --session $S open https://httpbin.org/forms/post; agent-browser --session $S snapshot -i"
+          }
+        },
+        {
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_01NkAN79RpsmHyX9BRKMsEov",
+          "tool_input": {
+            "command": "S=\"--session task-1f1228929fe9\"; agent-browser $S fill @e8 \"Ada Lovelace\"; agent-browser $S fill @e9 \"555-0100\"; agent-browser $S fill @e10 \"ada@example.com\"; agent-browser $S check @e13; agent-browser $S check @e14; agent-browser $S check @e15; agent-browser $S fill @e18 \"Ring twice\"; agent-browser $S click @e20; agent-browser $S type @e20 \"0745PM\"; agent-browser $S snapshot -i"
+          }
+        },
+        {
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_016uqE3ZPozZyhBEDxwYfo5L",
+          "tool_input": {
+            "command": "agent-browser --session task-1f1228929fe9 tab t2 && cat <<'EOF' | agent-browser --session task-1f1228929fe9 eval --stdin\nJSON.stringify(Object.fromEntries(new FormData(document.querySelector(\"form\")).entries()))\nEOF"
+          }
+        }
+      ],
+      "toolCalls": 16,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "agent-browser --session task-1f1228929fe9 open https://httpbin.org/forms/post; agent-browser --session task-1f1228929fe9 snapshot -i",
+          "seen": [
+            "Swag Labs"
+          ]
+        },
+        {
+          "command": "agent-browser --session task-1f1228929fe9 tab; agent-browser --session task-1f1228929fe9 get url",
+          "seen": [
+            "books.toscrape.com"
+          ]
+        },
+        {
+          "command": "agent-browser --session task-1f1228929fe9 tab new https://httpbin.org/forms/post; agent-browser --session task-1f1228929fe9 tab; agent-browser --session task-1f1228929fe9 snapshot -i",
+          "seen": [
+            "books.toscrape.com"
+          ]
+        },
+        {
+          "command": "agent-browser --session task-1f1228929fe9 fill @e8 \"Ada Lovelace\"; agent-browser --session task-1f1228929fe9 fill @e9 \"555-0100\"; agent-browser --session task-1f1228929fe9 fill @e10 \"ada@example.com\"; agent-browser --session task-1f1228929fe9 check @e13; agent-browser --session task-1f1228929fe9 che",
+          "seen": [
+            "Swag Labs"
+          ]
+        },
+        {
+          "command": "agent-browser --session task-1f1228929fe9 tab",
+          "seen": [
+            "books.toscrape.com",
+            "saucedemo.com",
+            "Swag Labs"
+          ]
+        }
+      ]
+    },
+    {
+      "task": "saucedemo",
+      "correct": true,
+      "grade": "checkout-complete page open",
+      "exit": 0,
+      "timedOut": false,
+      "startedAt": "2026-11-27T16:51:53.799Z",
+      "seconds": 50.118419072,
+      "turns": 19,
+      "costUsd": 0.1511747,
+      "tokens": {
+        "input": 36,
+        "cacheCreation": 21371,
+        "cacheRead": 417687,
+        "output": 2385,
+        "total": 441479
+      },
+      "answer": "The order is complete. The final page says \"Thank you for your order! Your order has been dispatched, and will arrive just as fast as the pony can get there!\"\n\nI logged in as standard_user and sorted by price from low to high. I added the Sauce Labs Backpack and the Sauce Labs Bike Light, and checked out as Ada Lovelace with postal code 10001.\n\nThe first tab the browser gave me had been taken over by another agent, so I opened my own tab (t3) and worked only there. It is still open on https://www.saucedemo.com/checkout-complete.html.",
+      "claudeVersion": "2.1.301",
+      "skills": [
+        "agent-browser",
+        "deep-research",
+        "design",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "workflow-authoring",
+        "run",
+        "run-skill-generator",
+        "plugin-authoring"
+      ],
+      "plugins": [
+        "cc-plugin-agents-md",
+        "cc-plugin-telemetry",
+        "cc-plugin-plugin-authoring"
+      ],
+      "error": null,
+      "tools": [
+        "Bash",
+        "CronCreate",
+        "CronDelete",
+        "CronList",
+        "DesignSync",
+        "EnterWorktree",
+        "ExitWorktree",
+        "ListAgents",
+        "Monitor",
+        "PushNotification",
+        "Read",
+        "RemoteTrigger",
+        "ReportFindings",
+        "ScheduleWakeup",
+        "SendMessage",
+        "Skill",
+        "TaskStop",
+        "ToolSearch",
+        "Workflow"
+      ],
+      "permissionDenials": [
+        {
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_01CUTJFEtRVDhvNeow7sfrUa",
+          "tool_input": {
+            "command": "S=$(agent-browser session id --scope worktree --prefix task); echo $S; agent-browser --session $S open https://www.saucedemo.com && agent-browser --session $S snapshot -i"
+          }
+        },
+        {
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_01PzCrgMMeH49MiBRqZGX7ET",
+          "tool_input": {
+            "command": "A=\"agent-browser --session task-5bdc7debfc85\"; $A fill @e5 standard_user && $A fill @e6 secret_sauce && $A click @e4 && $A wait --url \"**/inventory.html\" && $A snapshot -i"
+          }
+        }
+      ],
+      "toolCalls": 17,
+      "sawOtherAgentsTab": true,
+      "leakingCommands": [
+        {
+          "command": "agent-browser --session task-5bdc7debfc85 tab new https://www.saucedemo.com && agent-browser --session task-5bdc7debfc85 tab && agent-browser --session task-5bdc7debfc85 snapshot -i",
+          "seen": [
+            "books.toscrape.com",
+            "httpbin.org"
+          ]
+        },
+        {
+          "command": "agent-browser --session task-5bdc7debfc85 select @e29 \"Price (low to high)\" && agent-browser --session task-5bdc7debfc85 click \"[name=add-to-cart-sauce-labs-backpack]\" && agent-browser --session task-5bdc7debfc85 click \"[name=add-to-cart-sauce-labs-bike-light]\" && agent-browser --session task-5bdc7d",
+          "seen": [
+            "books.toscrape.com",
+            "httpbin.org"
+          ]
+        }
+      ]
+    }
+  ]
+}

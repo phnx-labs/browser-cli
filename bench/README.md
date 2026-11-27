@@ -1,6 +1,6 @@
 # bench
 
-Reruns the [benchmarks](../docs/benchmarks/README.md) (latest 2026-11-24): eight graded web tasks and the several-agents test, for browser-cli and the three other tools in the README's chart.
+Reruns the [benchmarks](../docs/benchmarks/README.md) (latest 2026-11-27): eight graded web tasks and the several-agents test, for browser-cli and the three other tools in the README's chart.
 
 It follows the method of the [2026-10-19 runs](../docs/benchmarks/archive-2026-10-19.md), with every task prompt written down in [`tasks.json`](tasks.json). Those runs used an earlier script, so compare numbers within one date, not across dates.
 

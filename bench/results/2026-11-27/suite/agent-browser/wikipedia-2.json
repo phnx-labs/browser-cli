@@ -1,0 +1,88 @@
+{
+  "kind": "suite",
+  "tool": "agent-browser",
+  "toolVersion": "0.45.0",
+  "task": "wikipedia",
+  "trial": 2,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "infobox figures 3121707, 13971006, 16366641; place true, population true",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-27T16:50:17.909Z",
+  "seconds": 16.446431329000042,
+  "turns": 9,
+  "costUsd": 0.06667989999999999,
+  "tokens": {
+    "input": 16,
+    "cacheCreation": 10860,
+    "cacheRead": 131279,
+    "output": 1008,
+    "total": 143163
+  },
+  "answer": "Argentina won the 2022 FIFA World Cup. Its capital is Buenos Aires.\n\n- **Country:** Argentina\n- **Capital:** Buenos Aires\n- **Population:** 3,121,707. The Buenos Aires article's infobox gives this for the \"Capital and autonomous city\" at the 2022 census. The same infobox lists the wider metro area at 16,366,641.\n\nThe Buenos Aires Wikipedia page is still open in the browser tab.",
+  "claudeVersion": "2.1.301",
+  "skills": [
+    "agent-browser",
+    "deep-research",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "plugins": [
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "error": null,
+  "tools": [
+    "Bash",
+    "CronCreate",
+    "CronDelete",
+    "CronList",
+    "DesignSync",
+    "EnterWorktree",
+    "ExitWorktree",
+    "ListAgents",
+    "Monitor",
+    "PushNotification",
+    "Read",
+    "RemoteTrigger",
+    "ReportFindings",
+    "ScheduleWakeup",
+    "SendMessage",
+    "Skill",
+    "TaskStop",
+    "ToolSearch",
+    "Workflow"
+  ],
+  "permissionDenials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01J8wwLzUuJubZxMuFPxr5Wn",
+      "tool_input": {
+        "command": "S=$(agent-browser session id --scope worktree --prefix task); agent-browser --session $S open https://en.wikipedia.org/wiki/2022_FIFA_World_Cup && agent-browser --session $S eval \"document.querySelector('.infobox').innerText.slice(0,600)\""
+      }
+    }
+  ],
+  "toolCalls": 7,
+  "openTabs": [
+    "https://en.wikipedia.org/wiki/Buenos_Aires"
+  ]
+}

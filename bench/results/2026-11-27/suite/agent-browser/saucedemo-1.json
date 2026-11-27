@@ -1,0 +1,95 @@
+{
+  "kind": "suite",
+  "tool": "agent-browser",
+  "toolVersion": "0.45.0",
+  "task": "saucedemo",
+  "trial": 1,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "checkout-complete page open",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-27T16:33:51.307Z",
+  "seconds": 29.047712834000006,
+  "turns": 18,
+  "costUsd": 0.1396367,
+  "tokens": {
+    "input": 34,
+    "cacheCreation": 20017,
+    "cacheRead": 388607,
+    "output": 2064,
+    "total": 410722
+  },
+  "answer": "The order is complete. The confirmation page (`https://www.saucedemo.com/checkout-complete.html`) says \"Thank you for your order!\" and \"Your order has been dispatched, and will arrive just as fast as the pony can get there!\"\n\n- **Login:** I logged in as `standard_user`.\n- **Sort:** I sorted the products by Price (low to high).\n- **Cart:** I added the Sauce Labs Backpack and the Sauce Labs Bike Light.\n- **Checkout:** I checked out as Ada Lovelace, postal code 10001. The item total was $39.98, tax $3.20, and the total $43.18.\n\nThe browser tab is still open on the confirmation page.",
+  "claudeVersion": "2.1.301",
+  "skills": [
+    "agent-browser",
+    "deep-research",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "plugins": [
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "error": null,
+  "tools": [
+    "Bash",
+    "CronCreate",
+    "CronDelete",
+    "CronList",
+    "DesignSync",
+    "EnterWorktree",
+    "ExitWorktree",
+    "ListAgents",
+    "Monitor",
+    "PushNotification",
+    "Read",
+    "RemoteTrigger",
+    "ReportFindings",
+    "ScheduleWakeup",
+    "SendMessage",
+    "Skill",
+    "TaskStop",
+    "ToolSearch",
+    "Workflow"
+  ],
+  "permissionDenials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01GT3ZxQyDL2r7J5iRNCFy8v",
+      "tool_input": {
+        "command": "S=$(agent-browser session id --scope worktree --prefix task); echo $S; agent-browser --session $S open https://www.saucedemo.com && agent-browser --session $S snapshot -i"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01Sh3RKwFFJ8xvWexiUC4J43",
+      "tool_input": {
+        "command": "B=\"agent-browser --session task-e54a72809277\"; $B fill @e5 standard_user && $B fill @e6 secret_sauce && $B click @e4 && $B wait --url \"**/inventory.html\" && $B snapshot -i"
+      }
+    }
+  ],
+  "toolCalls": 16,
+  "openTabs": [
+    "https://www.saucedemo.com/checkout-complete.html"
+  ]
+}

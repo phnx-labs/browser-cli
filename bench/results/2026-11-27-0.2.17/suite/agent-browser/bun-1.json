@@ -1,0 +1,88 @@
+{
+  "kind": "suite",
+  "tool": "agent-browser",
+  "toolVersion": "0.45.0",
+  "task": "bun",
+  "trial": 1,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "expected bun-v1.4.5, 38 or 40 assets, 51.3 MB; tag true, count true, size true",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-27T06:41:52.426Z",
+  "seconds": 16.276725202,
+  "turns": 9,
+  "costUsd": 0.0606308,
+  "tokens": {
+    "input": 16,
+    "cacheCreation": 9739,
+    "cacheRead": 133628,
+    "output": 828,
+    "total": 144211
+  },
+  "answer": "The latest release of oven-sh/bun is **bun-v1.4.5**, titled \"Bun v1.4.5\". Its page is still open in the browser.\n\n- **Tag:** `bun-v1.4.5`\n- **Assets:** 40, from the \"Assets 40\" button on the release page.\n- **`bun-linux-x64.zip` size:** 49 MB, as GitHub shows it in the assets list.",
+  "claudeVersion": "2.1.301",
+  "skills": [
+    "agent-browser",
+    "deep-research",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "plugins": [
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "error": null,
+  "tools": [
+    "Bash",
+    "CronCreate",
+    "CronDelete",
+    "CronList",
+    "DesignSync",
+    "EnterWorktree",
+    "ExitWorktree",
+    "ListAgents",
+    "Monitor",
+    "PushNotification",
+    "Read",
+    "RemoteTrigger",
+    "ReportFindings",
+    "ScheduleWakeup",
+    "SendMessage",
+    "Skill",
+    "TaskStop",
+    "ToolSearch",
+    "Workflow"
+  ],
+  "permissionDenials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_011kjQzyaRLXWwXGkaqaGSHJ",
+      "tool_input": {
+        "command": "S=$(agent-browser session id --scope worktree --prefix task); agent-browser --session $S open https://github.com/oven-sh/bun/releases/latest && agent-browser --session $S get url && agent-browser --session $S snapshot -i | head -60"
+      }
+    }
+  ],
+  "toolCalls": 7,
+  "openTabs": [
+    "https://github.com/oven-sh/bun/releases/tag/bun-v1.4.5"
+  ]
+}

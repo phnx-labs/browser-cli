@@ -2,6 +2,47 @@
 
 How browser-cli compares with other browser tools for coding agents, measured as turns, wall time, tokens and cost per task. Every number on this page comes from a record under [`bench/results/`](../../bench/results/), and [`bench/`](../../bench/README.md) reruns it.
 
+## 2026-11-27: browser-cli 0.2.18 against each tool's latest release
+
+The eight tasks and the several-agents test, rerun with every tool at its latest release that day, on the same machine and method as 2026-11-24: Linux arm64, Chrome for Testing 153.0.8010.36, Claude Sonnet 5.5 in Claude Code 2.1.301, each tool with its own shipped skill, two runs per task and two several-agents trials per tool. browser-cli built from 727f57a (0.2.18); [Browser Use 1.0.9](https://pypi.org/project/browser-use/1.0.9/), [browser-harness 0.1.15](https://pypi.org/project/browser-harness/0.1.15/), [agent-browser 0.45.0](https://www.npmjs.com/package/agent-browser/v/0.45.0). Records in [`bench/results/2026-11-27/`](../../bench/results/2026-11-27/), with `summary.md`. Model spend reported by Claude Code: $6.30.
+
+### Eight graded web tasks
+
+| Tool | Correct | Seconds/task | Cost/task | Tokens/task | Turns/task |
+|---|---:|---:|---:|---:|---:|
+| **browser-cli 0.2.18** | 16/16 | **13.9** | **$0.0558** | **82k** | **5.56** |
+| Browser Use 1.0.9 | 16/16 | 17.8 | $0.0614 | 90k | 5.81 |
+| agent-browser 0.45.0 | 16/16 | 20.6 | $0.0876 | 206k | 11.06 |
+| browser-harness 0.1.15 | 16/16 | 27.8 | $0.0651 | 96k | 6.13 |
+
+browser-cli is fastest, cheapest and uses the fewest tokens and turns. Claude Code refused 27 of agent-browser's commands in the 16 runs and none of the others'. Every tool cost more per task than on 2026-11-24 (browser-cli $0.047, Browser Use $0.051). Costs move between passes even for one version: Browser Use 1.0.9 cost $0.0555 per task in the first pass that morning (below) and $0.0614 in this one. Compare tools within one run.
+
+Per task, both runs correct for every tool; mean turns and seconds:
+
+| Task | browser-cli | Browser Use | agent-browser | browser-harness |
+|---|---|---|---|---|
+| books | 5.5 turns, 13 s | 4.5 turns, 11 s | 9.5 turns, 20 s | 4.5 turns, 12 s |
+| pizza | 5.0 turns, 12 s | 5.5 turns, 12 s | 12.5 turns, 23 s | 8.5 turns, 18 s |
+| bun | 5.0 turns, 13 s | 5.0 turns, 12 s | 9.0 turns, 16 s | 10.5 turns, 44 s |
+| saucedemo | 6.0 turns, 15 s | 10.0 turns, 31 s | 17.0 turns, 27 s | 5.5 turns, 19 s |
+| laptops | 5.5 turns, 15 s | 5.5 turns, 19 s | 9.5 turns, 20 s | 4.5 turns, 16 s |
+| demoblaze | 7.5 turns, 23 s | 7.0 turns, 37 s | 14.5 turns, 29 s | 6.5 turns, 92 s |
+| instagram | 4.0 turns, 8 s | 4.0 turns, 9 s | 8.0 turns, 14 s | 4.0 turns, 11 s |
+| wikipedia | 6.0 turns, 12 s | 5.0 turns, 10 s | 8.5 turns, 15 s | 5.0 turns, 10 s |
+
+### Several agents, one browser
+
+| Tool | Tasks solved | Runs that saw another agent's tab | Wall seconds per trial |
+|---|---:|---:|---:|
+| **browser-cli 0.2.18** | 6/6 | **0/6** | **14, 12** |
+| browser-harness 0.1.15 | 6/6 | **0/6** | 22, 22 |
+| Browser Use 1.0.9 | 6/6 | 4/6 | 44, 35 |
+| agent-browser 0.45.0 | 6/6 | 5/6 | 50, 112 |
+
+### The same morning with browser-cli 0.2.17
+
+A first pass that morning ran browser-cli 0.2.17 against the same three releases. browser-cli was fastest (14.3 s per task, against 15.4 s for Browser Use) but not cheapest: $0.0575 per task against $0.0555 for Browser Use, and 91k tokens against 86k. Most of the difference was the Wikipedia task, where browser-cli's two runs cost $0.116 and $0.107, against $0.045 to $0.074 for the other tools: one `browser text --grep "Argentina won|champions"` on the 2022 World Cup page printed 105 lines and 18,144 characters, because a matching line on an article is a whole paragraph or reference and `--grep` kept it whole, with two more like it. 0.2.18 cuts a long line to the text around its match ([#97](https://github.com/phnx-labs/browser-cli/pull/97)), and the same grep prints 6,262 characters. The bench machine restarted during that pass, and runs after the restart cost every tool $0.004 to $0.017 more, so the tables above are from a second pass in one session. Records in [`bench/results/2026-11-27-0.2.17/`](../../bench/results/2026-11-27-0.2.17/); two records cut off by the restart were rerun.
+
 ## 2026-11-24: browser-cli 0.2.16 against each tool's latest release
 
 The eight tasks and the several-agents test below, rerun with every tool at its latest release that day. Same machine and method as 2026-11-07, except browser-harness's allow rule (see the note under the several-agents table): Linux arm64, Chrome for Testing 153.0.8010.36, Claude Sonnet 5.5 in Claude Code 2.1.301, each tool with its own shipped skill, two runs per task and two several-agents trials per tool. browser-cli built from d723c32 (0.2.16); [Browser Use 1.0.8](https://pypi.org/project/browser-use/1.0.8/), [browser-harness 0.1.14](https://pypi.org/project/browser-harness/0.1.14/), [agent-browser 0.44.0](https://www.npmjs.com/package/agent-browser/v/0.44.0). Records in [`bench/results/2026-11-24/`](../../bench/results/2026-11-24/), with `summary.md`. A first pass of all 72 runs that morning failed before any step because the runner's Claude Code sign-in had expired; those runs are not counted or published, and every run was repeated. Model spend reported by Claude Code: $5.90.

@@ -1,0 +1,109 @@
+{
+  "kind": "suite",
+  "tool": "agent-browser",
+  "toolVersion": "0.45.0",
+  "task": "demoblaze",
+  "trial": 2,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "confirmation open: true, its Amount 1180; answer gives 1180: true",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-27T16:46:05.167Z",
+  "seconds": 30.848875520000117,
+  "turns": 17,
+  "costUsd": 0.1324824,
+  "tokens": {
+    "input": 30,
+    "cacheCreation": 19359,
+    "cacheRead": 336564,
+    "output": 2133,
+    "total": 358086
+  },
+  "answer": "I added the Samsung galaxy s6 ($360) and the Nokia lumia 1520 ($820) to the cart and placed the order as Ada Lovelace (UK, London, card 4111111111111111, month 11, year 2026).\n\n- **Id:** 4936788\n- **Amount:** 1180 USD\n\nThe confirmation (\"Thank you for your purchase!\") is still showing. I left the tab open and didn't close it.",
+  "claudeVersion": "2.1.301",
+  "skills": [
+    "agent-browser",
+    "deep-research",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "plugins": [
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "error": null,
+  "tools": [
+    "Bash",
+    "CronCreate",
+    "CronDelete",
+    "CronList",
+    "DesignSync",
+    "EnterWorktree",
+    "ExitWorktree",
+    "ListAgents",
+    "Monitor",
+    "PushNotification",
+    "Read",
+    "RemoteTrigger",
+    "ReportFindings",
+    "ScheduleWakeup",
+    "SendMessage",
+    "Skill",
+    "TaskStop",
+    "ToolSearch",
+    "Workflow"
+  ],
+  "permissionDenials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01B3FrZKMbiMmR7HnRabqjz4",
+      "tool_input": {
+        "command": "S=$(agent-browser session id --scope worktree --prefix task); echo $S; agent-browser --session $S open https://www.demoblaze.com && agent-browser --session $S snapshot -i -u | head -50"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_012ThCyvazfTuJK2L4Cpk2ou",
+      "tool_input": {
+        "command": "A=\"agent-browser --session task-bb336d854c8a\"; $A open \"https://www.demoblaze.com/prod.html?idp_=1\" && $A snapshot -i | grep -i \"add to cart\""
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01WK2FTYvq6fRgkJoLLdxYdY",
+      "tool_input": {
+        "command": "A=\"agent-browser --session task-bb336d854c8a\"; $A click @e76; $A snapshot -i | grep -iE \"textbox|Purchase\""
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_018ZYXbNk88u614DMGVJWgBh",
+      "tool_input": {
+        "command": "cd /tmp; for p in \"#name|Ada Lovelace\" \"#country|UK\" \"#city|London\" \"#card|4111111111111111\" \"#month|11\" \"#year|2026\"; do agent-browser --session task-bb336d854c8a fill \"${p%%|*}\" \"${p#*|}\"; done; agent-browser --session task-bb336d854c8a find text \"Purchase\" click; agent-browser --session task-bb336d854c8a wait --text \"Thank you for your purchase\"; agent-browser --session task-bb336d854c8a get text \".sweet-alert\""
+      }
+    }
+  ],
+  "toolCalls": 15,
+  "openTabs": [
+    "https://www.demoblaze.com/cart.html"
+  ]
+}

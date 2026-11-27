@@ -2706,7 +2706,7 @@ function registerTaskCommands(browser: Command): void {
     .option('-t, --tab <tabId>', 'Tab ID (defaults to current)')
     .option('--css <selector>', 'The text of each element the CSS selector matches in the top document (not iframes), blocks separated by --, instead of the whole page')
     .option('--attr <name>', 'With --css, each match\'s attribute instead of its text (href and src come back absolute)')
-    .option('--grep <pattern>', 'Only the lines that match (a case-insensitive regular expression), after the title line')
+    .option('--grep <pattern>', 'Only the lines that match (a case-insensitive regular expression), after the title line; a long match keeps the 240 characters around it and a long context line its first 120')
     .option('--context <n>', 'Lines kept around each --grep match (default 2)', intOption)
     .action(async (opts: { task?: string; tab?: string; device?: string; grep?: string; context?: number; css?: string; attr?: string }) => {
       if (opts.attr !== undefined && opts.css === undefined) {

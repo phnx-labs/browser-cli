@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.18
+
+- `browser text --grep` cuts long lines. On an article a line is a whole paragraph or a reference, so a match kept it whole along with two more like it: on 2026-11-27 one `--grep "Argentina won|champions"` on Wikipedia's 2022 World Cup page printed 105 lines and 18,144 characters, and browser-cli's Wikipedia task cost $0.11 against about $0.05 for the other tools. A matching line over 240 characters now keeps the 240 around its first match, and a context line over 120 its first 120, each marked `…` where text was cut. Short lines, such as table rows, infoboxes and forms, print as before. For a whole paragraph, use `--css` or `text` without `--grep`.
+
 ## 0.2.17
 
 - The README, the benchmark page and its charts report the 2026-11-24 run: browser-cli 0.2.16 against each other tool's latest release (Browser Use 1.0.8, browser-harness 0.1.14, agent-browser 0.44.0). browser-cli took 13.8 s and $0.047 per task, against 15.8 s and $0.051 for Browser Use; every run's record is in `bench/results/2026-11-24/`. The comparison table now says browser-harness gives each agent its own tabs from 0.1.14. No change to the CLI itself.

@@ -20,6 +20,17 @@ describe('grepText', () => {
   it('falls back to the literal text when the expression matches no line', () => {
     expect(grepText(page, '$19.42', 0).lines).toEqual(['Total: $19.42']);
   });
+  it('cuts a long match to the text around it and a long context line to its start', () => {
+    const before = `Intro ${'a'.repeat(300)}`;
+    const match = `${'b'.repeat(500)} Argentina were crowned the champions ${'c'.repeat(500)}`;
+    const { lines } = grepText([before, match, 'Short line'].join('\n'), 'champions', 1);
+    expect(lines[0]).toBe(`${before.slice(0, 120)}…`);
+    expect(lines[1]!.length).toBe(242);
+    expect(lines[1]).toStartWith('…');
+    expect(lines[1]).toEndWith('…');
+    expect(lines[1]).toContain('Argentina were crowned the champions');
+    expect(lines[2]).toBe('Short line');
+  });
   it('reports no match', () => {
     expect(grepText(page, 'refund')).toEqual({ lines: [], matched: 0 });
   });

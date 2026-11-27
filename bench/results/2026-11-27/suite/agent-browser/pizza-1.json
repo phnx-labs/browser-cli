@@ -1,0 +1,95 @@
+{
+  "kind": "suite",
+  "tool": "agent-browser",
+  "toolVersion": "0.45.0",
+  "task": "pizza",
+  "trial": 1,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "all fields submitted",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-27T16:30:22.081Z",
+  "seconds": 22.861849684,
+  "turns": 12,
+  "costUsd": 0.10185319999999999,
+  "tokens": {
+    "input": 22,
+    "cacheCreation": 15939,
+    "cacheRead": 221632,
+    "output": 1589,
+    "total": 239182
+  },
+  "answer": "I submitted the pizza order, and httpbin's response page shows it was received with these values:\n\n- **Customer name:** Ada Lovelace\n- **Telephone:** 555-0100\n- **Email:** ada@example.com\n- **Size:** large\n- **Toppings:** bacon and extra cheese (the form sent them as `bacon` and `cheese`)\n- **Delivery time:** 19:45\n- **Delivery instructions:** Ring twice\n\nThe browser tab with that response page is still open.",
+  "claudeVersion": "2.1.301",
+  "skills": [
+    "agent-browser",
+    "deep-research",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "plugins": [
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "error": null,
+  "tools": [
+    "Bash",
+    "CronCreate",
+    "CronDelete",
+    "CronList",
+    "DesignSync",
+    "EnterWorktree",
+    "ExitWorktree",
+    "ListAgents",
+    "Monitor",
+    "PushNotification",
+    "Read",
+    "RemoteTrigger",
+    "ReportFindings",
+    "ScheduleWakeup",
+    "SendMessage",
+    "Skill",
+    "TaskStop",
+    "ToolSearch",
+    "Workflow"
+  ],
+  "permissionDenials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_019o7qyu8wVjrZxjTotzrbbU",
+      "tool_input": {
+        "command": "S=$(agent-browser session id --scope worktree --prefix task); echo $S; agent-browser --session $S open https://httpbin.org/forms/post && agent-browser --session $S snapshot -i"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01Jf8yGwisDQXEnST53mkf9Y",
+      "tool_input": {
+        "command": "B=\"agent-browser --session task-939f8b8bf3d2\"; $B fill @e2 \"Ada Lovelace\" && $B fill @e3 \"555-0100\" && $B fill @e4 \"ada@example.com\" && $B check @e7 && $B check @e8 && $B check @e9 && $B fill @e12 \"Ring twice\" && $B click @e14 && $B type @e14 \"07\" && $B type @e15 \"45\" && $B type @e16 \"PM\" && $B snapshot -i"
+      }
+    }
+  ],
+  "toolCalls": 10,
+  "openTabs": [
+    "https://httpbin.org/post"
+  ]
+}

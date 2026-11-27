@@ -21,7 +21,7 @@ Agents usually get a fresh browser that is signed in to nothing, so they stop at
 - **Several agents, no collisions.** Every `browser start` opens a task that owns its tabs, so agents sharing one browser don't read, type into or close each other's pages.
 - **Passwords stay on their site.** `browser type --secret stripe.com/PASSWORD` types a saved password the agent never sees, and a bundle named after a site types only on that site: on any other page it is refused and nothing is typed ([how](docs/use-cases/fill-forms-and-check-out.md)).
 
-**Measured, with every run published:** on eight web tasks in Claude Code (2026-11-24, each tool's latest release), browser-cli 0.2.16 was the fastest (13.8 s per task) and cheapest ($0.047) of four tools, against 15.8 s and $0.051 for Browser Use, 23.8 s and $0.083 for agent-browser, and 25.0 s and $0.059 for browser-harness. [Benchmark](#benchmark)
+**Measured, with every run published:** on eight web tasks in Claude Code (2026-11-27, each tool's latest release), browser-cli 0.2.18 was the fastest (13.9 s per task) and cheapest ($0.056) of four tools, against 17.8 s and $0.061 for Browser Use, 20.6 s and $0.088 for agent-browser, and 27.8 s and $0.065 for browser-harness. [Benchmark](#benchmark)
 
 <p align="center">
   <img src="docs/assets/three-agents.gif" alt="Three Claude Code agents work at once in one Brave window, each in its own tab: one finds the cheapest mystery book, one fills a pizza order form, one checks out two items. Each pane shows the agent's current browser command, then its answer." width="100%">
@@ -230,23 +230,23 @@ Each clip is a real run, sped up. Its page shows the task, the commands and what
 
 ## Benchmark
 
-Four browser tools on eight web tasks, Claude Sonnet 5.5 in Claude Code, 2 runs per task, each tool's latest release on 2026-11-24:
+Four browser tools on eight web tasks, Claude Sonnet 5.5 in Claude Code, 2 runs per task, each tool's latest release on 2026-11-27:
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/benchmark-dark.svg">
-  <img src="docs/assets/benchmark-light.svg" alt="Seconds, cost and tokens per task for browser-cli and three other browser tools over 8 tasks on 2026-11-24; browser-cli is fastest at 13.8 s, cheapest at $0.047 and uses the fewest tokens (82k)" width="100%">
+  <img src="docs/assets/benchmark-light.svg" alt="Seconds, cost and tokens per task for browser-cli and three other browser tools over 8 tasks on 2026-11-27; browser-cli is fastest at 13.9 s, cheapest at $0.056 and uses the fewest tokens (82k)" width="100%">
 </picture>
 
-- **Fastest and cheapest:** browser-cli 0.2.16 took 13.8 s and $0.047 per task, against 15.8 s and $0.051 for Browser Use 1.0.8, 23.8 s and $0.083 for agent-browser 0.44.0, and 25.0 s and $0.059 for browser-harness 0.1.14.
-- **Fewest tokens and turns:** browser-cli used 82k tokens and 5.5 turns per task, against 84k and 5.6 for Browser Use.
+- **Fastest and cheapest:** browser-cli 0.2.18 took 13.9 s and $0.056 per task, against 17.8 s and $0.061 for Browser Use 1.0.9, 20.6 s and $0.088 for agent-browser 0.45.0, and 27.8 s and $0.065 for browser-harness 0.1.15.
+- **Fewest tokens and turns:** browser-cli used 82k tokens and 5.6 turns per task, against 90k and 5.8 for Browser Use.
 - **Every tool answered all 16 runs correctly.**
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/crossed-tabs-dark.svg">
-  <img src="docs/assets/crossed-tabs-light.svg" alt="Runs where an agent saw another agent's tab, out of 6, on 2026-11-24: browser-cli 0, browser-harness 0, Browser Use 5, agent-browser 6" width="100%">
+  <img src="docs/assets/crossed-tabs-light.svg" alt="Runs where an agent saw another agent's tab, out of 6, on 2026-11-27: browser-cli 0, browser-harness 0, Browser Use 4, agent-browser 5" width="100%">
 </picture>
 
-- **No agent saw another's tabs with browser-cli or browser-harness** when three agents worked in one browser at once; browser-harness keeps each agent to its own tabs from 0.1.14. With Browser Use and agent-browser, agents saw each other's tabs in 5 and 6 of 6 runs.
+- **No agent saw another's tabs with browser-cli or browser-harness** when three agents worked in one browser at once; browser-harness keeps each agent to its own tabs from 0.1.14. With Browser Use and agent-browser, agents saw each other's tabs in 4 and 5 of 6 runs.
 
 Method, per-task results and the run records: [Benchmarks](docs/benchmarks/README.md). Rerun it with [`bench/`](bench/README.md).
 

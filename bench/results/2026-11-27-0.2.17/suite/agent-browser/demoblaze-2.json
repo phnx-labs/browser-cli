@@ -1,0 +1,95 @@
+{
+  "kind": "suite",
+  "tool": "agent-browser",
+  "toolVersion": "0.45.0",
+  "task": "demoblaze",
+  "trial": 2,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "confirmation open: true, its Amount 1180; answer gives 1180: true",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-27T15:46:41.081Z",
+  "seconds": 38.46151748899999,
+  "turns": 15,
+  "costUsd": 0.12040459999999999,
+  "tokens": {
+    "input": 28,
+    "cacheCreation": 17737,
+    "cacheRead": 306306,
+    "output": 1877,
+    "total": 325948
+  },
+  "answer": "I added the Samsung galaxy s6 ($360) and the Nokia lumia 1520 ($820) to the cart. I then placed the order as Ada Lovelace, with country UK, city London, card 4111111111111111, month 11 and year 2026.\n\nThe confirmation shows:\n- **Id:** 946219\n- **Amount:** 1180 USD\n\nThe confirmation is still showing in the open tab, and I haven't closed it. The confirmation's date reads 27/10/2026, which is not the month 11 I entered. I left that as the site displayed it.",
+  "claudeVersion": "2.1.301",
+  "skills": [
+    "agent-browser",
+    "deep-research",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "plugins": [
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "error": null,
+  "tools": [
+    "Bash",
+    "CronCreate",
+    "CronDelete",
+    "CronList",
+    "DesignSync",
+    "EnterWorktree",
+    "ExitWorktree",
+    "ListAgents",
+    "Monitor",
+    "PushNotification",
+    "Read",
+    "RemoteTrigger",
+    "ReportFindings",
+    "ScheduleWakeup",
+    "SendMessage",
+    "Skill",
+    "TaskStop",
+    "ToolSearch",
+    "Workflow"
+  ],
+  "permissionDenials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01P7QPHds8Ch9n9adWiYSgqy",
+      "tool_input": {
+        "command": "S=$(agent-browser session id --scope worktree --prefix task); echo $S; agent-browser --session $S open https://www.demoblaze.com && agent-browser --session $S snapshot -i"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01Mte2up8WhBMKNZpbgiVprv",
+      "tool_input": {
+        "command": "S=task-a7770880689e; B=\"agent-browser --session $S\"; $B fill @e116 \"Ada Lovelace\"; $B fill @e117 \"UK\"; $B fill @e118 \"London\"; $B fill @e119 4111111111111111; $B fill @e120 11; $B fill @e121 2026; $B click @e115; $B wait --text \"Thank you for your purchase\"; $B get text \".sweet-alert\""
+      }
+    }
+  ],
+  "toolCalls": 13,
+  "openTabs": [
+    "https://www.demoblaze.com/cart.html"
+  ]
+}

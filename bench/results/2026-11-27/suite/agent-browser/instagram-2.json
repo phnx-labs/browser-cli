@@ -1,0 +1,88 @@
+{
+  "kind": "suite",
+  "tool": "agent-browser",
+  "toolVersion": "0.45.0",
+  "task": "instagram",
+  "trial": 2,
+  "model": "claude-sonnet-5-5",
+  "chrome": "Google Chrome for Testing 153.0.8010.36",
+  "correct": true,
+  "grade": "page shows 104M followers",
+  "exit": 0,
+  "timedOut": false,
+  "startedAt": "2026-11-27T16:49:41.810Z",
+  "seconds": 14.653723479999927,
+  "turns": 8,
+  "costUsd": 0.0592655,
+  "tokens": {
+    "input": 14,
+    "cacheCreation": 10323,
+    "cacheRead": 111355,
+    "output": 681,
+    "total": 122373
+  },
+  "answer": "The account is **NASA** (@nasa). The page shows **104M followers**.\n\nThe profile page text says \"104M followers\", and the page's meta description says \"104M Followers\". The page text lists 91 following, but the meta description says 95. I left the profile open in the browser tab.",
+  "claudeVersion": "2.1.301",
+  "skills": [
+    "agent-browser",
+    "deep-research",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "plugins": [
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "error": null,
+  "tools": [
+    "Bash",
+    "CronCreate",
+    "CronDelete",
+    "CronList",
+    "DesignSync",
+    "EnterWorktree",
+    "ExitWorktree",
+    "ListAgents",
+    "Monitor",
+    "PushNotification",
+    "Read",
+    "RemoteTrigger",
+    "ReportFindings",
+    "ScheduleWakeup",
+    "SendMessage",
+    "Skill",
+    "TaskStop",
+    "ToolSearch",
+    "Workflow"
+  ],
+  "permissionDenials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01KM37cFXyaKgAKhaX9SaNY3",
+      "tool_input": {
+        "command": "S=$(agent-browser session id --scope worktree --prefix task); agent-browser --session $S open https://www.instagram.com/nasa/; agent-browser --session $S snapshot | head -40"
+      }
+    }
+  ],
+  "toolCalls": 6,
+  "openTabs": [
+    "https://www.instagram.com/nasa/"
+  ]
+}

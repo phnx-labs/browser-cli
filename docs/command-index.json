@@ -3361,7 +3361,7 @@
         },
         {
           "flags": "--grep <pattern>",
-          "description": "Only the lines that match (a case-insensitive regular expression), after the title line; a long match keeps the 240 characters around it and a long context line its first 120",
+          "description": "Only the lines that match (a case-insensitive regular expression), after the title line; a long match keeps the 240 characters around it and a long context line its first 120, except --attr values",
           "long": "--grep",
           "required": true,
           "optional": false,

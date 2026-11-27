@@ -31,6 +31,13 @@ describe('grepText', () => {
     expect(lines[1]).toContain('Argentina were crowned the champions');
     expect(lines[2]).toBe('Short line');
   });
+  it('never splits an emoji and keeps lines whole when asked', () => {
+    const line = `${'😀'.repeat(200)} needle ${'😀'.repeat(200)}`;
+    const [cut] = grepText(line, 'needle', 0).lines;
+    expect(cut).not.toMatch(/[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/);
+    expect(cut).toContain(' needle ');
+    expect(grepText(line, 'needle', 0, false).lines).toEqual([line]);
+  });
   it('reports no match', () => {
     expect(grepText(page, 'refund')).toEqual({ lines: [], matched: 0 });
   });

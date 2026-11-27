@@ -14,18 +14,32 @@ export function grepText(text: string, pattern: string, context = 2): { lines: s
   // "$19.42" compiles, with $ as an anchor, and matches nothing; the price was meant.
   if (regex !== literal && !all.some((line) => regex.test(line))) regex = literal;
   const keep = new Set<number>();
-  let matched = 0;
+  const hits = new Set<number>();
   all.forEach((line, i) => {
     if (!regex.test(line)) return;
-    matched++;
+    hits.add(i);
     for (let j = Math.max(0, i - context); j <= Math.min(all.length - 1, i + context); j++) keep.add(j);
   });
   const lines: string[] = [];
   let last = -2;
   for (const i of [...keep].sort((a, b) => a - b)) {
     if (last >= 0 && i > last + 1) lines.push('--');
-    lines.push(all[i]!);
+    lines.push(hits.has(i) ? aroundMatch(all[i]!, regex) : head(all[i]!));
     last = i;
   }
-  return { lines, matched };
+  return { lines, matched: hits.size };
+}
+
+const MATCH_WINDOW = 240;
+const CONTEXT_HEAD = 120;
+
+function aroundMatch(line: string, regex: RegExp): string {
+  if (line.length <= MATCH_WINDOW) return line;
+  const start = Math.max(0, Math.min(line.search(regex) - MATCH_WINDOW / 2, line.length - MATCH_WINDOW));
+  const end = start + MATCH_WINDOW;
+  return `${start > 0 ? '…' : ''}${line.slice(start, end)}${end < line.length ? '…' : ''}`;
+}
+
+function head(line: string): string {
+  return line.length <= CONTEXT_HEAD ? line : `${line.slice(0, CONTEXT_HEAD)}…`;
 }
